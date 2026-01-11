@@ -40,7 +40,7 @@ export const ClosedTrades: React.FC<ClosedTradesProps> = ({ trades, summary }) =
       {summary && (
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Paper sx={{ p: 2, textAlign: 'center', height: 90, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="body2" color="textSecondary">
                 Total Trades
               </Typography>
@@ -53,7 +53,7 @@ export const ClosedTrades: React.FC<ClosedTradesProps> = ({ trades, summary }) =
             </Paper>
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Paper sx={{ p: 2, textAlign: 'center', height: 90, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="body2" color="textSecondary">
                 Win Rate
               </Typography>
@@ -70,7 +70,7 @@ export const ClosedTrades: React.FC<ClosedTradesProps> = ({ trades, summary }) =
             </Paper>
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Paper sx={{ p: 2, textAlign: 'center', height: 90, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="body2" color="textSecondary">
                 Total PnL
               </Typography>
@@ -87,7 +87,7 @@ export const ClosedTrades: React.FC<ClosedTradesProps> = ({ trades, summary }) =
             </Paper>
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Paper sx={{ p: 2, textAlign: 'center', height: 90, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="body2" color="textSecondary">
                 ROI
               </Typography>
@@ -118,6 +118,7 @@ export const ClosedTrades: React.FC<ClosedTradesProps> = ({ trades, summary }) =
                 <TableRow>
                   <TableCell>Symbol</TableCell>
                   <TableCell>Side</TableCell>
+                  <TableCell>Size</TableCell>
                   <TableCell>Leverage</TableCell>
                   <TableCell>Entry</TableCell>
                   <TableCell>Exit</TableCell>
@@ -142,6 +143,14 @@ export const ClosedTrades: React.FC<ClosedTradesProps> = ({ trades, summary }) =
                         size="small"
                         color={trade.side === 'LONG' ? 'success' : 'error'}
                       />
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2">
+                        {trade.quantity.toFixed(4)}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        ${(trade.quantity * trade.entryPrice / trade.leverage).toFixed(2)} (${(trade.quantity * trade.entryPrice).toFixed(2)})
+                      </Typography>
                     </TableCell>
                     <TableCell>{trade.leverage}x</TableCell>
                     <TableCell>${trade.entryPrice.toFixed(4)}</TableCell>
@@ -168,7 +177,7 @@ export const ClosedTrades: React.FC<ClosedTradesProps> = ({ trades, summary }) =
                 ))}
                 {trades.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} align="center">
+                    <TableCell colSpan={8} align="center">
                       <Typography variant="body2" color="textSecondary">
                         No closed trades yet
                       </Typography>

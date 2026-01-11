@@ -208,7 +208,7 @@ export const SignalsFeed: React.FC = () => {
       {systemStatus && (
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Paper sx={{ p: 2, textAlign: 'center', height: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
                 System Status
               </Typography>
@@ -218,7 +218,7 @@ export const SignalsFeed: React.FC = () => {
             </Paper>
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Paper sx={{ p: 2, textAlign: 'center', height: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
                 Subscribed Symbols
               </Typography>
@@ -228,7 +228,7 @@ export const SignalsFeed: React.FC = () => {
             </Paper>
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Paper sx={{ p: 2, textAlign: 'center', height: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
                 Signals (24h)
               </Typography>
@@ -238,7 +238,7 @@ export const SignalsFeed: React.FC = () => {
             </Paper>
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Paper sx={{ p: 2, textAlign: 'center', height: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
                 Uptime
               </Typography>
@@ -360,6 +360,9 @@ export const SignalsFeed: React.FC = () => {
                           <Typography variant="body2" fontFamily="monospace">
                             {position.quantity.toFixed(4)}
                           </Typography>
+                          <Typography variant="caption" color="text.secondary" display="block">
+                            ${(position.quantity * position.entryPrice / position.leverage).toFixed(2)} (${(position.quantity * position.entryPrice).toFixed(2)})
+                          </Typography>
                           <Typography variant="caption" color="text.secondary">
                             {position.leverage}x
                           </Typography>
@@ -402,7 +405,7 @@ export const SignalsFeed: React.FC = () => {
             </Typography>
             <Grid container spacing={2} sx={{ mb: 2 }}>
               <Grid size={{ xs: 6, sm: 3 }}>
-                <Box textAlign="center" p={1}>
+                <Box textAlign="center" p={1} sx={{ height: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <Typography variant="caption" color="text.secondary" display="block">
                     Total Trades
                   </Typography>
@@ -415,7 +418,7 @@ export const SignalsFeed: React.FC = () => {
                 </Box>
               </Grid>
               <Grid size={{ xs: 6, sm: 3 }}>
-                <Box textAlign="center" p={1}>
+                <Box textAlign="center" p={1} sx={{ height: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <Typography variant="caption" color="text.secondary" display="block">
                     Win Rate
                   </Typography>
@@ -432,7 +435,7 @@ export const SignalsFeed: React.FC = () => {
                 </Box>
               </Grid>
               <Grid size={{ xs: 6, sm: 3 }}>
-                <Box textAlign="center" p={1}>
+                <Box textAlign="center" p={1} sx={{ height: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <Typography variant="caption" color="text.secondary" display="block">
                     Total PnL
                   </Typography>
@@ -449,7 +452,7 @@ export const SignalsFeed: React.FC = () => {
                 </Box>
               </Grid>
               <Grid size={{ xs: 6, sm: 3 }}>
-                <Box textAlign="center" p={1}>
+                <Box textAlign="center" p={1} sx={{ height: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <Typography variant="caption" color="text.secondary" display="block">
                     ROI
                   </Typography>
@@ -475,6 +478,7 @@ export const SignalsFeed: React.FC = () => {
                   <TableRow>
                     <TableCell>Symbol</TableCell>
                     <TableCell>Side</TableCell>
+                    <TableCell align="right">Size</TableCell>
                     <TableCell align="right">Entry</TableCell>
                     <TableCell align="right">Exit</TableCell>
                     <TableCell align="right">PnL</TableCell>
@@ -506,6 +510,14 @@ export const SignalsFeed: React.FC = () => {
                           color={trade.side === 'LONG' ? 'success' : 'error'}
                           sx={{ minWidth: 60 }}
                         />
+                      </TableCell>
+                      <TableCell align="right">
+                        <Typography variant="body2" fontFamily="monospace">
+                          {trade.quantity.toFixed(4)}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" display="block">
+                          ${(trade.quantity * trade.entryPrice / trade.leverage).toFixed(2)} (${(trade.quantity * trade.entryPrice).toFixed(2)})
+                        </Typography>
                       </TableCell>
                       <TableCell align="right">
                         <Typography variant="body2" fontFamily="monospace">
@@ -553,7 +565,7 @@ export const SignalsFeed: React.FC = () => {
                   ))}
                   {closedTrades.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={8} align="center">
+                      <TableCell colSpan={9} align="center">
                         <Typography variant="body2" color="text.secondary" py={2}>
                           No completed trades yet
                         </Typography>

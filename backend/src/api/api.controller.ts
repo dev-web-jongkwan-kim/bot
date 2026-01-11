@@ -628,9 +628,10 @@ export class ApiController {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
+      // PostgreSQL에서 날짜를 명시적으로 문자열 형식으로 변환
       const dailyStats = await this.positionRepo
         .createQueryBuilder('position')
-        .select('DATE(position.closedAt)', 'date')
+        .select("TO_CHAR(position.closedAt, 'YYYY-MM-DD')", 'date')
         .addSelect('COUNT(*)', 'trades')
         .addSelect('SUM(CASE WHEN position.realizedPnl > 0 THEN 1 ELSE 0 END)', 'wins')
         .addSelect('SUM(CASE WHEN position.realizedPnl <= 0 THEN 1 ELSE 0 END)', 'losses')
@@ -640,9 +641,11 @@ export class ApiController {
         .addSelect('MIN(position.realizedPnl)', 'maxLoss')
         .where('position.status = :status', { status: 'CLOSED' })
         .andWhere('position.closedAt >= :startDate', { startDate: thirtyDaysAgo })
-        .groupBy('DATE(position.closedAt)')
-        .orderBy('DATE(position.closedAt)', 'DESC')
+        .groupBy("TO_CHAR(position.closedAt, 'YYYY-MM-DD')")
+        .orderBy("TO_CHAR(position.closedAt, 'YYYY-MM-DD')", 'DESC')
         .getRawMany();
+
+      this.logger.log(`Daily stats fetched: ${dailyStats.length} days of data`);
 
       // 각 날짜별 데이터 포맷팅
       return dailyStats.map(day => {
@@ -656,7 +659,7 @@ export class ApiController {
         const winRate = trades > 0 ? (wins / trades) * 100 : 0;
 
         return {
-          date: day.date,
+          date: day.date,  // 이제 'YYYY-MM-DD' 형식의 문자열
           trades,
           wins,
           losses,
@@ -676,10 +679,10 @@ export class ApiController {
   @Get('trades/by-date/:date')
   async getTradesByDate(@Param('date') date: string) {
     try {
-      // 특정 날짜의 모든 거래 조회
+      // 특정 날짜의 모든 거래 조회 (TO_CHAR 형식 매칭)
       const trades = await this.positionRepo
         .createQueryBuilder('position')
-        .where('DATE(position.closedAt) = :date', { date })
+        .where("TO_CHAR(position.closedAt, 'YYYY-MM-DD') = :date", { date })
         .andWhere('position.status = :status', { status: 'CLOSED' })
         .orderBy('position.closedAt', 'DESC')
         .getMany();

@@ -255,7 +255,7 @@ export const Statistics: React.FC = () => {
       {summary && (
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid size={{ xs: 6, md: 2 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Paper sx={{ p: 2, textAlign: 'center', height: 90, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="body2" color="textSecondary">
                 Account Balance
               </Typography>
@@ -265,7 +265,7 @@ export const Statistics: React.FC = () => {
             </Paper>
           </Grid>
           <Grid size={{ xs: 6, md: 2 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Paper sx={{ p: 2, textAlign: 'center', height: 90, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="body2" color="textSecondary">
                 Total PnL
               </Typography>
@@ -285,7 +285,7 @@ export const Statistics: React.FC = () => {
             </Paper>
           </Grid>
           <Grid size={{ xs: 6, md: 2 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Paper sx={{ p: 2, textAlign: 'center', height: 90, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="body2" color="textSecondary">
                 Total Trades
               </Typography>
@@ -298,7 +298,7 @@ export const Statistics: React.FC = () => {
             </Paper>
           </Grid>
           <Grid size={{ xs: 6, md: 2 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Paper sx={{ p: 2, textAlign: 'center', height: 90, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="body2" color="textSecondary">
                 Win Rate
               </Typography>
@@ -312,7 +312,7 @@ export const Statistics: React.FC = () => {
             </Paper>
           </Grid>
           <Grid size={{ xs: 6, md: 2 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Paper sx={{ p: 2, textAlign: 'center', height: 90, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="body2" color="textSecondary">
                 Today PnL
               </Typography>
@@ -329,7 +329,7 @@ export const Statistics: React.FC = () => {
             </Paper>
           </Grid>
           <Grid size={{ xs: 6, md: 2 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Paper sx={{ p: 2, textAlign: 'center', height: 90, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="body2" color="textSecondary">
                 Today Win Rate
               </Typography>

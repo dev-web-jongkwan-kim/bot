@@ -64,7 +64,14 @@ export const ActivePositions: React.FC<ActivePositionsProps> = ({
                   </TableCell>
                   <TableCell>${position.entryPrice.toFixed(6)}</TableCell>
                   <TableCell>${position.currentPrice.toFixed(6)}</TableCell>
-                  <TableCell>{position.quantity.toFixed(6)}</TableCell>
+                  <TableCell>
+                    <Typography variant="body2">
+                      {position.quantity.toFixed(4)}
+                    </Typography>
+                    <Typography variant="caption" color="textSecondary">
+                      ${(position.quantity * position.entryPrice / position.leverage).toFixed(2)} (${(position.quantity * position.entryPrice).toFixed(2)})
+                    </Typography>
+                  </TableCell>
                   <TableCell>{position.leverage}x</TableCell>
                   <TableCell>
                     <Typography
