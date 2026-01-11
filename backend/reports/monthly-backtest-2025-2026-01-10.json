@@ -1,0 +1,2788 @@
+{
+  "timestamp": "2026-01-10T15:56:23.262Z",
+  "config": {
+    "symbols": 170,
+    "interval": "5m",
+    "initialCapital": 100,
+    "year": 2025
+  },
+  "monthlyResults": [
+    {
+      "month": "2025-10",
+      "totalTrades": 8260,
+      "wins": 3858,
+      "losses": 4402,
+      "winRate": 46.70702179176756,
+      "totalPnl": 4511.997832143582,
+      "roi": 30.28186464525894,
+      "symbolResults": [
+        {
+          "symbol": "BTCUSDT",
+          "trades": 37,
+          "winRate": 51.35135135135135,
+          "pnl": 11.52104158818365
+        },
+        {
+          "symbol": "ETHUSDT",
+          "trades": 63,
+          "winRate": 46.03174603174603,
+          "pnl": 14.019037157834603
+        },
+        {
+          "symbol": "BNBUSDT",
+          "trades": 72,
+          "winRate": 52.77777777777778,
+          "pnl": 43.87040049445494
+        },
+        {
+          "symbol": "SOLUSDT",
+          "trades": 57,
+          "winRate": 52.63157894736842,
+          "pnl": 64.99277658302594
+        },
+        {
+          "symbol": "XRPUSDT",
+          "trades": 53,
+          "winRate": 54.71698113207547,
+          "pnl": 45.78959358664724
+        },
+        {
+          "symbol": "ADAUSDT",
+          "trades": 51,
+          "winRate": 54.90196078431373,
+          "pnl": 56.528389255814176
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "trades": 65,
+          "winRate": 55.38461538461539,
+          "pnl": 73.80408848367196
+        },
+        {
+          "symbol": "DOTUSDT",
+          "trades": 48,
+          "winRate": 52.083333333333336,
+          "pnl": 10.169015329354252
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "trades": 53,
+          "winRate": 47.16981132075472,
+          "pnl": 127.33074832010766
+        },
+        {
+          "symbol": "LINKUSDT",
+          "trades": 53,
+          "winRate": 37.735849056603776,
+          "pnl": 7.516541379773997
+        },
+        {
+          "symbol": "LTCUSDT",
+          "trades": 49,
+          "winRate": 57.14285714285714,
+          "pnl": 49.9591640686794
+        },
+        {
+          "symbol": "ATOMUSDT",
+          "trades": 51,
+          "winRate": 39.21568627450981,
+          "pnl": -3.855518823783143
+        },
+        {
+          "symbol": "UNIUSDT",
+          "trades": 57,
+          "winRate": 54.385964912280706,
+          "pnl": 59.34048660404815
+        },
+        {
+          "symbol": "ETCUSDT",
+          "trades": 46,
+          "winRate": 47.82608695652174,
+          "pnl": 14.698173956144615
+        },
+        {
+          "symbol": "FILUSDT",
+          "trades": 58,
+          "winRate": 46.55172413793103,
+          "pnl": 35.94736456468695
+        },
+        {
+          "symbol": "APTUSDT",
+          "trades": 66,
+          "winRate": 60.60606060606061,
+          "pnl": 102.80490901169986
+        },
+        {
+          "symbol": "ARBUSDT",
+          "trades": 58,
+          "winRate": 50,
+          "pnl": 34.6026297629125
+        },
+        {
+          "symbol": "OPUSDT",
+          "trades": 64,
+          "winRate": 43.75,
+          "pnl": 33.163067633558796
+        },
+        {
+          "symbol": "NEARUSDT",
+          "trades": 70,
+          "winRate": 51.42857142857142,
+          "pnl": 61.123434970802805
+        },
+        {
+          "symbol": "SUIUSDT",
+          "trades": 57,
+          "winRate": 47.368421052631575,
+          "pnl": 27.16123355203348
+        },
+        {
+          "symbol": "ICPUSDT",
+          "trades": 58,
+          "winRate": 31.03448275862069,
+          "pnl": -5.7137561365470475
+        },
+        {
+          "symbol": "INJUSDT",
+          "trades": 57,
+          "winRate": 43.859649122807014,
+          "pnl": 56.800917843265125
+        },
+        {
+          "symbol": "STXUSDT",
+          "trades": 57,
+          "winRate": 45.614035087719294,
+          "pnl": 36.857196910396084
+        },
+        {
+          "symbol": "SEIUSDT",
+          "trades": 57,
+          "winRate": 47.368421052631575,
+          "pnl": 26.52684544221532
+        },
+        {
+          "symbol": "TIAUSDT",
+          "trades": 56,
+          "winRate": 44.642857142857146,
+          "pnl": 35.440693321987425
+        },
+        {
+          "symbol": "LDOUSDT",
+          "trades": 65,
+          "winRate": 50.76923076923077,
+          "pnl": 63.29458816368165
+        },
+        {
+          "symbol": "WLDUSDT",
+          "trades": 71,
+          "winRate": 45.07042253521127,
+          "pnl": 26.92703212788308
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "trades": 71,
+          "winRate": 45.07042253521127,
+          "pnl": 40.384476874335974
+        },
+        {
+          "symbol": "ALGOUSDT",
+          "trades": 44,
+          "winRate": 43.18181818181818,
+          "pnl": -12.555873564211637
+        },
+        {
+          "symbol": "AXSUSDT",
+          "trades": 48,
+          "winRate": 45.83333333333333,
+          "pnl": 30.215446072644625
+        },
+        {
+          "symbol": "SANDUSDT",
+          "trades": 53,
+          "winRate": 50.943396226415096,
+          "pnl": 13.963742261196003
+        },
+        {
+          "symbol": "MANAUSDT",
+          "trades": 71,
+          "winRate": 57.74647887323944,
+          "pnl": 96.94040015263147
+        },
+        {
+          "symbol": "GALAUSDT",
+          "trades": 54,
+          "winRate": 53.70370370370371,
+          "pnl": 70.9388888754257
+        },
+        {
+          "symbol": "APEUSDT",
+          "trades": 60,
+          "winRate": 51.66666666666667,
+          "pnl": 61.19660652721771
+        },
+        {
+          "symbol": "GMXUSDT",
+          "trades": 56,
+          "winRate": 60.71428571428571,
+          "pnl": 46.16250172138072
+        },
+        {
+          "symbol": "ROSEUSDT",
+          "trades": 79,
+          "winRate": 50.63291139240506,
+          "pnl": 85.95343804006563
+        },
+        {
+          "symbol": "CHZUSDT",
+          "trades": 53,
+          "winRate": 41.509433962264154,
+          "pnl": -1.1778742724239066
+        },
+        {
+          "symbol": "ENJUSDT",
+          "trades": 43,
+          "winRate": 55.81395348837209,
+          "pnl": 41.08364012992254
+        },
+        {
+          "symbol": "ZILUSDT",
+          "trades": 45,
+          "winRate": 37.77777777777778,
+          "pnl": 8.488401797574994
+        },
+        {
+          "symbol": "ONEUSDT",
+          "trades": 62,
+          "winRate": 48.38709677419355,
+          "pnl": 58.32278014093055
+        },
+        {
+          "symbol": "RUNEUSDT",
+          "trades": 43,
+          "winRate": 46.51162790697674,
+          "pnl": 19.46344994845387
+        },
+        {
+          "symbol": "CRVUSDT",
+          "trades": 48,
+          "winRate": 47.91666666666667,
+          "pnl": 53.24119142417405
+        },
+        {
+          "symbol": "SNXUSDT",
+          "trades": 53,
+          "winRate": 50.943396226415096,
+          "pnl": 131.19148065562
+        },
+        {
+          "symbol": "COMPUSDT",
+          "trades": 51,
+          "winRate": 33.33333333333333,
+          "pnl": -20.027489595827234
+        },
+        {
+          "symbol": "SUSHIUSDT",
+          "trades": 56,
+          "winRate": 37.5,
+          "pnl": -24.98874851426676
+        },
+        {
+          "symbol": "YFIUSDT",
+          "trades": 38,
+          "winRate": 31.57894736842105,
+          "pnl": -44.65537400023929
+        },
+        {
+          "symbol": "1INCHUSDT",
+          "trades": 64,
+          "winRate": 42.1875,
+          "pnl": 18.349698069525118
+        },
+        {
+          "symbol": "LRCUSDT",
+          "trades": 52,
+          "winRate": 46.15384615384615,
+          "pnl": -1.3535558477434506
+        },
+        {
+          "symbol": "KSMUSDT",
+          "trades": 52,
+          "winRate": 46.15384615384615,
+          "pnl": 33.072866813099665
+        },
+        {
+          "symbol": "CELOUSDT",
+          "trades": 31,
+          "winRate": 45.16129032258064,
+          "pnl": 45.253995836444915
+        },
+        {
+          "symbol": "QNTUSDT",
+          "trades": 58,
+          "winRate": 39.6551724137931,
+          "pnl": -3.933166956120914
+        },
+        {
+          "symbol": "FLOWUSDT",
+          "trades": 24,
+          "winRate": 41.66666666666667,
+          "pnl": -24.303095516266453
+        },
+        {
+          "symbol": "IMXUSDT",
+          "trades": 68,
+          "winRate": 54.41176470588235,
+          "pnl": 143.68589826495358
+        },
+        {
+          "symbol": "BLURUSDT",
+          "trades": 59,
+          "winRate": 38.983050847457626,
+          "pnl": 12.258101663088226
+        },
+        {
+          "symbol": "ORDIUSDT",
+          "trades": 60,
+          "winRate": 55.00000000000001,
+          "pnl": 30.129705054227628
+        },
+        {
+          "symbol": "PYTHUSDT",
+          "trades": 61,
+          "winRate": 44.26229508196721,
+          "pnl": 26.410845744508336
+        },
+        {
+          "symbol": "MAGICUSDT",
+          "trades": 58,
+          "winRate": 39.6551724137931,
+          "pnl": -19.977922262897565
+        },
+        {
+          "symbol": "GMTUSDT",
+          "trades": 53,
+          "winRate": 43.39622641509434,
+          "pnl": -14.944972936122639
+        },
+        {
+          "symbol": "TRXUSDT",
+          "trades": 25,
+          "winRate": 56.00000000000001,
+          "pnl": 20.39086663924266
+        },
+        {
+          "symbol": "XLMUSDT",
+          "trades": 51,
+          "winRate": 52.94117647058824,
+          "pnl": 22.280194221838798
+        },
+        {
+          "symbol": "VETUSDT",
+          "trades": 58,
+          "winRate": 56.896551724137936,
+          "pnl": 48.16636295148956
+        },
+        {
+          "symbol": "XTZUSDT",
+          "trades": 36,
+          "winRate": 58.333333333333336,
+          "pnl": 40.478745524950085
+        },
+        {
+          "symbol": "THETAUSDT",
+          "trades": 65,
+          "winRate": 52.307692307692314,
+          "pnl": 47.28400516671664
+        },
+        {
+          "symbol": "NEOUSDT",
+          "trades": 45,
+          "winRate": 26.666666666666668,
+          "pnl": -53.80306806166143
+        },
+        {
+          "symbol": "IOSTUSDT",
+          "trades": 42,
+          "winRate": 50,
+          "pnl": 38.21600916092416
+        },
+        {
+          "symbol": "ONTUSDT",
+          "trades": 55,
+          "winRate": 50.90909090909091,
+          "pnl": 65.90401358718591
+        },
+        {
+          "symbol": "ZECUSDT",
+          "trades": 45,
+          "winRate": 42.22222222222222,
+          "pnl": 70.28761939426428
+        },
+        {
+          "symbol": "DASHUSDT",
+          "trades": 69,
+          "winRate": 46.3768115942029,
+          "pnl": 94.99369962607841
+        },
+        {
+          "symbol": "BATUSDT",
+          "trades": 76,
+          "winRate": 46.05263157894737,
+          "pnl": 2.0054670656619606
+        },
+        {
+          "symbol": "KAVAUSDT",
+          "trades": 57,
+          "winRate": 40.35087719298245,
+          "pnl": -3.7230527086880585
+        },
+        {
+          "symbol": "IOTAUSDT",
+          "trades": 57,
+          "winRate": 56.14035087719298,
+          "pnl": 52.08124374646451
+        },
+        {
+          "symbol": "HOTUSDT",
+          "trades": 41,
+          "winRate": 43.90243902439025,
+          "pnl": 1.8487071942181785
+        },
+        {
+          "symbol": "ANKRUSDT",
+          "trades": 43,
+          "winRate": 34.883720930232556,
+          "pnl": -13.725985361854057
+        },
+        {
+          "symbol": "RVNUSDT",
+          "trades": 48,
+          "winRate": 47.91666666666667,
+          "pnl": 16.270135529311204
+        },
+        {
+          "symbol": "STORJUSDT",
+          "trades": 51,
+          "winRate": 37.254901960784316,
+          "pnl": 0.4623473340882924
+        },
+        {
+          "symbol": "COTIUSDT",
+          "trades": 63,
+          "winRate": 30.158730158730158,
+          "pnl": -32.07242855563484
+        },
+        {
+          "symbol": "BANDUSDT",
+          "trades": 51,
+          "winRate": 47.05882352941176,
+          "pnl": 40.599397892014
+        },
+        {
+          "symbol": "CTSIUSDT",
+          "trades": 34,
+          "winRate": 41.17647058823529,
+          "pnl": -33.33230775275533
+        },
+        {
+          "symbol": "DENTUSDT",
+          "trades": 33,
+          "winRate": 39.39393939393939,
+          "pnl": -23.160171901951443
+        },
+        {
+          "symbol": "SKLUSDT",
+          "trades": 39,
+          "winRate": 43.58974358974359,
+          "pnl": 6.5583010073098365
+        },
+        {
+          "symbol": "OGNUSDT",
+          "trades": 42,
+          "winRate": 45.23809523809524,
+          "pnl": 4.906152528646317
+        },
+        {
+          "symbol": "BELUSDT",
+          "trades": 50,
+          "winRate": 46,
+          "pnl": 28.260969553063973
+        },
+        {
+          "symbol": "DYDXUSDT",
+          "trades": 29,
+          "winRate": 31.03448275862069,
+          "pnl": -3.575780808378738
+        },
+        {
+          "symbol": "TLMUSDT",
+          "trades": 69,
+          "winRate": 40.57971014492754,
+          "pnl": 16.718517343777066
+        },
+        {
+          "symbol": "MASKUSDT",
+          "trades": 38,
+          "winRate": 47.368421052631575,
+          "pnl": 36.47066446027148
+        },
+        {
+          "symbol": "GTCUSDT",
+          "trades": 25,
+          "winRate": 36,
+          "pnl": -15.896408382919759
+        },
+        {
+          "symbol": "PEOPLEUSDT",
+          "trades": 64,
+          "winRate": 48.4375,
+          "pnl": 69.28693966167225
+        },
+        {
+          "symbol": "LPTUSDT",
+          "trades": 59,
+          "winRate": 38.983050847457626,
+          "pnl": 4.466246353981148
+        },
+        {
+          "symbol": "ENSUSDT",
+          "trades": 51,
+          "winRate": 47.05882352941176,
+          "pnl": 18.75204600364114
+        },
+        {
+          "symbol": "JASMYUSDT",
+          "trades": 69,
+          "winRate": 37.68115942028986,
+          "pnl": -0.8414810577207277
+        },
+        {
+          "symbol": "PHBUSDT",
+          "trades": 60,
+          "winRate": 51.66666666666667,
+          "pnl": 73.8198615554206
+        },
+        {
+          "symbol": "WOOUSDT",
+          "trades": 59,
+          "winRate": 62.71186440677966,
+          "pnl": 87.23302516202176
+        },
+        {
+          "symbol": "HIGHUSDT",
+          "trades": 51,
+          "winRate": 47.05882352941176,
+          "pnl": 29.052005837679786
+        },
+        {
+          "symbol": "MINAUSDT",
+          "trades": 69,
+          "winRate": 36.231884057971016,
+          "pnl": -41.03526799431977
+        },
+        {
+          "symbol": "ASTRUSDT",
+          "trades": 57,
+          "winRate": 47.368421052631575,
+          "pnl": 44.10617388107849
+        },
+        {
+          "symbol": "FETUSDT",
+          "trades": 82,
+          "winRate": 54.87804878048781,
+          "pnl": 123.61939082001791
+        },
+        {
+          "symbol": "ACHUSDT",
+          "trades": 35,
+          "winRate": 45.714285714285715,
+          "pnl": 22.92201989112921
+        },
+        {
+          "symbol": "HOOKUSDT",
+          "trades": 52,
+          "winRate": 38.46153846153847,
+          "pnl": -37.993160374908285
+        },
+        {
+          "symbol": "EDUUSDT",
+          "trades": 72,
+          "winRate": 47.22222222222222,
+          "pnl": 70.6916556936466
+        },
+        {
+          "symbol": "MAVUSDT",
+          "trades": 71,
+          "winRate": 47.88732394366197,
+          "pnl": 39.51545236252716
+        },
+        {
+          "symbol": "PENDLEUSDT",
+          "trades": 75,
+          "winRate": 49.333333333333336,
+          "pnl": 37.022393731549585
+        },
+        {
+          "symbol": "ARKMUSDT",
+          "trades": 67,
+          "winRate": 47.76119402985074,
+          "pnl": 17.213554486862975
+        },
+        {
+          "symbol": "IDUSDT",
+          "trades": 61,
+          "winRate": 37.704918032786885,
+          "pnl": -8.541828103655874
+        },
+        {
+          "symbol": "NMRUSDT",
+          "trades": 48,
+          "winRate": 56.25,
+          "pnl": 76.99992598698776
+        },
+        {
+          "symbol": "CFXUSDT",
+          "trades": 51,
+          "winRate": 37.254901960784316,
+          "pnl": -32.926767618788986
+        },
+        {
+          "symbol": "STGUSDT",
+          "trades": 50,
+          "winRate": 48,
+          "pnl": 27.210613594974305
+        },
+        {
+          "symbol": "CKBUSDT",
+          "trades": 57,
+          "winRate": 42.10526315789473,
+          "pnl": 3.122414457427638
+        },
+        {
+          "symbol": "ICXUSDT",
+          "trades": 51,
+          "winRate": 52.94117647058824,
+          "pnl": 38.91970302190211
+        },
+        {
+          "symbol": "TRUUSDT",
+          "trades": 65,
+          "winRate": 43.07692307692308,
+          "pnl": 0.2331435477024968
+        },
+        {
+          "symbol": "API3USDT",
+          "trades": 58,
+          "winRate": 50,
+          "pnl": 84.72636386689558
+        },
+        {
+          "symbol": "GASUSDT",
+          "trades": 44,
+          "winRate": 47.72727272727273,
+          "pnl": -20.050239157853824
+        },
+        {
+          "symbol": "PROMUSDT",
+          "trades": 45,
+          "winRate": 33.33333333333333,
+          "pnl": -36.993751276445984
+        },
+        {
+          "symbol": "QTUMUSDT",
+          "trades": 45,
+          "winRate": 37.77777777777778,
+          "pnl": -20.70051026573526
+        },
+        {
+          "symbol": "FXSUSDT",
+          "trades": 65,
+          "winRate": 50.76923076923077,
+          "pnl": 34.17094378865306
+        },
+        {
+          "symbol": "RDNTUSDT",
+          "trades": 65,
+          "winRate": 50.76923076923077,
+          "pnl": 66.07747891053299
+        },
+        {
+          "symbol": "SSVUSDT",
+          "trades": 61,
+          "winRate": 47.540983606557376,
+          "pnl": 83.48236350690996
+        },
+        {
+          "symbol": "FLMUSDT",
+          "trades": 22,
+          "winRate": 63.63636363636363,
+          "pnl": 37.11678698333307
+        },
+        {
+          "symbol": "MTLUSDT",
+          "trades": 45,
+          "winRate": 37.77777777777778,
+          "pnl": -24.515277058119466
+        },
+        {
+          "symbol": "DUSKUSDT",
+          "trades": 75,
+          "winRate": 49.333333333333336,
+          "pnl": 50.50043912721412
+        },
+        {
+          "symbol": "JOEUSDT",
+          "trades": 58,
+          "winRate": 50,
+          "pnl": 15.635916844124694
+        },
+        {
+          "symbol": "CELRUSDT",
+          "trades": 42,
+          "winRate": 45.23809523809524,
+          "pnl": 2.5202586194815098
+        },
+        {
+          "symbol": "ARUSDT",
+          "trades": 63,
+          "winRate": 39.682539682539684,
+          "pnl": 6.892850687880184
+        },
+        {
+          "symbol": "LQTYUSDT",
+          "trades": 56,
+          "winRate": 50,
+          "pnl": 43.88042625884779
+        },
+        {
+          "symbol": "AGLDUSDT",
+          "trades": 54,
+          "winRate": 50,
+          "pnl": 33.2313363566044
+        },
+        {
+          "symbol": "YGGUSDT",
+          "trades": 65,
+          "winRate": 44.61538461538462,
+          "pnl": 45.05570849731083
+        },
+        {
+          "symbol": "HFTUSDT",
+          "trades": 59,
+          "winRate": 45.76271186440678,
+          "pnl": 13.730112662094754
+        },
+        {
+          "symbol": "BICOUSDT",
+          "trades": 51,
+          "winRate": 39.21568627450981,
+          "pnl": 14.859692249996428
+        },
+        {
+          "symbol": "CYBERUSDT",
+          "trades": 71,
+          "winRate": 43.66197183098591,
+          "pnl": 26.973589727873318
+        },
+        {
+          "symbol": "ARKUSDT",
+          "trades": 50,
+          "winRate": 46,
+          "pnl": 11.970169823997523
+        },
+        {
+          "symbol": "XVGUSDT",
+          "trades": 83,
+          "winRate": 40.963855421686745,
+          "pnl": 51.84942324513952
+        },
+        {
+          "symbol": "ZENUSDT",
+          "trades": 53,
+          "winRate": 43.39622641509434,
+          "pnl": 71.03763373359453
+        },
+        {
+          "symbol": "EGLDUSDT",
+          "trades": 49,
+          "winRate": 38.775510204081634,
+          "pnl": -12.559454472673792
+        },
+        {
+          "symbol": "1000PEPEUSDT",
+          "trades": 65,
+          "winRate": 52.307692307692314,
+          "pnl": 77.32149575394942
+        },
+        {
+          "symbol": "1000FLOKIUSDT",
+          "trades": 72,
+          "winRate": 51.388888888888886,
+          "pnl": 108.74646280445586
+        },
+        {
+          "symbol": "1000SHIBUSDT",
+          "trades": 47,
+          "winRate": 51.06382978723404,
+          "pnl": 41.43873157339189
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "trades": 74,
+          "winRate": 51.35135135135135,
+          "pnl": 73.11808672861014
+        },
+        {
+          "symbol": "WIFUSDT",
+          "trades": 64,
+          "winRate": 51.5625,
+          "pnl": 73.91051812009852
+        },
+        {
+          "symbol": "BOMEUSDT",
+          "trades": 73,
+          "winRate": 50.68493150684932,
+          "pnl": 76.24061111505398
+        },
+        {
+          "symbol": "MEMEUSDT",
+          "trades": 56,
+          "winRate": 51.78571428571429,
+          "pnl": 55.83885480639751
+        },
+        {
+          "symbol": "SUPERUSDT",
+          "trades": 62,
+          "winRate": 54.83870967741935,
+          "pnl": 62.637756464294256
+        },
+        {
+          "symbol": "BIGTIMEUSDT",
+          "trades": 61,
+          "winRate": 40.98360655737705,
+          "pnl": 7.2614523670894755
+        },
+        {
+          "symbol": "BEAMXUSDT",
+          "trades": 68,
+          "winRate": 52.94117647058824,
+          "pnl": 83.46273368885394
+        },
+        {
+          "symbol": "KASUSDT",
+          "trades": 82,
+          "winRate": 48.78048780487805,
+          "pnl": 59.28592951059318
+        },
+        {
+          "symbol": "CAKEUSDT",
+          "trades": 71,
+          "winRate": 52.112676056338024,
+          "pnl": 53.75808835020277
+        },
+        {
+          "symbol": "TWTUSDT",
+          "trades": 57,
+          "winRate": 47.368421052631575,
+          "pnl": 38.512260323833345
+        },
+        {
+          "symbol": "ILVUSDT",
+          "trades": 61,
+          "winRate": 44.26229508196721,
+          "pnl": 28.389396935358093
+        },
+        {
+          "symbol": "STEEMUSDT",
+          "trades": 40,
+          "winRate": 52.5,
+          "pnl": 15.739224314372791
+        },
+        {
+          "symbol": "POLYXUSDT",
+          "trades": 57,
+          "winRate": 31.57894736842105,
+          "pnl": -52.210846977765826
+        },
+        {
+          "symbol": "TUSDT",
+          "trades": 41,
+          "winRate": 39.02439024390244,
+          "pnl": -17.49704144320404
+        }
+      ]
+    },
+    {
+      "month": "2025-11",
+      "totalTrades": 8549,
+      "wins": 3569,
+      "losses": 4980,
+      "winRate": 41.74757281553398,
+      "totalPnl": 2492.8594279489166,
+      "roi": 16.18739888278517,
+      "symbolResults": [
+        {
+          "symbol": "BTCUSDT",
+          "trades": 35,
+          "winRate": 51.42857142857142,
+          "pnl": -19.2750645827972
+        },
+        {
+          "symbol": "ETHUSDT",
+          "trades": 55,
+          "winRate": 50.90909090909091,
+          "pnl": 33.00845915419731
+        },
+        {
+          "symbol": "BNBUSDT",
+          "trades": 44,
+          "winRate": 40.909090909090914,
+          "pnl": -7.704230341743354
+        },
+        {
+          "symbol": "SOLUSDT",
+          "trades": 59,
+          "winRate": 50.847457627118644,
+          "pnl": 36.74323960675875
+        },
+        {
+          "symbol": "XRPUSDT",
+          "trades": 51,
+          "winRate": 43.13725490196079,
+          "pnl": 16.252530969185074
+        },
+        {
+          "symbol": "ADAUSDT",
+          "trades": 59,
+          "winRate": 49.152542372881356,
+          "pnl": 53.22944621034284
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "trades": 58,
+          "winRate": 53.44827586206896,
+          "pnl": 56.177594573136474
+        },
+        {
+          "symbol": "DOTUSDT",
+          "trades": 61,
+          "winRate": 39.34426229508197,
+          "pnl": 46.42557578970181
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "trades": 52,
+          "winRate": 42.30769230769231,
+          "pnl": 40.14066802258182
+        },
+        {
+          "symbol": "LINKUSDT",
+          "trades": 54,
+          "winRate": 37.03703703703704,
+          "pnl": -32.21493232740714
+        },
+        {
+          "symbol": "LTCUSDT",
+          "trades": 57,
+          "winRate": 40.35087719298245,
+          "pnl": 14.35993059835424
+        },
+        {
+          "symbol": "ATOMUSDT",
+          "trades": 49,
+          "winRate": 36.734693877551024,
+          "pnl": -19.992930858303453
+        },
+        {
+          "symbol": "UNIUSDT",
+          "trades": 58,
+          "winRate": 56.896551724137936,
+          "pnl": 192.20332232818794
+        },
+        {
+          "symbol": "ETCUSDT",
+          "trades": 52,
+          "winRate": 38.46153846153847,
+          "pnl": 13.598655032915701
+        },
+        {
+          "symbol": "FILUSDT",
+          "trades": 69,
+          "winRate": 47.82608695652174,
+          "pnl": 72.68501786665294
+        },
+        {
+          "symbol": "APTUSDT",
+          "trades": 64,
+          "winRate": 53.125,
+          "pnl": 63.27551808920501
+        },
+        {
+          "symbol": "ARBUSDT",
+          "trades": 52,
+          "winRate": 38.46153846153847,
+          "pnl": 25.98816310512531
+        },
+        {
+          "symbol": "OPUSDT",
+          "trades": 56,
+          "winRate": 37.5,
+          "pnl": 8.041091938802623
+        },
+        {
+          "symbol": "NEARUSDT",
+          "trades": 71,
+          "winRate": 43.66197183098591,
+          "pnl": 78.4697599445525
+        },
+        {
+          "symbol": "SUIUSDT",
+          "trades": 55,
+          "winRate": 49.09090909090909,
+          "pnl": 34.40274682979074
+        },
+        {
+          "symbol": "ICPUSDT",
+          "trades": 53,
+          "winRate": 37.735849056603776,
+          "pnl": -19.365927953688455
+        },
+        {
+          "symbol": "INJUSDT",
+          "trades": 71,
+          "winRate": 35.2112676056338,
+          "pnl": -31.79560608600201
+        },
+        {
+          "symbol": "STXUSDT",
+          "trades": 54,
+          "winRate": 44.44444444444444,
+          "pnl": 56.41128884915261
+        },
+        {
+          "symbol": "SEIUSDT",
+          "trades": 47,
+          "winRate": 31.914893617021278,
+          "pnl": -29.88920491101078
+        },
+        {
+          "symbol": "TIAUSDT",
+          "trades": 80,
+          "winRate": 45,
+          "pnl": 54.38591105911618
+        },
+        {
+          "symbol": "LDOUSDT",
+          "trades": 55,
+          "winRate": 34.54545454545455,
+          "pnl": 29.224407585812173
+        },
+        {
+          "symbol": "WLDUSDT",
+          "trades": 48,
+          "winRate": 45.83333333333333,
+          "pnl": 50.62046248011427
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "trades": 55,
+          "winRate": 54.54545454545454,
+          "pnl": 69.81434473957566
+        },
+        {
+          "symbol": "ALGOUSDT",
+          "trades": 41,
+          "winRate": 29.268292682926827,
+          "pnl": 13.651944495489104
+        },
+        {
+          "symbol": "AXSUSDT",
+          "trades": 59,
+          "winRate": 28.8135593220339,
+          "pnl": -58.19164158149742
+        },
+        {
+          "symbol": "SANDUSDT",
+          "trades": 51,
+          "winRate": 33.33333333333333,
+          "pnl": -38.80417123236872
+        },
+        {
+          "symbol": "MANAUSDT",
+          "trades": 60,
+          "winRate": 46.666666666666664,
+          "pnl": 43.753646132249344
+        },
+        {
+          "symbol": "GALAUSDT",
+          "trades": 47,
+          "winRate": 31.914893617021278,
+          "pnl": 12.556079726986184
+        },
+        {
+          "symbol": "APEUSDT",
+          "trades": 55,
+          "winRate": 34.54545454545455,
+          "pnl": 31.586752085858052
+        },
+        {
+          "symbol": "GMXUSDT",
+          "trades": 54,
+          "winRate": 57.407407407407405,
+          "pnl": 49.088669633893744
+        },
+        {
+          "symbol": "ROSEUSDT",
+          "trades": 69,
+          "winRate": 40.57971014492754,
+          "pnl": 4.696909897031702
+        },
+        {
+          "symbol": "CHZUSDT",
+          "trades": 62,
+          "winRate": 38.70967741935484,
+          "pnl": -5.802755247004981
+        },
+        {
+          "symbol": "ENJUSDT",
+          "trades": 70,
+          "winRate": 28.57142857142857,
+          "pnl": -65.74157881393266
+        },
+        {
+          "symbol": "ZILUSDT",
+          "trades": 47,
+          "winRate": 42.5531914893617,
+          "pnl": 5.182615400315086
+        },
+        {
+          "symbol": "ONEUSDT",
+          "trades": 48,
+          "winRate": 54.166666666666664,
+          "pnl": 81.9128577784902
+        },
+        {
+          "symbol": "RUNEUSDT",
+          "trades": 48,
+          "winRate": 43.75,
+          "pnl": 4.946204217821801
+        },
+        {
+          "symbol": "CRVUSDT",
+          "trades": 40,
+          "winRate": 42.5,
+          "pnl": 35.3919645478841
+        },
+        {
+          "symbol": "SNXUSDT",
+          "trades": 67,
+          "winRate": 38.80597014925373,
+          "pnl": 23.789513719604415
+        },
+        {
+          "symbol": "COMPUSDT",
+          "trades": 48,
+          "winRate": 27.083333333333332,
+          "pnl": -53.09050373519747
+        },
+        {
+          "symbol": "SUSHIUSDT",
+          "trades": 55,
+          "winRate": 49.09090909090909,
+          "pnl": 45.84147746687157
+        },
+        {
+          "symbol": "YFIUSDT",
+          "trades": 39,
+          "winRate": 43.58974358974359,
+          "pnl": -31.768697299624932
+        },
+        {
+          "symbol": "1INCHUSDT",
+          "trades": 76,
+          "winRate": 46.05263157894737,
+          "pnl": 50.32989255352561
+        },
+        {
+          "symbol": "LRCUSDT",
+          "trades": 50,
+          "winRate": 30,
+          "pnl": -42.011035947474205
+        },
+        {
+          "symbol": "KSMUSDT",
+          "trades": 62,
+          "winRate": 43.54838709677419,
+          "pnl": 22.433669382213708
+        },
+        {
+          "symbol": "CELOUSDT",
+          "trades": 28,
+          "winRate": 42.857142857142854,
+          "pnl": 20.92847304387378
+        },
+        {
+          "symbol": "QNTUSDT",
+          "trades": 73,
+          "winRate": 53.42465753424658,
+          "pnl": 29.94352086859911
+        },
+        {
+          "symbol": "FLOWUSDT",
+          "trades": 21,
+          "winRate": 28.57142857142857,
+          "pnl": -3.8793137203258823
+        },
+        {
+          "symbol": "IMXUSDT",
+          "trades": 59,
+          "winRate": 33.89830508474576,
+          "pnl": 1.8443144712586985
+        },
+        {
+          "symbol": "BLURUSDT",
+          "trades": 60,
+          "winRate": 38.333333333333336,
+          "pnl": 17.941929363033452
+        },
+        {
+          "symbol": "ORDIUSDT",
+          "trades": 64,
+          "winRate": 35.9375,
+          "pnl": 14.886680585100734
+        },
+        {
+          "symbol": "PYTHUSDT",
+          "trades": 60,
+          "winRate": 38.333333333333336,
+          "pnl": 11.951762742189004
+        },
+        {
+          "symbol": "MAGICUSDT",
+          "trades": 56,
+          "winRate": 33.92857142857143,
+          "pnl": -30.31764317140538
+        },
+        {
+          "symbol": "GMTUSDT",
+          "trades": 55,
+          "winRate": 52.72727272727272,
+          "pnl": 39.01790200840213
+        },
+        {
+          "symbol": "TRXUSDT",
+          "trades": 12,
+          "winRate": 33.33333333333333,
+          "pnl": -2.3634958631193257
+        },
+        {
+          "symbol": "XLMUSDT",
+          "trades": 49,
+          "winRate": 38.775510204081634,
+          "pnl": -49.695709793455116
+        },
+        {
+          "symbol": "VETUSDT",
+          "trades": 66,
+          "winRate": 36.36363636363637,
+          "pnl": 19.552303215264118
+        },
+        {
+          "symbol": "XTZUSDT",
+          "trades": 42,
+          "winRate": 33.33333333333333,
+          "pnl": -17.805685598211284
+        },
+        {
+          "symbol": "THETAUSDT",
+          "trades": 59,
+          "winRate": 45.76271186440678,
+          "pnl": 67.44763342256371
+        },
+        {
+          "symbol": "NEOUSDT",
+          "trades": 46,
+          "winRate": 36.95652173913043,
+          "pnl": -12.190496778443233
+        },
+        {
+          "symbol": "IOSTUSDT",
+          "trades": 53,
+          "winRate": 43.39622641509434,
+          "pnl": 41.445757878918045
+        },
+        {
+          "symbol": "ONTUSDT",
+          "trades": 46,
+          "winRate": 32.608695652173914,
+          "pnl": -27.476761846391668
+        },
+        {
+          "symbol": "ZECUSDT",
+          "trades": 43,
+          "winRate": 46.51162790697674,
+          "pnl": -7.771411770206399
+        },
+        {
+          "symbol": "DASHUSDT",
+          "trades": 38,
+          "winRate": 57.89473684210527,
+          "pnl": 69.89516890576871
+        },
+        {
+          "symbol": "BATUSDT",
+          "trades": 85,
+          "winRate": 42.35294117647059,
+          "pnl": 57.58636921025422
+        },
+        {
+          "symbol": "KAVAUSDT",
+          "trades": 68,
+          "winRate": 44.11764705882353,
+          "pnl": -6.866291415164042
+        },
+        {
+          "symbol": "IOTAUSDT",
+          "trades": 56,
+          "winRate": 46.42857142857143,
+          "pnl": 34.00639793190442
+        },
+        {
+          "symbol": "HOTUSDT",
+          "trades": 54,
+          "winRate": 37.03703703703704,
+          "pnl": 6.448944011566326
+        },
+        {
+          "symbol": "ANKRUSDT",
+          "trades": 40,
+          "winRate": 52.5,
+          "pnl": 25.984913923653394
+        },
+        {
+          "symbol": "RVNUSDT",
+          "trades": 58,
+          "winRate": 43.103448275862064,
+          "pnl": 11.528502081302435
+        },
+        {
+          "symbol": "STORJUSDT",
+          "trades": 51,
+          "winRate": 37.254901960784316,
+          "pnl": -45.80325558080281
+        },
+        {
+          "symbol": "COTIUSDT",
+          "trades": 69,
+          "winRate": 49.275362318840585,
+          "pnl": 68.65435209552982
+        },
+        {
+          "symbol": "BANDUSDT",
+          "trades": 64,
+          "winRate": 43.75,
+          "pnl": 27.606383819082794
+        },
+        {
+          "symbol": "RSRUSDT",
+          "trades": 48,
+          "winRate": 39.58333333333333,
+          "pnl": 3.9266644891923335
+        },
+        {
+          "symbol": "SFPUSDT",
+          "trades": 53,
+          "winRate": 47.16981132075472,
+          "pnl": 38.57764931554078
+        },
+        {
+          "symbol": "CTSIUSDT",
+          "trades": 33,
+          "winRate": 30.303030303030305,
+          "pnl": -39.79059221400674
+        },
+        {
+          "symbol": "DENTUSDT",
+          "trades": 46,
+          "winRate": 50,
+          "pnl": 11.594503412266462
+        },
+        {
+          "symbol": "SKLUSDT",
+          "trades": 49,
+          "winRate": 38.775510204081634,
+          "pnl": -42.39120918172106
+        },
+        {
+          "symbol": "OGNUSDT",
+          "trades": 38,
+          "winRate": 34.21052631578947,
+          "pnl": -4.794317912398654
+        },
+        {
+          "symbol": "BELUSDT",
+          "trades": 56,
+          "winRate": 35.714285714285715,
+          "pnl": -25.748822860473496
+        },
+        {
+          "symbol": "DYDXUSDT",
+          "trades": 20,
+          "winRate": 35,
+          "pnl": -13.806795999193625
+        },
+        {
+          "symbol": "TLMUSDT",
+          "trades": 63,
+          "winRate": 46.03174603174603,
+          "pnl": 116.0121761281159
+        },
+        {
+          "symbol": "MASKUSDT",
+          "trades": 53,
+          "winRate": 43.39622641509434,
+          "pnl": 2.8891206050046208
+        },
+        {
+          "symbol": "GTCUSDT",
+          "trades": 15,
+          "winRate": 40,
+          "pnl": 10.240523224484093
+        },
+        {
+          "symbol": "PEOPLEUSDT",
+          "trades": 54,
+          "winRate": 44.44444444444444,
+          "pnl": 89.1886991761302
+        },
+        {
+          "symbol": "LPTUSDT",
+          "trades": 62,
+          "winRate": 46.774193548387096,
+          "pnl": 54.64020144858131
+        },
+        {
+          "symbol": "ENSUSDT",
+          "trades": 48,
+          "winRate": 45.83333333333333,
+          "pnl": 70.55421073812013
+        },
+        {
+          "symbol": "JASMYUSDT",
+          "trades": 59,
+          "winRate": 37.28813559322034,
+          "pnl": -26.450085916805662
+        },
+        {
+          "symbol": "PHBUSDT",
+          "trades": 63,
+          "winRate": 26.984126984126984,
+          "pnl": -37.180801044157704
+        },
+        {
+          "symbol": "WOOUSDT",
+          "trades": 69,
+          "winRate": 40.57971014492754,
+          "pnl": 53.0689464678822
+        },
+        {
+          "symbol": "HIGHUSDT",
+          "trades": 63,
+          "winRate": 39.682539682539684,
+          "pnl": -10.92408704383341
+        },
+        {
+          "symbol": "MINAUSDT",
+          "trades": 59,
+          "winRate": 38.983050847457626,
+          "pnl": -15.85879193206506
+        },
+        {
+          "symbol": "ASTRUSDT",
+          "trades": 61,
+          "winRate": 39.34426229508197,
+          "pnl": 36.5290089532302
+        },
+        {
+          "symbol": "FETUSDT",
+          "trades": 67,
+          "winRate": 40.298507462686565,
+          "pnl": 43.48173542005762
+        },
+        {
+          "symbol": "ACHUSDT",
+          "trades": 66,
+          "winRate": 51.515151515151516,
+          "pnl": 45.711373465160904
+        },
+        {
+          "symbol": "HOOKUSDT",
+          "trades": 71,
+          "winRate": 36.61971830985916,
+          "pnl": -45.82788587484725
+        },
+        {
+          "symbol": "EDUUSDT",
+          "trades": 77,
+          "winRate": 40.25974025974026,
+          "pnl": 30.765104587522927
+        },
+        {
+          "symbol": "MAVUSDT",
+          "trades": 63,
+          "winRate": 46.03174603174603,
+          "pnl": 6.150841544309273
+        },
+        {
+          "symbol": "PENDLEUSDT",
+          "trades": 71,
+          "winRate": 43.66197183098591,
+          "pnl": 22.903278463850356
+        },
+        {
+          "symbol": "ARKMUSDT",
+          "trades": 56,
+          "winRate": 33.92857142857143,
+          "pnl": -18.77567236090175
+        },
+        {
+          "symbol": "IDUSDT",
+          "trades": 54,
+          "winRate": 42.592592592592595,
+          "pnl": -23.585129412925966
+        },
+        {
+          "symbol": "NMRUSDT",
+          "trades": 59,
+          "winRate": 45.76271186440678,
+          "pnl": 56.979599718375454
+        },
+        {
+          "symbol": "CFXUSDT",
+          "trades": 53,
+          "winRate": 37.735849056603776,
+          "pnl": 26.388753897505936
+        },
+        {
+          "symbol": "STGUSDT",
+          "trades": 60,
+          "winRate": 43.333333333333336,
+          "pnl": 7.268856477241741
+        },
+        {
+          "symbol": "CKBUSDT",
+          "trades": 57,
+          "winRate": 40.35087719298245,
+          "pnl": 15.177155318585875
+        },
+        {
+          "symbol": "ICXUSDT",
+          "trades": 49,
+          "winRate": 36.734693877551024,
+          "pnl": 20.437808807458183
+        },
+        {
+          "symbol": "TRUUSDT",
+          "trades": 54,
+          "winRate": 44.44444444444444,
+          "pnl": 29.704123935670708
+        },
+        {
+          "symbol": "API3USDT",
+          "trades": 47,
+          "winRate": 44.680851063829785,
+          "pnl": 13.712497738115218
+        },
+        {
+          "symbol": "GASUSDT",
+          "trades": 57,
+          "winRate": 31.57894736842105,
+          "pnl": -60.69611962896503
+        },
+        {
+          "symbol": "PROMUSDT",
+          "trades": 45,
+          "winRate": 46.666666666666664,
+          "pnl": -0.1445476110779964
+        },
+        {
+          "symbol": "QTUMUSDT",
+          "trades": 33,
+          "winRate": 48.484848484848484,
+          "pnl": 46.49455831524489
+        },
+        {
+          "symbol": "FXSUSDT",
+          "trades": 63,
+          "winRate": 52.38095238095239,
+          "pnl": 27.996348104246877
+        },
+        {
+          "symbol": "RDNTUSDT",
+          "trades": 54,
+          "winRate": 31.48148148148148,
+          "pnl": -30.91125102598346
+        },
+        {
+          "symbol": "SSVUSDT",
+          "trades": 70,
+          "winRate": 38.57142857142858,
+          "pnl": 73.12468110549926
+        },
+        {
+          "symbol": "FLMUSDT",
+          "trades": 15,
+          "winRate": 20,
+          "pnl": -6.148403278700684
+        },
+        {
+          "symbol": "MTLUSDT",
+          "trades": 54,
+          "winRate": 31.48148148148148,
+          "pnl": -52.70824786038922
+        },
+        {
+          "symbol": "DUSKUSDT",
+          "trades": 64,
+          "winRate": 56.25,
+          "pnl": 143.5166782150296
+        },
+        {
+          "symbol": "JOEUSDT",
+          "trades": 69,
+          "winRate": 50.72463768115942,
+          "pnl": 95.92080053592434
+        },
+        {
+          "symbol": "CELRUSDT",
+          "trades": 53,
+          "winRate": 37.735849056603776,
+          "pnl": -3.7345451143760044
+        },
+        {
+          "symbol": "ARUSDT",
+          "trades": 72,
+          "winRate": 43.05555555555556,
+          "pnl": 53.616121549180605
+        },
+        {
+          "symbol": "LQTYUSDT",
+          "trades": 76,
+          "winRate": 42.10526315789473,
+          "pnl": -4.605741344376952
+        },
+        {
+          "symbol": "AGLDUSDT",
+          "trades": 58,
+          "winRate": 31.03448275862069,
+          "pnl": -10.07321850486153
+        },
+        {
+          "symbol": "YGGUSDT",
+          "trades": 56,
+          "winRate": 42.857142857142854,
+          "pnl": 17.75205765048821
+        },
+        {
+          "symbol": "HFTUSDT",
+          "trades": 68,
+          "winRate": 48.529411764705884,
+          "pnl": 52.67984243838751
+        },
+        {
+          "symbol": "BICOUSDT",
+          "trades": 59,
+          "winRate": 35.59322033898305,
+          "pnl": 7.0641410013422785
+        },
+        {
+          "symbol": "CYBERUSDT",
+          "trades": 59,
+          "winRate": 37.28813559322034,
+          "pnl": -8.897721033884551
+        },
+        {
+          "symbol": "ARKUSDT",
+          "trades": 68,
+          "winRate": 35.294117647058826,
+          "pnl": -2.8277290790009175
+        },
+        {
+          "symbol": "XVGUSDT",
+          "trades": 62,
+          "winRate": 45.16129032258064,
+          "pnl": 61.79018467669002
+        },
+        {
+          "symbol": "OXTUSDT",
+          "trades": 49,
+          "winRate": 36.734693877551024,
+          "pnl": -28.785111392472047
+        },
+        {
+          "symbol": "ZENUSDT",
+          "trades": 39,
+          "winRate": 51.28205128205128,
+          "pnl": 31.834297741446477
+        },
+        {
+          "symbol": "EGLDUSDT",
+          "trades": 63,
+          "winRate": 42.857142857142854,
+          "pnl": 23.475034908434324
+        },
+        {
+          "symbol": "1000PEPEUSDT",
+          "trades": 60,
+          "winRate": 45,
+          "pnl": 25.611147811062864
+        },
+        {
+          "symbol": "1000FLOKIUSDT",
+          "trades": 57,
+          "winRate": 38.59649122807017,
+          "pnl": 15.463876679255208
+        },
+        {
+          "symbol": "1000SHIBUSDT",
+          "trades": 53,
+          "winRate": 41.509433962264154,
+          "pnl": 28.755842906651623
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "trades": 62,
+          "winRate": 45.16129032258064,
+          "pnl": 32.883884269901586
+        },
+        {
+          "symbol": "WIFUSDT",
+          "trades": 61,
+          "winRate": 39.34426229508197,
+          "pnl": -5.094334234087597
+        },
+        {
+          "symbol": "BOMEUSDT",
+          "trades": 64,
+          "winRate": 40.625,
+          "pnl": 39.34859667627816
+        },
+        {
+          "symbol": "MEMEUSDT",
+          "trades": 59,
+          "winRate": 40.67796610169492,
+          "pnl": -17.23950819452284
+        },
+        {
+          "symbol": "SUPERUSDT",
+          "trades": 56,
+          "winRate": 37.5,
+          "pnl": 1.9408910360045013
+        },
+        {
+          "symbol": "BIGTIMEUSDT",
+          "trades": 63,
+          "winRate": 31.746031746031743,
+          "pnl": -31.647245749137355
+        },
+        {
+          "symbol": "BEAMXUSDT",
+          "trades": 59,
+          "winRate": 33.89830508474576,
+          "pnl": -27.022319376974338
+        },
+        {
+          "symbol": "KASUSDT",
+          "trades": 82,
+          "winRate": 47.5609756097561,
+          "pnl": 73.73415421135886
+        },
+        {
+          "symbol": "NTRNUSDT",
+          "trades": 54,
+          "winRate": 53.70370370370371,
+          "pnl": 58.50738690561974
+        },
+        {
+          "symbol": "CAKEUSDT",
+          "trades": 68,
+          "winRate": 44.11764705882353,
+          "pnl": 21.128162482111293
+        },
+        {
+          "symbol": "TWTUSDT",
+          "trades": 47,
+          "winRate": 42.5531914893617,
+          "pnl": -36.75897950098028
+        },
+        {
+          "symbol": "ILVUSDT",
+          "trades": 68,
+          "winRate": 41.17647058823529,
+          "pnl": 0.3233250181648657
+        },
+        {
+          "symbol": "STEEMUSDT",
+          "trades": 47,
+          "winRate": 38.297872340425535,
+          "pnl": -7.235266737695412
+        },
+        {
+          "symbol": "POLYXUSDT",
+          "trades": 66,
+          "winRate": 42.42424242424242,
+          "pnl": -4.223819195300379
+        },
+        {
+          "symbol": "TUSDT",
+          "trades": 39,
+          "winRate": 41.02564102564102,
+          "pnl": -25.461205939973496
+        },
+        {
+          "symbol": "XVSUSDT",
+          "trades": 65,
+          "winRate": 50.76923076923077,
+          "pnl": 45.87079200009808
+        }
+      ]
+    },
+    {
+      "month": "2025-12",
+      "totalTrades": 7935,
+      "wins": 3635,
+      "losses": 4300,
+      "winRate": 45.80970384373031,
+      "totalPnl": 2005.139373120765,
+      "roi": 13.105486098828528,
+      "symbolResults": [
+        {
+          "symbol": "BTCUSDT",
+          "trades": 22,
+          "winRate": 50,
+          "pnl": 5.374375414979113
+        },
+        {
+          "symbol": "ETHUSDT",
+          "trades": 55,
+          "winRate": 43.63636363636363,
+          "pnl": 15.784956890817895
+        },
+        {
+          "symbol": "BNBUSDT",
+          "trades": 28,
+          "winRate": 57.14285714285714,
+          "pnl": 19.9387627821295
+        },
+        {
+          "symbol": "SOLUSDT",
+          "trades": 42,
+          "winRate": 40.476190476190474,
+          "pnl": -6.010499927841181
+        },
+        {
+          "symbol": "XRPUSDT",
+          "trades": 41,
+          "winRate": 36.58536585365854,
+          "pnl": -8.069049623603107
+        },
+        {
+          "symbol": "ADAUSDT",
+          "trades": 58,
+          "winRate": 44.827586206896555,
+          "pnl": 23.47485499551712
+        },
+        {
+          "symbol": "DOGEUSDT",
+          "trades": 51,
+          "winRate": 50.98039215686274,
+          "pnl": 23.2853904724288
+        },
+        {
+          "symbol": "DOTUSDT",
+          "trades": 63,
+          "winRate": 47.61904761904761,
+          "pnl": 28.64462834347708
+        },
+        {
+          "symbol": "AVAXUSDT",
+          "trades": 57,
+          "winRate": 50.877192982456144,
+          "pnl": 72.37828295027961
+        },
+        {
+          "symbol": "LINKUSDT",
+          "trades": 40,
+          "winRate": 47.5,
+          "pnl": -0.34545693801076993
+        },
+        {
+          "symbol": "LTCUSDT",
+          "trades": 36,
+          "winRate": 36.11111111111111,
+          "pnl": -34.122255274690914
+        },
+        {
+          "symbol": "ATOMUSDT",
+          "trades": 44,
+          "winRate": 54.54545454545454,
+          "pnl": 26.34039515869216
+        },
+        {
+          "symbol": "UNIUSDT",
+          "trades": 65,
+          "winRate": 50.76923076923077,
+          "pnl": 57.22526674816541
+        },
+        {
+          "symbol": "ETCUSDT",
+          "trades": 47,
+          "winRate": 42.5531914893617,
+          "pnl": 0.7491704315917644
+        },
+        {
+          "symbol": "FILUSDT",
+          "trades": 58,
+          "winRate": 48.275862068965516,
+          "pnl": 23.283947158647067
+        },
+        {
+          "symbol": "APTUSDT",
+          "trades": 64,
+          "winRate": 51.5625,
+          "pnl": 49.88774002167432
+        },
+        {
+          "symbol": "ARBUSDT",
+          "trades": 54,
+          "winRate": 38.88888888888889,
+          "pnl": -31.050925769089915
+        },
+        {
+          "symbol": "OPUSDT",
+          "trades": 56,
+          "winRate": 41.07142857142857,
+          "pnl": -23.23377603675823
+        },
+        {
+          "symbol": "NEARUSDT",
+          "trades": 67,
+          "winRate": 44.776119402985074,
+          "pnl": -39.395493060772885
+        },
+        {
+          "symbol": "SUIUSDT",
+          "trades": 50,
+          "winRate": 46,
+          "pnl": 11.160997317680838
+        },
+        {
+          "symbol": "ICPUSDT",
+          "trades": 65,
+          "winRate": 38.46153846153847,
+          "pnl": -43.225960228946555
+        },
+        {
+          "symbol": "INJUSDT",
+          "trades": 61,
+          "winRate": 45.90163934426229,
+          "pnl": 23.27519762064219
+        },
+        {
+          "symbol": "STXUSDT",
+          "trades": 64,
+          "winRate": 40.625,
+          "pnl": -24.023918502979527
+        },
+        {
+          "symbol": "SEIUSDT",
+          "trades": 56,
+          "winRate": 44.642857142857146,
+          "pnl": 10.796566048449108
+        },
+        {
+          "symbol": "TIAUSDT",
+          "trades": 63,
+          "winRate": 53.96825396825397,
+          "pnl": 59.58129724788594
+        },
+        {
+          "symbol": "LDOUSDT",
+          "trades": 57,
+          "winRate": 50.877192982456144,
+          "pnl": 50.933933524123006
+        },
+        {
+          "symbol": "WLDUSDT",
+          "trades": 64,
+          "winRate": 45.3125,
+          "pnl": 14.094376865727611
+        },
+        {
+          "symbol": "AAVEUSDT",
+          "trades": 52,
+          "winRate": 48.07692307692308,
+          "pnl": 20.12291520163984
+        },
+        {
+          "symbol": "ALGOUSDT",
+          "trades": 44,
+          "winRate": 54.54545454545454,
+          "pnl": 36.89617816865959
+        },
+        {
+          "symbol": "AXSUSDT",
+          "trades": 55,
+          "winRate": 50.90909090909091,
+          "pnl": 47.77273574525458
+        },
+        {
+          "symbol": "SANDUSDT",
+          "trades": 63,
+          "winRate": 49.2063492063492,
+          "pnl": 18.5462331630536
+        },
+        {
+          "symbol": "MANAUSDT",
+          "trades": 52,
+          "winRate": 53.84615384615385,
+          "pnl": 19.829671270295535
+        },
+        {
+          "symbol": "GALAUSDT",
+          "trades": 46,
+          "winRate": 47.82608695652174,
+          "pnl": 1.183984955542826
+        },
+        {
+          "symbol": "APEUSDT",
+          "trades": 64,
+          "winRate": 29.6875,
+          "pnl": -79.13818175094546
+        },
+        {
+          "symbol": "GMXUSDT",
+          "trades": 51,
+          "winRate": 39.21568627450981,
+          "pnl": 1.6461458095929515
+        },
+        {
+          "symbol": "CHZUSDT",
+          "trades": 69,
+          "winRate": 50.72463768115942,
+          "pnl": 45.056013366425105
+        },
+        {
+          "symbol": "ENJUSDT",
+          "trades": 60,
+          "winRate": 53.333333333333336,
+          "pnl": 37.61152361443385
+        },
+        {
+          "symbol": "ZILUSDT",
+          "trades": 44,
+          "winRate": 47.72727272727273,
+          "pnl": 6.643060978580621
+        },
+        {
+          "symbol": "ONEUSDT",
+          "trades": 43,
+          "winRate": 41.86046511627907,
+          "pnl": 23.39616650836075
+        },
+        {
+          "symbol": "RUNEUSDT",
+          "trades": 44,
+          "winRate": 45.45454545454545,
+          "pnl": 23.838718179874377
+        },
+        {
+          "symbol": "CRVUSDT",
+          "trades": 36,
+          "winRate": 25,
+          "pnl": -22.32195174511172
+        },
+        {
+          "symbol": "SNXUSDT",
+          "trades": 35,
+          "winRate": 42.857142857142854,
+          "pnl": -0.9189497907566846
+        },
+        {
+          "symbol": "COMPUSDT",
+          "trades": 62,
+          "winRate": 43.54838709677419,
+          "pnl": -23.724066936993182
+        },
+        {
+          "symbol": "SUSHIUSDT",
+          "trades": 59,
+          "winRate": 49.152542372881356,
+          "pnl": 56.116780364472845
+        },
+        {
+          "symbol": "YFIUSDT",
+          "trades": 51,
+          "winRate": 43.13725490196079,
+          "pnl": -9.625450770397947
+        },
+        {
+          "symbol": "1INCHUSDT",
+          "trades": 52,
+          "winRate": 48.07692307692308,
+          "pnl": 3.4917420144737576
+        },
+        {
+          "symbol": "LRCUSDT",
+          "trades": 49,
+          "winRate": 57.14285714285714,
+          "pnl": 12.703742477064253
+        },
+        {
+          "symbol": "KSMUSDT",
+          "trades": 55,
+          "winRate": 50.90909090909091,
+          "pnl": 32.89821157368007
+        },
+        {
+          "symbol": "CELOUSDT",
+          "trades": 18,
+          "winRate": 38.88888888888889,
+          "pnl": -15.636906704126133
+        },
+        {
+          "symbol": "QNTUSDT",
+          "trades": 56,
+          "winRate": 37.5,
+          "pnl": 24.207875832412242
+        },
+        {
+          "symbol": "FLOWUSDT",
+          "trades": 28,
+          "winRate": 39.285714285714285,
+          "pnl": -20.92786568224804
+        },
+        {
+          "symbol": "IMXUSDT",
+          "trades": 62,
+          "winRate": 48.38709677419355,
+          "pnl": 14.674619088675385
+        },
+        {
+          "symbol": "BLURUSDT",
+          "trades": 66,
+          "winRate": 48.484848484848484,
+          "pnl": 5.654554475376244
+        },
+        {
+          "symbol": "ORDIUSDT",
+          "trades": 67,
+          "winRate": 35.82089552238806,
+          "pnl": -34.322318617824095
+        },
+        {
+          "symbol": "PYTHUSDT",
+          "trades": 57,
+          "winRate": 49.122807017543856,
+          "pnl": 14.07374602813546
+        },
+        {
+          "symbol": "MAGICUSDT",
+          "trades": 50,
+          "winRate": 52,
+          "pnl": 2.923818031155946
+        },
+        {
+          "symbol": "GMTUSDT",
+          "trades": 84,
+          "winRate": 54.761904761904766,
+          "pnl": 89.36901658401837
+        },
+        {
+          "symbol": "TRXUSDT",
+          "trades": 4,
+          "winRate": 75,
+          "pnl": -0.1278224536852406
+        },
+        {
+          "symbol": "XLMUSDT",
+          "trades": 51,
+          "winRate": 54.90196078431373,
+          "pnl": 35.979289745930515
+        },
+        {
+          "symbol": "VETUSDT",
+          "trades": 52,
+          "winRate": 46.15384615384615,
+          "pnl": 26.145143434165803
+        },
+        {
+          "symbol": "XTZUSDT",
+          "trades": 45,
+          "winRate": 48.888888888888886,
+          "pnl": 18.631750481873596
+        },
+        {
+          "symbol": "THETAUSDT",
+          "trades": 67,
+          "winRate": 35.82089552238806,
+          "pnl": -11.24428167716151
+        },
+        {
+          "symbol": "NEOUSDT",
+          "trades": 46,
+          "winRate": 43.47826086956522,
+          "pnl": 3.4226940568507302
+        },
+        {
+          "symbol": "IOSTUSDT",
+          "trades": 68,
+          "winRate": 51.470588235294116,
+          "pnl": 118.18149589766321
+        },
+        {
+          "symbol": "ONTUSDT",
+          "trades": 43,
+          "winRate": 44.18604651162791,
+          "pnl": 14.807248022701913
+        },
+        {
+          "symbol": "ZECUSDT",
+          "trades": 84,
+          "winRate": 53.57142857142857,
+          "pnl": 76.79102169715807
+        },
+        {
+          "symbol": "DASHUSDT",
+          "trades": 79,
+          "winRate": 50.63291139240506,
+          "pnl": 127.75867950637948
+        },
+        {
+          "symbol": "BATUSDT",
+          "trades": 83,
+          "winRate": 45.78313253012048,
+          "pnl": 28.93885375218204
+        },
+        {
+          "symbol": "KAVAUSDT",
+          "trades": 75,
+          "winRate": 58.666666666666664,
+          "pnl": 84.18716645951287
+        },
+        {
+          "symbol": "IOTAUSDT",
+          "trades": 60,
+          "winRate": 48.333333333333336,
+          "pnl": 2.600533462278662
+        },
+        {
+          "symbol": "HOTUSDT",
+          "trades": 43,
+          "winRate": 30.23255813953488,
+          "pnl": -76.30512933861134
+        },
+        {
+          "symbol": "ANKRUSDT",
+          "trades": 55,
+          "winRate": 54.54545454545454,
+          "pnl": 34.51336331493613
+        },
+        {
+          "symbol": "RVNUSDT",
+          "trades": 54,
+          "winRate": 42.592592592592595,
+          "pnl": 10.582907866784268
+        },
+        {
+          "symbol": "STORJUSDT",
+          "trades": 55,
+          "winRate": 52.72727272727272,
+          "pnl": 42.20892703208091
+        },
+        {
+          "symbol": "COTIUSDT",
+          "trades": 64,
+          "winRate": 43.75,
+          "pnl": -13.975587347397877
+        },
+        {
+          "symbol": "BANDUSDT",
+          "trades": 55,
+          "winRate": 50.90909090909091,
+          "pnl": 45.11311394077103
+        },
+        {
+          "symbol": "RSRUSDT",
+          "trades": 18,
+          "winRate": 50,
+          "pnl": 12.633255180628893
+        },
+        {
+          "symbol": "SFPUSDT",
+          "trades": 25,
+          "winRate": 36,
+          "pnl": 7.943659983249532
+        },
+        {
+          "symbol": "CTSIUSDT",
+          "trades": 43,
+          "winRate": 41.86046511627907,
+          "pnl": -50.87508493484144
+        },
+        {
+          "symbol": "DENTUSDT",
+          "trades": 33,
+          "winRate": 48.484848484848484,
+          "pnl": 44.167276948385535
+        },
+        {
+          "symbol": "SKLUSDT",
+          "trades": 14,
+          "winRate": 35.714285714285715,
+          "pnl": -21.596164501113805
+        },
+        {
+          "symbol": "OGNUSDT",
+          "trades": 42,
+          "winRate": 35.714285714285715,
+          "pnl": -24.14438539181252
+        },
+        {
+          "symbol": "BELUSDT",
+          "trades": 63,
+          "winRate": 41.269841269841265,
+          "pnl": 17.344510909941192
+        },
+        {
+          "symbol": "DYDXUSDT",
+          "trades": 21,
+          "winRate": 38.095238095238095,
+          "pnl": -42.779693911701045
+        },
+        {
+          "symbol": "TLMUSDT",
+          "trades": 52,
+          "winRate": 48.07692307692308,
+          "pnl": 35.637990614109725
+        },
+        {
+          "symbol": "MASKUSDT",
+          "trades": 45,
+          "winRate": 33.33333333333333,
+          "pnl": -19.418155803474818
+        },
+        {
+          "symbol": "GTCUSDT",
+          "trades": 21,
+          "winRate": 38.095238095238095,
+          "pnl": -32.649089907808104
+        },
+        {
+          "symbol": "PEOPLEUSDT",
+          "trades": 66,
+          "winRate": 45.45454545454545,
+          "pnl": 22.580343377137126
+        },
+        {
+          "symbol": "LPTUSDT",
+          "trades": 59,
+          "winRate": 42.3728813559322,
+          "pnl": -8.008078646588018
+        },
+        {
+          "symbol": "ENSUSDT",
+          "trades": 44,
+          "winRate": 36.36363636363637,
+          "pnl": -22.02494328545653
+        },
+        {
+          "symbol": "JASMYUSDT",
+          "trades": 69,
+          "winRate": 46.3768115942029,
+          "pnl": 32.40465649969994
+        },
+        {
+          "symbol": "ARPAUSDT",
+          "trades": 36,
+          "winRate": 36.11111111111111,
+          "pnl": -18.210052889186713
+        },
+        {
+          "symbol": "PHBUSDT",
+          "trades": 63,
+          "winRate": 49.2063492063492,
+          "pnl": 35.34882753652994
+        },
+        {
+          "symbol": "WOOUSDT",
+          "trades": 74,
+          "winRate": 41.891891891891895,
+          "pnl": 44.78357235597514
+        },
+        {
+          "symbol": "HIGHUSDT",
+          "trades": 50,
+          "winRate": 46,
+          "pnl": 0.2702892800950849
+        },
+        {
+          "symbol": "MINAUSDT",
+          "trades": 52,
+          "winRate": 42.30769230769231,
+          "pnl": -6.8030084906278745
+        },
+        {
+          "symbol": "ASTRUSDT",
+          "trades": 55,
+          "winRate": 50.90909090909091,
+          "pnl": 43.07235230471392
+        },
+        {
+          "symbol": "FETUSDT",
+          "trades": 69,
+          "winRate": 34.78260869565217,
+          "pnl": -36.41549867629193
+        },
+        {
+          "symbol": "ACHUSDT",
+          "trades": 63,
+          "winRate": 44.44444444444444,
+          "pnl": -10.103103368250828
+        },
+        {
+          "symbol": "HOOKUSDT",
+          "trades": 64,
+          "winRate": 43.75,
+          "pnl": -42.925160527800145
+        },
+        {
+          "symbol": "EDUUSDT",
+          "trades": 54,
+          "winRate": 50,
+          "pnl": 30.721458208156292
+        },
+        {
+          "symbol": "MAVUSDT",
+          "trades": 67,
+          "winRate": 44.776119402985074,
+          "pnl": -14.148542358543622
+        },
+        {
+          "symbol": "PENDLEUSDT",
+          "trades": 80,
+          "winRate": 55.00000000000001,
+          "pnl": 52.590276369575975
+        },
+        {
+          "symbol": "ARKMUSDT",
+          "trades": 63,
+          "winRate": 42.857142857142854,
+          "pnl": 6.550122509529416
+        },
+        {
+          "symbol": "IDUSDT",
+          "trades": 60,
+          "winRate": 61.66666666666667,
+          "pnl": 81.75541625744299
+        },
+        {
+          "symbol": "NMRUSDT",
+          "trades": 49,
+          "winRate": 53.06122448979592,
+          "pnl": 56.95013600353437
+        },
+        {
+          "symbol": "CFXUSDT",
+          "trades": 51,
+          "winRate": 41.17647058823529,
+          "pnl": -28.261099296582785
+        },
+        {
+          "symbol": "STGUSDT",
+          "trades": 48,
+          "winRate": 41.66666666666667,
+          "pnl": -3.3973426238159874
+        },
+        {
+          "symbol": "CKBUSDT",
+          "trades": 51,
+          "winRate": 41.17647058823529,
+          "pnl": -15.873025705630724
+        },
+        {
+          "symbol": "ICXUSDT",
+          "trades": 43,
+          "winRate": 41.86046511627907,
+          "pnl": -9.675541237438736
+        },
+        {
+          "symbol": "TRUUSDT",
+          "trades": 71,
+          "winRate": 56.33802816901409,
+          "pnl": 57.924663652009684
+        },
+        {
+          "symbol": "API3USDT",
+          "trades": 57,
+          "winRate": 42.10526315789473,
+          "pnl": -17.944736215583276
+        },
+        {
+          "symbol": "GASUSDT",
+          "trades": 46,
+          "winRate": 39.130434782608695,
+          "pnl": -7.366122374529439
+        },
+        {
+          "symbol": "PROMUSDT",
+          "trades": 43,
+          "winRate": 44.18604651162791,
+          "pnl": 33.6032671652863
+        },
+        {
+          "symbol": "QTUMUSDT",
+          "trades": 1,
+          "winRate": 0,
+          "pnl": -6.576886591326442
+        },
+        {
+          "symbol": "FXSUSDT",
+          "trades": 60,
+          "winRate": 48.333333333333336,
+          "pnl": 30.809905655581503
+        },
+        {
+          "symbol": "RDNTUSDT",
+          "trades": 52,
+          "winRate": 42.30769230769231,
+          "pnl": -1.8574012645986215
+        },
+        {
+          "symbol": "SSVUSDT",
+          "trades": 61,
+          "winRate": 44.26229508196721,
+          "pnl": 35.015722798278546
+        },
+        {
+          "symbol": "MTLUSDT",
+          "trades": 46,
+          "winRate": 52.17391304347826,
+          "pnl": 42.89293095310691
+        },
+        {
+          "symbol": "DUSKUSDT",
+          "trades": 78,
+          "winRate": 47.43589743589743,
+          "pnl": 15.365257316691952
+        },
+        {
+          "symbol": "SPELLUSDT",
+          "trades": 25,
+          "winRate": 32,
+          "pnl": -10.39579663252347
+        },
+        {
+          "symbol": "JOEUSDT",
+          "trades": 66,
+          "winRate": 46.96969696969697,
+          "pnl": 9.147516566202398
+        },
+        {
+          "symbol": "CELRUSDT",
+          "trades": 51,
+          "winRate": 39.21568627450981,
+          "pnl": -36.5891012304913
+        },
+        {
+          "symbol": "ARUSDT",
+          "trades": 70,
+          "winRate": 48.57142857142857,
+          "pnl": 3.1261171945248947
+        },
+        {
+          "symbol": "LQTYUSDT",
+          "trades": 49,
+          "winRate": 44.89795918367347,
+          "pnl": 18.40179149843469
+        },
+        {
+          "symbol": "AGLDUSDT",
+          "trades": 62,
+          "winRate": 48.38709677419355,
+          "pnl": 33.95228286877892
+        },
+        {
+          "symbol": "POWRUSDT",
+          "trades": 11,
+          "winRate": 45.45454545454545,
+          "pnl": -1.9112417219969018
+        },
+        {
+          "symbol": "CVXUSDT",
+          "trades": 33,
+          "winRate": 39.39393939393939,
+          "pnl": 7.69315655423388
+        },
+        {
+          "symbol": "MBOXUSDT",
+          "trades": 34,
+          "winRate": 23.52941176470588,
+          "pnl": -42.48889864045008
+        },
+        {
+          "symbol": "HFTUSDT",
+          "trades": 61,
+          "winRate": 50.81967213114754,
+          "pnl": 58.386124261939074
+        },
+        {
+          "symbol": "BICOUSDT",
+          "trades": 49,
+          "winRate": 46.93877551020408,
+          "pnl": 12.813332630792416
+        },
+        {
+          "symbol": "CYBERUSDT",
+          "trades": 70,
+          "winRate": 42.857142857142854,
+          "pnl": -17.50821040869927
+        },
+        {
+          "symbol": "ARKUSDT",
+          "trades": 56,
+          "winRate": 39.285714285714285,
+          "pnl": 2.1736315549105
+        },
+        {
+          "symbol": "OXTUSDT",
+          "trades": 25,
+          "winRate": 40,
+          "pnl": -9.950483977230306
+        },
+        {
+          "symbol": "ZENUSDT",
+          "trades": 74,
+          "winRate": 48.64864864864865,
+          "pnl": 24.06009495276149
+        },
+        {
+          "symbol": "EGLDUSDT",
+          "trades": 72,
+          "winRate": 50,
+          "pnl": 52.457479146509996
+        },
+        {
+          "symbol": "1000PEPEUSDT",
+          "trades": 23,
+          "winRate": 60.86956521739131,
+          "pnl": 19.80932600861449
+        },
+        {
+          "symbol": "1000FLOKIUSDT",
+          "trades": 58,
+          "winRate": 53.44827586206896,
+          "pnl": 91.39750348156778
+        },
+        {
+          "symbol": "1000SHIBUSDT",
+          "trades": 24,
+          "winRate": 54.166666666666664,
+          "pnl": 24.56803375993384
+        },
+        {
+          "symbol": "1000BONKUSDT",
+          "trades": 50,
+          "winRate": 54,
+          "pnl": 36.22033673140314
+        },
+        {
+          "symbol": "WIFUSDT",
+          "trades": 58,
+          "winRate": 34.48275862068966,
+          "pnl": 9.931075465156198
+        },
+        {
+          "symbol": "BOMEUSDT",
+          "trades": 61,
+          "winRate": 40.98360655737705,
+          "pnl": 27.992355939734736
+        },
+        {
+          "symbol": "MEMEUSDT",
+          "trades": 59,
+          "winRate": 45.76271186440678,
+          "pnl": 49.66797957866618
+        },
+        {
+          "symbol": "SUPERUSDT",
+          "trades": 57,
+          "winRate": 38.59649122807017,
+          "pnl": -18.977525998817256
+        },
+        {
+          "symbol": "BIGTIMEUSDT",
+          "trades": 69,
+          "winRate": 40.57971014492754,
+          "pnl": 5.110797934824149
+        },
+        {
+          "symbol": "BEAMXUSDT",
+          "trades": 58,
+          "winRate": 36.206896551724135,
+          "pnl": 27.789427359902746
+        },
+        {
+          "symbol": "KASUSDT",
+          "trades": 76,
+          "winRate": 50,
+          "pnl": 58.58710410802178
+        },
+        {
+          "symbol": "NTRNUSDT",
+          "trades": 58,
+          "winRate": 48.275862068965516,
+          "pnl": 8.841561798204495
+        },
+        {
+          "symbol": "CAKEUSDT",
+          "trades": 32,
+          "winRate": 46.875,
+          "pnl": 11.471589235110812
+        },
+        {
+          "symbol": "STEEMUSDT",
+          "trades": 24,
+          "winRate": 37.5,
+          "pnl": -29.392422498883064
+        },
+        {
+          "symbol": "POLYXUSDT",
+          "trades": 13,
+          "winRate": 53.84615384615385,
+          "pnl": 0.8428105368608527
+        },
+        {
+          "symbol": "TUSDT",
+          "trades": 47,
+          "winRate": 44.680851063829785,
+          "pnl": 20.57246950902106
+        },
+        {
+          "symbol": "XVSUSDT",
+          "trades": 53,
+          "winRate": 45.28301886792453,
+          "pnl": 51.04244775968536
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "totalTrades": 24744,
+    "totalWins": 11062,
+    "totalLosses": 13682,
+    "winRate": 44.705787261558356,
+    "totalPnl": 9009.996633213263,
+    "roi": 17.66666006512404
+  }
+}

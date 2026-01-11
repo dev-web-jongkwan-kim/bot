@@ -1,0 +1,95 @@
+{
+  "timestamp": "2026-01-08T14:06:32.949Z",
+  "period": "2025-10-01 to 2025-12-31",
+  "symbolCount": 79,
+  "baseline": {
+    "config": {
+      "lookback": 2,
+      "minBodyRatio": 0.5,
+      "minVolume": 2,
+      "maxAtrMult": 2,
+      "obMaxBars": 60,
+      "minAwayMultRangebound": 0.3,
+      "minAwayMultNormal": 0.8,
+      "minAwayMultTrending": 2,
+      "orbAtr": 1.2,
+      "orbVol": 1.5,
+      "londonHour": 7,
+      "nyHour": 14
+    },
+    "roi": -53.97689108958843,
+    "winRate": 43.39574807142081,
+    "totalTrades": 27611,
+    "maxDrawdown": 162.07778578483268,
+    "score": -8.57203201440913
+  },
+  "optimized": {
+    "config": {
+      "lookback": 2,
+      "minBodyRatio": 0.6,
+      "minVolume": 1.5,
+      "maxAtrMult": 1.5,
+      "obMaxBars": 60,
+      "minAwayMultRangebound": 0.5,
+      "minAwayMultNormal": 0.8,
+      "minAwayMultTrending": 1.5,
+      "orbAtr": 1.5,
+      "orbVol": 2,
+      "londonHour": 7,
+      "nyHour": 13
+    },
+    "roi": -11.595780608072792,
+    "winRate": 43.996669442131555,
+    "totalTrades": 6005,
+    "maxDrawdown": 48.58316623549665,
+    "score": 23.985738718761354
+  },
+  "changes": [
+    {
+      "param": "minBodyRatio",
+      "oldValue": 0.5,
+      "newValue": 0.6
+    },
+    {
+      "param": "minVolume",
+      "oldValue": 2,
+      "newValue": 1.5
+    },
+    {
+      "param": "maxAtrMult",
+      "oldValue": 2,
+      "newValue": 1.5
+    },
+    {
+      "param": "minAwayMultRangebound",
+      "oldValue": 0.3,
+      "newValue": 0.5
+    },
+    {
+      "param": "minAwayMultTrending",
+      "oldValue": 2,
+      "newValue": 1.5
+    },
+    {
+      "param": "orbAtr",
+      "oldValue": 1.2,
+      "newValue": 1.5
+    },
+    {
+      "param": "orbVol",
+      "oldValue": 1.5,
+      "newValue": 2
+    },
+    {
+      "param": "nyHour",
+      "oldValue": 14,
+      "newValue": 13
+    }
+  ],
+  "improvement": {
+    "roi": 42.381110481515634,
+    "winRate": 0.6009213707107435,
+    "maxDrawdown": -113.49461954933604,
+    "score": 32.557770733170486
+  }
+}

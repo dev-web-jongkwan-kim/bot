@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-01-08T14:26:55.888Z",
+  "period": "2025-10-01 to 2025-12-31",
+  "symbolCount": 79,
+  "baseline": {
+    "params": {
+      "rrRatio": 3,
+      "minAwayMultRangebound": 0.3,
+      "minAwayMultNormal": 0.8,
+      "minAwayMultTrending": 2
+    },
+    "totalTrades": 20315,
+    "winRate": 48.254984001968985,
+    "roi": 10.94651823646022,
+    "maxDrawdown": 92.39606653447878,
+    "sharpeApprox": 3.4399995976934292,
+    "score": 32.75038877654928
+  },
+  "optimized": {
+    "params": {
+      "rrRatio": 4,
+      "minAwayMultRangebound": 0.2,
+      "minAwayMultNormal": 0.8,
+      "minAwayMultTrending": 2
+    },
+    "totalTrades": 19778,
+    "winRate": 47.95732632217616,
+    "roi": 37.83295675912009,
+    "maxDrawdown": 86.28751379831785,
+    "sharpeApprox": 3.3293445663702705,
+    "score": 44.11386804027106
+  },
+  "changes": [
+    {
+      "param": "rrRatio",
+      "from": 3,
+      "to": 3.5
+    },
+    {
+      "param": "rrRatio",
+      "from": 3.5,
+      "to": 4
+    },
+    {
+      "param": "minAwayMultRangebound",
+      "from": 0.3,
+      "to": 0.2
+    }
+  ]
+}

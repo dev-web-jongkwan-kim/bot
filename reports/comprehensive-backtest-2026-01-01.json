@@ -1,0 +1,4109 @@
+{
+  "individual": [
+    {
+      "config": {
+        "strategies": [
+          "PSAR_EMA_MACD"
+        ],
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT",
+          "SOLUSDT",
+          "LIGHTUSDT",
+          "RIVERUSDT",
+          "ZECUSDT",
+          "XRPUSDT",
+          "DOGEUSDT",
+          "BNBUSDT",
+          "BEATUSDT",
+          "BROCCOLI714USDT",
+          "ADAUSDT",
+          "LITUSDT",
+          "SUIUSDT",
+          "LYNUSDT",
+          "COLLECTUSDT",
+          "1000PEPEUSDT",
+          "ZBTUSDT",
+          "XPLUSDT",
+          "QUSDT",
+          "TRADOORUSDT",
+          "SQDUSDT",
+          "CHZUSDT",
+          "LINKUSDT",
+          "HYPEUSDT",
+          "PAXGUSDT",
+          "ATUSDT",
+          "AVAXUSDT",
+          "PIPPINUSDT",
+          "BCHUSDT",
+          "TAKEUSDT",
+          "1000LUNCUSDT",
+          "CYBERUSDT",
+          "FILUSDT",
+          "ENAUSDT",
+          "PIEVERSEUSDT",
+          "WCTUSDT",
+          "NIGHTUSDT",
+          "ASTERUSDT",
+          "CCUSDT",
+          "LUNA2USDT",
+          "QTUMUSDT",
+          "AAVEUSDT",
+          "POLYXUSDT",
+          "LTCUSDT",
+          "ZKPUSDT",
+          "NEARUSDT",
+          "PUMPUSDT",
+          "TRUMPUSDT",
+          "UNIUSDT",
+          "FARTCOINUSDT",
+          "ZRXUSDT",
+          "WIFUSDT",
+          "AUCTIONUSDT",
+          "ICPUSDT",
+          "WLDUSDT",
+          "SAPIENUSDT",
+          "1000SHIBUSDT",
+          "MUBARAKUSDT",
+          "DOTUSDT",
+          "TAOUSDT",
+          "FOLKSUSDT",
+          "XLMUSDT",
+          "AVNTUSDT",
+          "APTUSDT",
+          "RAVEUSDT",
+          "TSTUSDT",
+          "HBARUSDT",
+          "MONUSDT",
+          "IRUSDT",
+          "HUSDT",
+          "TIAUSDT",
+          "0GUSDT",
+          "PENGUUSDT",
+          "RVVUSDT",
+          "ARBUSDT",
+          "ONTUSDT",
+          "CLOUSDT",
+          "GIGGLEUSDT",
+          "MAGMAUSDT"
+        ],
+        "startDate": "2024-11-01",
+        "endDate": "2024-12-31"
+      },
+      "performance": {
+        "totalTrades": 418,
+        "wins": 160,
+        "losses": 258,
+        "winRate": 38.27751196172249,
+        "roi": -8.108655419305324,
+        "totalPnl": -810.8655419305323,
+        "finalBalance": 9189.134458069468,
+        "sharpeRatio": 0,
+        "maxDrawdown": 0,
+        "tradesPerDay": 6.966666666666667
+      },
+      "strategyStats": {
+        "PSAR_EMA_MACD": {
+          "totalTrades": 418,
+          "wins": 160,
+          "losses": 258,
+          "totalPnl": -289.99999999999943,
+          "winRate": 38.27751196172249,
+          "avgPnl": -0.6937799043062187
+        }
+      },
+      "symbolStats": {
+        "DOGEUSDT": {
+          "totalTrades": 11,
+          "wins": 2,
+          "losses": 9,
+          "totalPnl": -229.11999999999998,
+          "winRate": 18.181818181818183
+        },
+        "AAVEUSDT": {
+          "totalTrades": 12,
+          "wins": 5,
+          "losses": 7,
+          "totalPnl": 1.6500000000000057,
+          "winRate": 41.66666666666667
+        },
+        "APTUSDT": {
+          "totalTrades": 13,
+          "wins": 8,
+          "losses": 5,
+          "totalPnl": 299.24000000000007,
+          "winRate": 61.53846153846154
+        },
+        "WLDUSDT": {
+          "totalTrades": 9,
+          "wins": 4,
+          "losses": 5,
+          "totalPnl": -10.159999999999997,
+          "winRate": 44.44444444444444
+        },
+        "WIFUSDT": {
+          "totalTrades": 18,
+          "wins": 5,
+          "losses": 13,
+          "totalPnl": -185.25,
+          "winRate": 27.77777777777778
+        },
+        "TAOUSDT": {
+          "totalTrades": 11,
+          "wins": 7,
+          "losses": 4,
+          "totalPnl": 254.32,
+          "winRate": 63.63636363636363
+        },
+        "FILUSDT": {
+          "totalTrades": 15,
+          "wins": 10,
+          "losses": 5,
+          "totalPnl": 288.31000000000006,
+          "winRate": 66.66666666666666
+        },
+        "LITUSDT": {
+          "totalTrades": 5,
+          "wins": 2,
+          "losses": 3,
+          "totalPnl": 81.82,
+          "winRate": 40
+        },
+        "AUCTIONUSDT": {
+          "totalTrades": 22,
+          "wins": 11,
+          "losses": 11,
+          "totalPnl": 264.29,
+          "winRate": 50
+        },
+        "1000PEPEUSDT": {
+          "totalTrades": 15,
+          "wins": 3,
+          "losses": 12,
+          "totalPnl": -226.36,
+          "winRate": 20
+        },
+        "AVAXUSDT": {
+          "totalTrades": 10,
+          "wins": 5,
+          "losses": 5,
+          "totalPnl": 81.31,
+          "winRate": 50
+        },
+        "ENAUSDT": {
+          "totalTrades": 16,
+          "wins": 5,
+          "losses": 11,
+          "totalPnl": 33.92999999999998,
+          "winRate": 31.25
+        },
+        "ADAUSDT": {
+          "totalTrades": 10,
+          "wins": 0,
+          "losses": 10,
+          "totalPnl": -362.02000000000004,
+          "winRate": 0
+        },
+        "CYBERUSDT": {
+          "totalTrades": 3,
+          "wins": 0,
+          "losses": 3,
+          "totalPnl": -110.14,
+          "winRate": 0
+        },
+        "HBARUSDT": {
+          "totalTrades": 24,
+          "wins": 9,
+          "losses": 15,
+          "totalPnl": -29.450000000000045,
+          "winRate": 37.5
+        },
+        "1000SHIBUSDT": {
+          "totalTrades": 14,
+          "wins": 2,
+          "losses": 12,
+          "totalPnl": -324.75,
+          "winRate": 14.285714285714285
+        },
+        "POLYXUSDT": {
+          "totalTrades": 21,
+          "wins": 8,
+          "losses": 13,
+          "totalPnl": -30.46999999999999,
+          "winRate": 38.095238095238095
+        },
+        "ARBUSDT": {
+          "totalTrades": 7,
+          "wins": 3,
+          "losses": 4,
+          "totalPnl": 25.589999999999996,
+          "winRate": 42.857142857142854
+        },
+        "NEARUSDT": {
+          "totalTrades": 5,
+          "wins": 0,
+          "losses": 5,
+          "totalPnl": -180.69,
+          "winRate": 0
+        },
+        "SUIUSDT": {
+          "totalTrades": 6,
+          "wins": 2,
+          "losses": 4,
+          "totalPnl": -58.18,
+          "winRate": 33.33333333333333
+        },
+        "TIAUSDT": {
+          "totalTrades": 10,
+          "wins": 6,
+          "losses": 4,
+          "totalPnl": 136.63999999999996,
+          "winRate": 60
+        },
+        "DOTUSDT": {
+          "totalTrades": 11,
+          "wins": 4,
+          "losses": 7,
+          "totalPnl": -62.65000000000001,
+          "winRate": 36.36363636363637
+        },
+        "LINKUSDT": {
+          "totalTrades": 14,
+          "wins": 5,
+          "losses": 9,
+          "totalPnl": -63.39999999999997,
+          "winRate": 35.714285714285715
+        },
+        "ETHUSDT": {
+          "totalTrades": 1,
+          "wins": 0,
+          "losses": 1,
+          "totalPnl": -36.52,
+          "winRate": 0
+        },
+        "XLMUSDT": {
+          "totalTrades": 19,
+          "wins": 8,
+          "losses": 11,
+          "totalPnl": 102.35999999999999,
+          "winRate": 42.10526315789473
+        },
+        "SOLUSDT": {
+          "totalTrades": 2,
+          "wins": 1,
+          "losses": 1,
+          "totalPnl": 45.76,
+          "winRate": 50
+        },
+        "LUNA2USDT": {
+          "totalTrades": 11,
+          "wins": 4,
+          "losses": 7,
+          "totalPnl": -68.16,
+          "winRate": 36.36363636363637
+        },
+        "ONTUSDT": {
+          "totalTrades": 4,
+          "wins": 0,
+          "losses": 4,
+          "totalPnl": -145.03,
+          "winRate": 0
+        },
+        "XRPUSDT": {
+          "totalTrades": 11,
+          "wins": 5,
+          "losses": 6,
+          "totalPnl": 66.45000000000002,
+          "winRate": 45.45454545454545
+        },
+        "QTUMUSDT": {
+          "totalTrades": 7,
+          "wins": 3,
+          "losses": 4,
+          "totalPnl": 53.690000000000005,
+          "winRate": 42.857142857142854
+        },
+        "LTCUSDT": {
+          "totalTrades": 5,
+          "wins": 4,
+          "losses": 1,
+          "totalPnl": 164.57000000000002,
+          "winRate": 80
+        },
+        "ICPUSDT": {
+          "totalTrades": 9,
+          "wins": 2,
+          "losses": 7,
+          "totalPnl": -66.1,
+          "winRate": 22.22222222222222
+        },
+        "CHZUSDT": {
+          "totalTrades": 4,
+          "wins": 2,
+          "losses": 2,
+          "totalPnl": 17.559999999999995,
+          "winRate": 50
+        },
+        "ZECUSDT": {
+          "totalTrades": 9,
+          "wins": 2,
+          "losses": 7,
+          "totalPnl": -130.73000000000002,
+          "winRate": 22.22222222222222
+        },
+        "1000LUNCUSDT": {
+          "totalTrades": 17,
+          "wins": 6,
+          "losses": 11,
+          "totalPnl": -109.44000000000003,
+          "winRate": 35.294117647058826
+        },
+        "ZRXUSDT": {
+          "totalTrades": 10,
+          "wins": 3,
+          "losses": 7,
+          "totalPnl": -24.22,
+          "winRate": 30
+        },
+        "UNIUSDT": {
+          "totalTrades": 7,
+          "wins": 4,
+          "losses": 3,
+          "totalPnl": 100.13999999999999,
+          "winRate": 57.14285714285714
+        },
+        "BCHUSDT": {
+          "totalTrades": 2,
+          "wins": 0,
+          "losses": 2,
+          "totalPnl": -73.44999999999999,
+          "winRate": 0
+        },
+        "BNBUSDT": {
+          "totalTrades": 2,
+          "wins": 2,
+          "losses": 0,
+          "totalPnl": 90.1,
+          "winRate": 100
+        },
+        "PENGUUSDT": {
+          "totalTrades": 4,
+          "wins": 0,
+          "losses": 4,
+          "totalPnl": -144.23000000000002,
+          "winRate": 0
+        },
+        "FARTCOINUSDT": {
+          "totalTrades": 12,
+          "wins": 8,
+          "losses": 4,
+          "totalPnl": 272.78999999999996,
+          "winRate": 66.66666666666666
+        }
+      }
+    },
+    {
+      "config": {
+        "strategies": [
+          "BB_MEAN_REV"
+        ],
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT",
+          "SOLUSDT",
+          "LIGHTUSDT",
+          "RIVERUSDT",
+          "ZECUSDT",
+          "XRPUSDT",
+          "DOGEUSDT",
+          "BNBUSDT",
+          "BEATUSDT",
+          "BROCCOLI714USDT",
+          "ADAUSDT",
+          "LITUSDT",
+          "SUIUSDT",
+          "LYNUSDT",
+          "COLLECTUSDT",
+          "1000PEPEUSDT",
+          "ZBTUSDT",
+          "XPLUSDT",
+          "QUSDT",
+          "TRADOORUSDT",
+          "SQDUSDT",
+          "CHZUSDT",
+          "LINKUSDT",
+          "HYPEUSDT",
+          "PAXGUSDT",
+          "ATUSDT",
+          "AVAXUSDT",
+          "PIPPINUSDT",
+          "BCHUSDT",
+          "TAKEUSDT",
+          "1000LUNCUSDT",
+          "CYBERUSDT",
+          "FILUSDT",
+          "ENAUSDT",
+          "PIEVERSEUSDT",
+          "WCTUSDT",
+          "NIGHTUSDT",
+          "ASTERUSDT",
+          "CCUSDT",
+          "LUNA2USDT",
+          "QTUMUSDT",
+          "AAVEUSDT",
+          "POLYXUSDT",
+          "LTCUSDT",
+          "ZKPUSDT",
+          "NEARUSDT",
+          "PUMPUSDT",
+          "TRUMPUSDT",
+          "UNIUSDT",
+          "FARTCOINUSDT",
+          "ZRXUSDT",
+          "WIFUSDT",
+          "AUCTIONUSDT",
+          "ICPUSDT",
+          "WLDUSDT",
+          "SAPIENUSDT",
+          "1000SHIBUSDT",
+          "MUBARAKUSDT",
+          "DOTUSDT",
+          "TAOUSDT",
+          "FOLKSUSDT",
+          "XLMUSDT",
+          "AVNTUSDT",
+          "APTUSDT",
+          "RAVEUSDT",
+          "TSTUSDT",
+          "HBARUSDT",
+          "MONUSDT",
+          "IRUSDT",
+          "HUSDT",
+          "TIAUSDT",
+          "0GUSDT",
+          "PENGUUSDT",
+          "RVVUSDT",
+          "ARBUSDT",
+          "ONTUSDT",
+          "CLOUSDT",
+          "GIGGLEUSDT",
+          "MAGMAUSDT"
+        ],
+        "startDate": "2024-11-01",
+        "endDate": "2024-12-31"
+      },
+      "performance": {
+        "totalTrades": 1687,
+        "wins": 685,
+        "losses": 1002,
+        "winRate": 40.60462359217546,
+        "roi": -47.240159742691205,
+        "totalPnl": -4724.01597426912,
+        "finalBalance": 5275.98402573088,
+        "sharpeRatio": 0,
+        "maxDrawdown": 0,
+        "tradesPerDay": 28.116666666666667
+      },
+      "strategyStats": {
+        "BB_MEAN_REV": {
+          "totalTrades": 1687,
+          "wins": 685,
+          "losses": 1002,
+          "totalPnl": -3363.7900000000054,
+          "winRate": 40.60462359217546,
+          "avgPnl": -1.9939478363959724
+        }
+      },
+      "symbolStats": {
+        "ENAUSDT": {
+          "totalTrades": 81,
+          "wins": 29,
+          "losses": 52,
+          "totalPnl": -520.88,
+          "winRate": 35.80246913580247
+        },
+        "WIFUSDT": {
+          "totalTrades": 78,
+          "wins": 39,
+          "losses": 39,
+          "totalPnl": 352.4,
+          "winRate": 50
+        },
+        "SUIUSDT": {
+          "totalTrades": 70,
+          "wins": 28,
+          "losses": 42,
+          "totalPnl": -372.5799999999999,
+          "winRate": 40
+        },
+        "APTUSDT": {
+          "totalTrades": 34,
+          "wins": 17,
+          "losses": 17,
+          "totalPnl": 277.01,
+          "winRate": 50
+        },
+        "SOLUSDT": {
+          "totalTrades": 8,
+          "wins": 0,
+          "losses": 8,
+          "totalPnl": -327.1,
+          "winRate": 0
+        },
+        "AUCTIONUSDT": {
+          "totalTrades": 37,
+          "wins": 15,
+          "losses": 22,
+          "totalPnl": -41.62999999999999,
+          "winRate": 40.54054054054054
+        },
+        "WLDUSDT": {
+          "totalTrades": 50,
+          "wins": 22,
+          "losses": 28,
+          "totalPnl": -24.689999999999905,
+          "winRate": 44
+        },
+        "DOGEUSDT": {
+          "totalTrades": 76,
+          "wins": 39,
+          "losses": 37,
+          "totalPnl": 363.96000000000004,
+          "winRate": 51.31578947368421
+        },
+        "CHZUSDT": {
+          "totalTrades": 35,
+          "wins": 16,
+          "losses": 19,
+          "totalPnl": 126.84999999999985,
+          "winRate": 45.714285714285715
+        },
+        "AAVEUSDT": {
+          "totalTrades": 21,
+          "wins": 8,
+          "losses": 13,
+          "totalPnl": -128.64999999999998,
+          "winRate": 38.095238095238095
+        },
+        "1000PEPEUSDT": {
+          "totalTrades": 98,
+          "wins": 41,
+          "losses": 57,
+          "totalPnl": -223.0900000000001,
+          "winRate": 41.83673469387755
+        },
+        "1000SHIBUSDT": {
+          "totalTrades": 26,
+          "wins": 7,
+          "losses": 19,
+          "totalPnl": -428.64,
+          "winRate": 26.923076923076923
+        },
+        "TIAUSDT": {
+          "totalTrades": 22,
+          "wins": 9,
+          "losses": 13,
+          "totalPnl": -17.010000000000026,
+          "winRate": 40.909090909090914
+        },
+        "TAOUSDT": {
+          "totalTrades": 21,
+          "wins": 10,
+          "losses": 11,
+          "totalPnl": 47.080000000000005,
+          "winRate": 47.61904761904761
+        },
+        "ETHUSDT": {
+          "totalTrades": 5,
+          "wins": 0,
+          "losses": 5,
+          "totalPnl": -204.76000000000002,
+          "winRate": 0
+        },
+        "ICPUSDT": {
+          "totalTrades": 20,
+          "wins": 5,
+          "losses": 15,
+          "totalPnl": -316.51,
+          "winRate": 25
+        },
+        "ZECUSDT": {
+          "totalTrades": 62,
+          "wins": 26,
+          "losses": 36,
+          "totalPnl": 52.209999999999994,
+          "winRate": 41.935483870967744
+        },
+        "ZRXUSDT": {
+          "totalTrades": 50,
+          "wins": 20,
+          "losses": 30,
+          "totalPnl": -159.64999999999998,
+          "winRate": 40
+        },
+        "NEARUSDT": {
+          "totalTrades": 35,
+          "wins": 16,
+          "losses": 19,
+          "totalPnl": 118.72000000000001,
+          "winRate": 45.714285714285715
+        },
+        "LUNA2USDT": {
+          "totalTrades": 34,
+          "wins": 14,
+          "losses": 20,
+          "totalPnl": -172.57,
+          "winRate": 41.17647058823529
+        },
+        "POLYXUSDT": {
+          "totalTrades": 40,
+          "wins": 15,
+          "losses": 25,
+          "totalPnl": 32.270000000000024,
+          "winRate": 37.5
+        },
+        "BTCUSDT": {
+          "totalTrades": 5,
+          "wins": 4,
+          "losses": 1,
+          "totalPnl": 113.08999999999999,
+          "winRate": 80
+        },
+        "LITUSDT": {
+          "totalTrades": 44,
+          "wins": 19,
+          "losses": 25,
+          "totalPnl": 29.98000000000001,
+          "winRate": 43.18181818181818
+        },
+        "ARBUSDT": {
+          "totalTrades": 15,
+          "wins": 4,
+          "losses": 11,
+          "totalPnl": -189.76,
+          "winRate": 26.666666666666668
+        },
+        "ADAUSDT": {
+          "totalTrades": 58,
+          "wins": 23,
+          "losses": 35,
+          "totalPnl": -122.62000000000002,
+          "winRate": 39.6551724137931
+        },
+        "BCHUSDT": {
+          "totalTrades": 27,
+          "wins": 14,
+          "losses": 13,
+          "totalPnl": 71.16000000000003,
+          "winRate": 51.85185185185185
+        },
+        "XRPUSDT": {
+          "totalTrades": 73,
+          "wins": 29,
+          "losses": 44,
+          "totalPnl": -272.27000000000004,
+          "winRate": 39.726027397260275
+        },
+        "QTUMUSDT": {
+          "totalTrades": 19,
+          "wins": 6,
+          "losses": 13,
+          "totalPnl": 120.97000000000001,
+          "winRate": 31.57894736842105
+        },
+        "1000LUNCUSDT": {
+          "totalTrades": 34,
+          "wins": 16,
+          "losses": 18,
+          "totalPnl": 130.28000000000006,
+          "winRate": 47.05882352941176
+        },
+        "CYBERUSDT": {
+          "totalTrades": 33,
+          "wins": 17,
+          "losses": 16,
+          "totalPnl": 178.42999999999992,
+          "winRate": 51.515151515151516
+        },
+        "AVAXUSDT": {
+          "totalTrades": 35,
+          "wins": 15,
+          "losses": 20,
+          "totalPnl": -45.16999999999999,
+          "winRate": 42.857142857142854
+        },
+        "DOTUSDT": {
+          "totalTrades": 10,
+          "wins": 6,
+          "losses": 4,
+          "totalPnl": 61.910000000000004,
+          "winRate": 60
+        },
+        "XLMUSDT": {
+          "totalTrades": 74,
+          "wins": 28,
+          "losses": 46,
+          "totalPnl": -170.37999999999988,
+          "winRate": 37.83783783783784
+        },
+        "HBARUSDT": {
+          "totalTrades": 95,
+          "wins": 31,
+          "losses": 64,
+          "totalPnl": -773.1,
+          "winRate": 32.631578947368425
+        },
+        "FILUSDT": {
+          "totalTrades": 22,
+          "wins": 11,
+          "losses": 11,
+          "totalPnl": 15.030000000000015,
+          "winRate": 50
+        },
+        "BNBUSDT": {
+          "totalTrades": 4,
+          "wins": 0,
+          "losses": 4,
+          "totalPnl": -163.97,
+          "winRate": 0
+        },
+        "UNIUSDT": {
+          "totalTrades": 26,
+          "wins": 8,
+          "losses": 18,
+          "totalPnl": -431.78000000000003,
+          "winRate": 30.76923076923077
+        },
+        "LINKUSDT": {
+          "totalTrades": 46,
+          "wins": 18,
+          "losses": 28,
+          "totalPnl": 37.19,
+          "winRate": 39.130434782608695
+        },
+        "ONTUSDT": {
+          "totalTrades": 14,
+          "wins": 4,
+          "losses": 10,
+          "totalPnl": -157.18000000000004,
+          "winRate": 28.57142857142857
+        },
+        "LTCUSDT": {
+          "totalTrades": 22,
+          "wins": 7,
+          "losses": 15,
+          "totalPnl": -189.85,
+          "winRate": 31.818181818181817
+        },
+        "PENGUUSDT": {
+          "totalTrades": 53,
+          "wins": 17,
+          "losses": 36,
+          "totalPnl": -312.2199999999999,
+          "winRate": 32.075471698113205
+        },
+        "FARTCOINUSDT": {
+          "totalTrades": 75,
+          "wins": 32,
+          "losses": 43,
+          "totalPnl": 273.73,
+          "winRate": 42.66666666666667
+        }
+      }
+    },
+    {
+      "config": {
+        "strategies": [
+          "EMA_RIBBON"
+        ],
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT",
+          "SOLUSDT",
+          "LIGHTUSDT",
+          "RIVERUSDT",
+          "ZECUSDT",
+          "XRPUSDT",
+          "DOGEUSDT",
+          "BNBUSDT",
+          "BEATUSDT",
+          "BROCCOLI714USDT",
+          "ADAUSDT",
+          "LITUSDT",
+          "SUIUSDT",
+          "LYNUSDT",
+          "COLLECTUSDT",
+          "1000PEPEUSDT",
+          "ZBTUSDT",
+          "XPLUSDT",
+          "QUSDT",
+          "TRADOORUSDT",
+          "SQDUSDT",
+          "CHZUSDT",
+          "LINKUSDT",
+          "HYPEUSDT",
+          "PAXGUSDT",
+          "ATUSDT",
+          "AVAXUSDT",
+          "PIPPINUSDT",
+          "BCHUSDT",
+          "TAKEUSDT",
+          "1000LUNCUSDT",
+          "CYBERUSDT",
+          "FILUSDT",
+          "ENAUSDT",
+          "PIEVERSEUSDT",
+          "WCTUSDT",
+          "NIGHTUSDT",
+          "ASTERUSDT",
+          "CCUSDT",
+          "LUNA2USDT",
+          "QTUMUSDT",
+          "AAVEUSDT",
+          "POLYXUSDT",
+          "LTCUSDT",
+          "ZKPUSDT",
+          "NEARUSDT",
+          "PUMPUSDT",
+          "TRUMPUSDT",
+          "UNIUSDT",
+          "FARTCOINUSDT",
+          "ZRXUSDT",
+          "WIFUSDT",
+          "AUCTIONUSDT",
+          "ICPUSDT",
+          "WLDUSDT",
+          "SAPIENUSDT",
+          "1000SHIBUSDT",
+          "MUBARAKUSDT",
+          "DOTUSDT",
+          "TAOUSDT",
+          "FOLKSUSDT",
+          "XLMUSDT",
+          "AVNTUSDT",
+          "APTUSDT",
+          "RAVEUSDT",
+          "TSTUSDT",
+          "HBARUSDT",
+          "MONUSDT",
+          "IRUSDT",
+          "HUSDT",
+          "TIAUSDT",
+          "0GUSDT",
+          "PENGUUSDT",
+          "RVVUSDT",
+          "ARBUSDT",
+          "ONTUSDT",
+          "CLOUSDT",
+          "GIGGLEUSDT",
+          "MAGMAUSDT"
+        ],
+        "startDate": "2024-11-01",
+        "endDate": "2024-12-31"
+      },
+      "performance": {
+        "totalTrades": 3972,
+        "wins": 1451,
+        "losses": 2521,
+        "winRate": 36.53071500503525,
+        "roi": -98.88723196751266,
+        "totalPnl": -9888.723196751265,
+        "finalBalance": 111.27680324873516,
+        "sharpeRatio": 0,
+        "maxDrawdown": 0,
+        "tradesPerDay": 66.2
+      },
+      "strategyStats": {
+        "EMA_RIBBON": {
+          "totalTrades": 3972,
+          "wins": 1451,
+          "losses": 2521,
+          "totalPnl": -5409.82999999999,
+          "winRate": 36.53071500503525,
+          "avgPnl": -1.3619914400805615
+        }
+      },
+      "symbolStats": {
+        "ENAUSDT": {
+          "totalTrades": 179,
+          "wins": 72,
+          "losses": 107,
+          "totalPnl": 83.59999999999982,
+          "winRate": 40.22346368715084
+        },
+        "ICPUSDT": {
+          "totalTrades": 68,
+          "wins": 28,
+          "losses": 40,
+          "totalPnl": 92.79999999999998,
+          "winRate": 41.17647058823529
+        },
+        "LITUSDT": {
+          "totalTrades": 84,
+          "wins": 26,
+          "losses": 58,
+          "totalPnl": -512.5799999999998,
+          "winRate": 30.952380952380953
+        },
+        "ONTUSDT": {
+          "totalTrades": 46,
+          "wins": 22,
+          "losses": 24,
+          "totalPnl": 289.66999999999996,
+          "winRate": 47.82608695652174
+        },
+        "LINKUSDT": {
+          "totalTrades": 85,
+          "wins": 32,
+          "losses": 53,
+          "totalPnl": -112.67999999999995,
+          "winRate": 37.64705882352941
+        },
+        "WLDUSDT": {
+          "totalTrades": 124,
+          "wins": 42,
+          "losses": 82,
+          "totalPnl": -263.37000000000023,
+          "winRate": 33.87096774193548
+        },
+        "UNIUSDT": {
+          "totalTrades": 113,
+          "wins": 34,
+          "losses": 79,
+          "totalPnl": -822.5800000000002,
+          "winRate": 30.08849557522124
+        },
+        "AAVEUSDT": {
+          "totalTrades": 104,
+          "wins": 30,
+          "losses": 74,
+          "totalPnl": -687.2200000000004,
+          "winRate": 28.846153846153843
+        },
+        "BNBUSDT": {
+          "totalTrades": 20,
+          "wins": 12,
+          "losses": 8,
+          "totalPnl": 245.34,
+          "winRate": 60
+        },
+        "ETHUSDT": {
+          "totalTrades": 22,
+          "wins": 6,
+          "losses": 16,
+          "totalPnl": -99.95999999999997,
+          "winRate": 27.27272727272727
+        },
+        "TAOUSDT": {
+          "totalTrades": 121,
+          "wins": 35,
+          "losses": 86,
+          "totalPnl": -693.1599999999999,
+          "winRate": 28.92561983471074
+        },
+        "AUCTIONUSDT": {
+          "totalTrades": 96,
+          "wins": 22,
+          "losses": 74,
+          "totalPnl": -1028.81,
+          "winRate": 22.916666666666664
+        },
+        "DOTUSDT": {
+          "totalTrades": 69,
+          "wins": 26,
+          "losses": 43,
+          "totalPnl": -111.78999999999995,
+          "winRate": 37.68115942028986
+        },
+        "BCHUSDT": {
+          "totalTrades": 59,
+          "wins": 19,
+          "losses": 40,
+          "totalPnl": -270.3099999999999,
+          "winRate": 32.20338983050847
+        },
+        "FILUSDT": {
+          "totalTrades": 84,
+          "wins": 35,
+          "losses": 49,
+          "totalPnl": 283.91,
+          "winRate": 41.66666666666667
+        },
+        "WIFUSDT": {
+          "totalTrades": 163,
+          "wins": 52,
+          "losses": 111,
+          "totalPnl": -840.0699999999996,
+          "winRate": 31.901840490797547
+        },
+        "SUIUSDT": {
+          "totalTrades": 169,
+          "wins": 67,
+          "losses": 102,
+          "totalPnl": 270.58,
+          "winRate": 39.64497041420118
+        },
+        "NEARUSDT": {
+          "totalTrades": 96,
+          "wins": 40,
+          "losses": 56,
+          "totalPnl": 244.60999999999987,
+          "winRate": 41.66666666666667
+        },
+        "DOGEUSDT": {
+          "totalTrades": 151,
+          "wins": 65,
+          "losses": 86,
+          "totalPnl": 425.39999999999986,
+          "winRate": 43.04635761589404
+        },
+        "1000SHIBUSDT": {
+          "totalTrades": 102,
+          "wins": 41,
+          "losses": 61,
+          "totalPnl": 136.0900000000002,
+          "winRate": 40.19607843137255
+        },
+        "1000LUNCUSDT": {
+          "totalTrades": 64,
+          "wins": 24,
+          "losses": 40,
+          "totalPnl": -187.17000000000013,
+          "winRate": 37.5
+        },
+        "TIAUSDT": {
+          "totalTrades": 147,
+          "wins": 54,
+          "losses": 93,
+          "totalPnl": 0.8300000000002576,
+          "winRate": 36.734693877551024
+        },
+        "1000PEPEUSDT": {
+          "totalTrades": 157,
+          "wins": 51,
+          "losses": 106,
+          "totalPnl": -665.7400000000001,
+          "winRate": 32.48407643312102
+        },
+        "CYBERUSDT": {
+          "totalTrades": 70,
+          "wins": 22,
+          "losses": 48,
+          "totalPnl": -309.90999999999997,
+          "winRate": 31.428571428571427
+        },
+        "ZECUSDT": {
+          "totalTrades": 152,
+          "wins": 53,
+          "losses": 99,
+          "totalPnl": -440.92999999999995,
+          "winRate": 34.868421052631575
+        },
+        "APTUSDT": {
+          "totalTrades": 96,
+          "wins": 37,
+          "losses": 59,
+          "totalPnl": -37.36999999999989,
+          "winRate": 38.54166666666667
+        },
+        "POLYXUSDT": {
+          "totalTrades": 138,
+          "wins": 44,
+          "losses": 94,
+          "totalPnl": -247.07999999999993,
+          "winRate": 31.88405797101449
+        },
+        "HBARUSDT": {
+          "totalTrades": 145,
+          "wins": 54,
+          "losses": 91,
+          "totalPnl": -303.6600000000001,
+          "winRate": 37.24137931034483
+        },
+        "XRPUSDT": {
+          "totalTrades": 81,
+          "wins": 28,
+          "losses": 53,
+          "totalPnl": -321.84000000000003,
+          "winRate": 34.5679012345679
+        },
+        "SOLUSDT": {
+          "totalTrades": 57,
+          "wins": 32,
+          "losses": 25,
+          "totalPnl": 480.3800000000001,
+          "winRate": 56.14035087719298
+        },
+        "ADAUSDT": {
+          "totalTrades": 113,
+          "wins": 43,
+          "losses": 70,
+          "totalPnl": 141.78999999999996,
+          "winRate": 38.05309734513274
+        },
+        "LTCUSDT": {
+          "totalTrades": 48,
+          "wins": 13,
+          "losses": 35,
+          "totalPnl": -248.6,
+          "winRate": 27.083333333333332
+        },
+        "CHZUSDT": {
+          "totalTrades": 65,
+          "wins": 15,
+          "losses": 50,
+          "totalPnl": -673.7400000000001,
+          "winRate": 23.076923076923077
+        },
+        "BTCUSDT": {
+          "totalTrades": 20,
+          "wins": 10,
+          "losses": 10,
+          "totalPnl": 78.20999999999997,
+          "winRate": 50
+        },
+        "QTUMUSDT": {
+          "totalTrades": 60,
+          "wins": 27,
+          "losses": 33,
+          "totalPnl": 246.95999999999995,
+          "winRate": 45
+        },
+        "LUNA2USDT": {
+          "totalTrades": 94,
+          "wins": 44,
+          "losses": 50,
+          "totalPnl": 468.07999999999987,
+          "winRate": 46.808510638297875
+        },
+        "ARBUSDT": {
+          "totalTrades": 47,
+          "wins": 16,
+          "losses": 31,
+          "totalPnl": -99.41999999999997,
+          "winRate": 34.04255319148936
+        },
+        "ZRXUSDT": {
+          "totalTrades": 116,
+          "wins": 47,
+          "losses": 69,
+          "totalPnl": 51.66999999999985,
+          "winRate": 40.51724137931034
+        },
+        "XLMUSDT": {
+          "totalTrades": 151,
+          "wins": 54,
+          "losses": 97,
+          "totalPnl": -273.61999999999995,
+          "winRate": 35.76158940397351
+        },
+        "AVAXUSDT": {
+          "totalTrades": 89,
+          "wins": 35,
+          "losses": 54,
+          "totalPnl": 200.2999999999999,
+          "winRate": 39.325842696629216
+        },
+        "PENGUUSDT": {
+          "totalTrades": 44,
+          "wins": 21,
+          "losses": 23,
+          "totalPnl": 284.42999999999995,
+          "winRate": 47.72727272727273
+        },
+        "FARTCOINUSDT": {
+          "totalTrades": 63,
+          "wins": 21,
+          "losses": 42,
+          "totalPnl": -182.86999999999995,
+          "winRate": 33.33333333333333
+        }
+      }
+    }
+  ],
+  "combinations": [
+    {
+      "config": {
+        "strategies": [
+          "BB_MEAN_REV",
+          "PSAR_EMA_MACD"
+        ],
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT",
+          "SOLUSDT",
+          "LIGHTUSDT",
+          "RIVERUSDT",
+          "ZECUSDT",
+          "XRPUSDT",
+          "DOGEUSDT",
+          "BNBUSDT",
+          "BEATUSDT",
+          "BROCCOLI714USDT",
+          "ADAUSDT",
+          "LITUSDT",
+          "SUIUSDT",
+          "LYNUSDT",
+          "COLLECTUSDT",
+          "1000PEPEUSDT",
+          "ZBTUSDT",
+          "XPLUSDT",
+          "QUSDT",
+          "TRADOORUSDT",
+          "SQDUSDT",
+          "CHZUSDT",
+          "LINKUSDT",
+          "HYPEUSDT",
+          "PAXGUSDT",
+          "ATUSDT",
+          "AVAXUSDT",
+          "PIPPINUSDT",
+          "BCHUSDT",
+          "TAKEUSDT",
+          "1000LUNCUSDT",
+          "CYBERUSDT",
+          "FILUSDT",
+          "ENAUSDT",
+          "PIEVERSEUSDT",
+          "WCTUSDT",
+          "NIGHTUSDT",
+          "ASTERUSDT",
+          "CCUSDT",
+          "LUNA2USDT",
+          "QTUMUSDT",
+          "AAVEUSDT",
+          "POLYXUSDT",
+          "LTCUSDT",
+          "ZKPUSDT",
+          "NEARUSDT",
+          "PUMPUSDT",
+          "TRUMPUSDT",
+          "UNIUSDT",
+          "FARTCOINUSDT",
+          "ZRXUSDT",
+          "WIFUSDT",
+          "AUCTIONUSDT",
+          "ICPUSDT",
+          "WLDUSDT",
+          "SAPIENUSDT",
+          "1000SHIBUSDT",
+          "MUBARAKUSDT",
+          "DOTUSDT",
+          "TAOUSDT",
+          "FOLKSUSDT",
+          "XLMUSDT",
+          "AVNTUSDT",
+          "APTUSDT",
+          "RAVEUSDT",
+          "TSTUSDT",
+          "HBARUSDT",
+          "MONUSDT",
+          "IRUSDT",
+          "HUSDT",
+          "TIAUSDT",
+          "0GUSDT",
+          "PENGUUSDT",
+          "RVVUSDT",
+          "ARBUSDT",
+          "ONTUSDT",
+          "CLOUSDT",
+          "GIGGLEUSDT",
+          "MAGMAUSDT"
+        ],
+        "startDate": "2024-11-01",
+        "endDate": "2024-12-31"
+      },
+      "performance": {
+        "totalTrades": 2081,
+        "wins": 845,
+        "losses": 1236,
+        "winRate": 40.605478135511774,
+        "roi": -53.030322205721994,
+        "totalPnl": -5303.032220572199,
+        "finalBalance": 4696.967779427801,
+        "sharpeRatio": 0,
+        "maxDrawdown": 0,
+        "tradesPerDay": 34.68333333333333
+      },
+      "strategyStats": {
+        "BB_MEAN_REV": {
+          "totalTrades": 1755,
+          "wins": 714,
+          "losses": 1041,
+          "totalPnl": -2711.9600000000028,
+          "winRate": 40.68376068376068,
+          "avgPnl": -1.545276353276355
+        },
+        "PSAR_EMA_MACD": {
+          "totalTrades": 326,
+          "wins": 131,
+          "losses": 195,
+          "totalPnl": 410.9100000000002,
+          "winRate": 40.1840490797546,
+          "avgPnl": 1.260460122699387
+        }
+      }
+    },
+    {
+      "config": {
+        "strategies": [
+          "BB_MEAN_REV",
+          "EMA_RIBBON"
+        ],
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT",
+          "SOLUSDT",
+          "LIGHTUSDT",
+          "RIVERUSDT",
+          "ZECUSDT",
+          "XRPUSDT",
+          "DOGEUSDT",
+          "BNBUSDT",
+          "BEATUSDT",
+          "BROCCOLI714USDT",
+          "ADAUSDT",
+          "LITUSDT",
+          "SUIUSDT",
+          "LYNUSDT",
+          "COLLECTUSDT",
+          "1000PEPEUSDT",
+          "ZBTUSDT",
+          "XPLUSDT",
+          "QUSDT",
+          "TRADOORUSDT",
+          "SQDUSDT",
+          "CHZUSDT",
+          "LINKUSDT",
+          "HYPEUSDT",
+          "PAXGUSDT",
+          "ATUSDT",
+          "AVAXUSDT",
+          "PIPPINUSDT",
+          "BCHUSDT",
+          "TAKEUSDT",
+          "1000LUNCUSDT",
+          "CYBERUSDT",
+          "FILUSDT",
+          "ENAUSDT",
+          "PIEVERSEUSDT",
+          "WCTUSDT",
+          "NIGHTUSDT",
+          "ASTERUSDT",
+          "CCUSDT",
+          "LUNA2USDT",
+          "QTUMUSDT",
+          "AAVEUSDT",
+          "POLYXUSDT",
+          "LTCUSDT",
+          "ZKPUSDT",
+          "NEARUSDT",
+          "PUMPUSDT",
+          "TRUMPUSDT",
+          "UNIUSDT",
+          "FARTCOINUSDT",
+          "ZRXUSDT",
+          "WIFUSDT",
+          "AUCTIONUSDT",
+          "ICPUSDT",
+          "WLDUSDT",
+          "SAPIENUSDT",
+          "1000SHIBUSDT",
+          "MUBARAKUSDT",
+          "DOTUSDT",
+          "TAOUSDT",
+          "FOLKSUSDT",
+          "XLMUSDT",
+          "AVNTUSDT",
+          "APTUSDT",
+          "RAVEUSDT",
+          "TSTUSDT",
+          "HBARUSDT",
+          "MONUSDT",
+          "IRUSDT",
+          "HUSDT",
+          "TIAUSDT",
+          "0GUSDT",
+          "PENGUUSDT",
+          "RVVUSDT",
+          "ARBUSDT",
+          "ONTUSDT",
+          "CLOUSDT",
+          "GIGGLEUSDT",
+          "MAGMAUSDT"
+        ],
+        "startDate": "2024-11-01",
+        "endDate": "2024-12-31"
+      },
+      "performance": {
+        "totalTrades": 3085,
+        "wins": 1138,
+        "losses": 1947,
+        "winRate": 36.88816855753647,
+        "roi": -98.4965210187967,
+        "totalPnl": -9849.65210187967,
+        "finalBalance": 150.3478981203305,
+        "sharpeRatio": 0,
+        "maxDrawdown": 0,
+        "tradesPerDay": 51.416666666666664
+      },
+      "strategyStats": {
+        "BB_MEAN_REV": {
+          "totalTrades": 754,
+          "wins": 287,
+          "losses": 467,
+          "totalPnl": -3785.930000000004,
+          "winRate": 38.06366047745358,
+          "avgPnl": -5.021127320954912
+        },
+        "EMA_RIBBON": {
+          "totalTrades": 2331,
+          "wins": 851,
+          "losses": 1480,
+          "totalPnl": -2818.849999999994,
+          "winRate": 36.507936507936506,
+          "avgPnl": -1.2092878592878566
+        }
+      }
+    },
+    {
+      "config": {
+        "strategies": [
+          "PSAR_EMA_MACD",
+          "EMA_RIBBON"
+        ],
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT",
+          "SOLUSDT",
+          "LIGHTUSDT",
+          "RIVERUSDT",
+          "ZECUSDT",
+          "XRPUSDT",
+          "DOGEUSDT",
+          "BNBUSDT",
+          "BEATUSDT",
+          "BROCCOLI714USDT",
+          "ADAUSDT",
+          "LITUSDT",
+          "SUIUSDT",
+          "LYNUSDT",
+          "COLLECTUSDT",
+          "1000PEPEUSDT",
+          "ZBTUSDT",
+          "XPLUSDT",
+          "QUSDT",
+          "TRADOORUSDT",
+          "SQDUSDT",
+          "CHZUSDT",
+          "LINKUSDT",
+          "HYPEUSDT",
+          "PAXGUSDT",
+          "ATUSDT",
+          "AVAXUSDT",
+          "PIPPINUSDT",
+          "BCHUSDT",
+          "TAKEUSDT",
+          "1000LUNCUSDT",
+          "CYBERUSDT",
+          "FILUSDT",
+          "ENAUSDT",
+          "PIEVERSEUSDT",
+          "WCTUSDT",
+          "NIGHTUSDT",
+          "ASTERUSDT",
+          "CCUSDT",
+          "LUNA2USDT",
+          "QTUMUSDT",
+          "AAVEUSDT",
+          "POLYXUSDT",
+          "LTCUSDT",
+          "ZKPUSDT",
+          "NEARUSDT",
+          "PUMPUSDT",
+          "TRUMPUSDT",
+          "UNIUSDT",
+          "FARTCOINUSDT",
+          "ZRXUSDT",
+          "WIFUSDT",
+          "AUCTIONUSDT",
+          "ICPUSDT",
+          "WLDUSDT",
+          "SAPIENUSDT",
+          "1000SHIBUSDT",
+          "MUBARAKUSDT",
+          "DOTUSDT",
+          "TAOUSDT",
+          "FOLKSUSDT",
+          "XLMUSDT",
+          "AVNTUSDT",
+          "APTUSDT",
+          "RAVEUSDT",
+          "TSTUSDT",
+          "HBARUSDT",
+          "MONUSDT",
+          "IRUSDT",
+          "HUSDT",
+          "TIAUSDT",
+          "0GUSDT",
+          "PENGUUSDT",
+          "RVVUSDT",
+          "ARBUSDT",
+          "ONTUSDT",
+          "CLOUSDT",
+          "GIGGLEUSDT",
+          "MAGMAUSDT"
+        ],
+        "startDate": "2024-11-01",
+        "endDate": "2024-12-31"
+      },
+      "performance": {
+        "totalTrades": 5590,
+        "wins": 2124,
+        "losses": 3466,
+        "winRate": 37.99642218246869,
+        "roi": -98.83886583715949,
+        "totalPnl": -9883.886583715948,
+        "finalBalance": 116.113416284052,
+        "sharpeRatio": 0,
+        "maxDrawdown": 0,
+        "tradesPerDay": 93.16666666666667
+      },
+      "strategyStats": {
+        "EMA_RIBBON": {
+          "totalTrades": 5433,
+          "wins": 2071,
+          "losses": 3362,
+          "totalPnl": -1575.6000000000029,
+          "winRate": 38.11890300018406,
+          "avgPnl": -0.2900055218111546
+        },
+        "PSAR_EMA_MACD": {
+          "totalTrades": 157,
+          "wins": 53,
+          "losses": 104,
+          "totalPnl": -606.4800000000004,
+          "winRate": 33.75796178343949,
+          "avgPnl": -3.8629299363057346
+        }
+      }
+    },
+    {
+      "config": {
+        "strategies": [
+          "PSAR_EMA_MACD",
+          "BB_MEAN_REV",
+          "EMA_RIBBON"
+        ],
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT",
+          "SOLUSDT",
+          "LIGHTUSDT",
+          "RIVERUSDT",
+          "ZECUSDT",
+          "XRPUSDT",
+          "DOGEUSDT",
+          "BNBUSDT",
+          "BEATUSDT",
+          "BROCCOLI714USDT",
+          "ADAUSDT",
+          "LITUSDT",
+          "SUIUSDT",
+          "LYNUSDT",
+          "COLLECTUSDT",
+          "1000PEPEUSDT",
+          "ZBTUSDT",
+          "XPLUSDT",
+          "QUSDT",
+          "TRADOORUSDT",
+          "SQDUSDT",
+          "CHZUSDT",
+          "LINKUSDT",
+          "HYPEUSDT",
+          "PAXGUSDT",
+          "ATUSDT",
+          "AVAXUSDT",
+          "PIPPINUSDT",
+          "BCHUSDT",
+          "TAKEUSDT",
+          "1000LUNCUSDT",
+          "CYBERUSDT",
+          "FILUSDT",
+          "ENAUSDT",
+          "PIEVERSEUSDT",
+          "WCTUSDT",
+          "NIGHTUSDT",
+          "ASTERUSDT",
+          "CCUSDT",
+          "LUNA2USDT",
+          "QTUMUSDT",
+          "AAVEUSDT",
+          "POLYXUSDT",
+          "LTCUSDT",
+          "ZKPUSDT",
+          "NEARUSDT",
+          "PUMPUSDT",
+          "TRUMPUSDT",
+          "UNIUSDT",
+          "FARTCOINUSDT",
+          "ZRXUSDT",
+          "WIFUSDT",
+          "AUCTIONUSDT",
+          "ICPUSDT",
+          "WLDUSDT",
+          "SAPIENUSDT",
+          "1000SHIBUSDT",
+          "MUBARAKUSDT",
+          "DOTUSDT",
+          "TAOUSDT",
+          "FOLKSUSDT",
+          "XLMUSDT",
+          "AVNTUSDT",
+          "APTUSDT",
+          "RAVEUSDT",
+          "TSTUSDT",
+          "HBARUSDT",
+          "MONUSDT",
+          "IRUSDT",
+          "HUSDT",
+          "TIAUSDT",
+          "0GUSDT",
+          "PENGUUSDT",
+          "RVVUSDT",
+          "ARBUSDT",
+          "ONTUSDT",
+          "CLOUSDT",
+          "GIGGLEUSDT",
+          "MAGMAUSDT"
+        ],
+        "startDate": "2024-11-01",
+        "endDate": "2024-12-31"
+      },
+      "performance": {
+        "totalTrades": 2905,
+        "wins": 1068,
+        "losses": 1837,
+        "winRate": 36.76419965576592,
+        "roi": -99.35125703326457,
+        "totalPnl": -9935.125703326457,
+        "finalBalance": 64.87429667354178,
+        "sharpeRatio": 0,
+        "maxDrawdown": 0,
+        "tradesPerDay": 48.416666666666664
+      },
+      "strategyStats": {
+        "BB_MEAN_REV": {
+          "totalTrades": 681,
+          "wins": 255,
+          "losses": 426,
+          "totalPnl": -3330.0400000000022,
+          "winRate": 37.44493392070485,
+          "avgPnl": -4.889926578560943
+        },
+        "EMA_RIBBON": {
+          "totalTrades": 2164,
+          "wins": 799,
+          "losses": 1365,
+          "totalPnl": -2652.8900000000017,
+          "winRate": 36.92236598890943,
+          "avgPnl": -1.225919593345657
+        },
+        "PSAR_EMA_MACD": {
+          "totalTrades": 60,
+          "wins": 14,
+          "losses": 46,
+          "totalPnl": -941.22,
+          "winRate": 23.333333333333332,
+          "avgPnl": -15.687000000000001
+        }
+      }
+    }
+  ],
+  "monthly": [
+    {
+      "config": {
+        "strategies": [
+          "PSAR_EMA_MACD"
+        ],
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT",
+          "SOLUSDT",
+          "LIGHTUSDT",
+          "RIVERUSDT",
+          "ZECUSDT",
+          "XRPUSDT",
+          "DOGEUSDT",
+          "BNBUSDT",
+          "BEATUSDT",
+          "BROCCOLI714USDT",
+          "ADAUSDT",
+          "LITUSDT",
+          "SUIUSDT",
+          "LYNUSDT",
+          "COLLECTUSDT",
+          "1000PEPEUSDT",
+          "ZBTUSDT",
+          "XPLUSDT",
+          "QUSDT",
+          "TRADOORUSDT",
+          "SQDUSDT",
+          "CHZUSDT",
+          "LINKUSDT",
+          "HYPEUSDT",
+          "PAXGUSDT",
+          "ATUSDT",
+          "AVAXUSDT",
+          "PIPPINUSDT",
+          "BCHUSDT",
+          "TAKEUSDT",
+          "1000LUNCUSDT",
+          "CYBERUSDT",
+          "FILUSDT",
+          "ENAUSDT",
+          "PIEVERSEUSDT",
+          "WCTUSDT",
+          "NIGHTUSDT",
+          "ASTERUSDT",
+          "CCUSDT",
+          "LUNA2USDT",
+          "QTUMUSDT",
+          "AAVEUSDT",
+          "POLYXUSDT",
+          "LTCUSDT",
+          "ZKPUSDT",
+          "NEARUSDT",
+          "PUMPUSDT",
+          "TRUMPUSDT",
+          "UNIUSDT",
+          "FARTCOINUSDT",
+          "ZRXUSDT",
+          "WIFUSDT",
+          "AUCTIONUSDT",
+          "ICPUSDT",
+          "WLDUSDT",
+          "SAPIENUSDT",
+          "1000SHIBUSDT",
+          "MUBARAKUSDT",
+          "DOTUSDT",
+          "TAOUSDT",
+          "FOLKSUSDT",
+          "XLMUSDT",
+          "AVNTUSDT",
+          "APTUSDT",
+          "RAVEUSDT",
+          "TSTUSDT",
+          "HBARUSDT",
+          "MONUSDT",
+          "IRUSDT",
+          "HUSDT",
+          "TIAUSDT",
+          "0GUSDT",
+          "PENGUUSDT",
+          "RVVUSDT",
+          "ARBUSDT",
+          "ONTUSDT",
+          "CLOUSDT",
+          "GIGGLEUSDT",
+          "MAGMAUSDT"
+        ],
+        "startDate": "2024-11-01",
+        "endDate": "2024-11-29",
+        "period": "2024-11"
+      },
+      "performance": {
+        "totalTrades": 261,
+        "wins": 105,
+        "losses": 156,
+        "winRate": 40.229885057471265,
+        "roi": 2.573320369920875,
+        "totalPnl": 257.3320369920875,
+        "finalBalance": 10257.332036992088,
+        "sharpeRatio": 0,
+        "maxDrawdown": 0,
+        "tradesPerDay": 9
+      }
+    },
+    {
+      "config": {
+        "strategies": [
+          "PSAR_EMA_MACD"
+        ],
+        "symbols": [
+          "BTCUSDT",
+          "ETHUSDT",
+          "SOLUSDT",
+          "LIGHTUSDT",
+          "RIVERUSDT",
+          "ZECUSDT",
+          "XRPUSDT",
+          "DOGEUSDT",
+          "BNBUSDT",
+          "BEATUSDT",
+          "BROCCOLI714USDT",
+          "ADAUSDT",
+          "LITUSDT",
+          "SUIUSDT",
+          "LYNUSDT",
+          "COLLECTUSDT",
+          "1000PEPEUSDT",
+          "ZBTUSDT",
+          "XPLUSDT",
+          "QUSDT",
+          "TRADOORUSDT",
+          "SQDUSDT",
+          "CHZUSDT",
+          "LINKUSDT",
+          "HYPEUSDT",
+          "PAXGUSDT",
+          "ATUSDT",
+          "AVAXUSDT",
+          "PIPPINUSDT",
+          "BCHUSDT",
+          "TAKEUSDT",
+          "1000LUNCUSDT",
+          "CYBERUSDT",
+          "FILUSDT",
+          "ENAUSDT",
+          "PIEVERSEUSDT",
+          "WCTUSDT",
+          "NIGHTUSDT",
+          "ASTERUSDT",
+          "CCUSDT",
+          "LUNA2USDT",
+          "QTUMUSDT",
+          "AAVEUSDT",
+          "POLYXUSDT",
+          "LTCUSDT",
+          "ZKPUSDT",
+          "NEARUSDT",
+          "PUMPUSDT",
+          "TRUMPUSDT",
+          "UNIUSDT",
+          "FARTCOINUSDT",
+          "ZRXUSDT",
+          "WIFUSDT",
+          "AUCTIONUSDT",
+          "ICPUSDT",
+          "WLDUSDT",
+          "SAPIENUSDT",
+          "1000SHIBUSDT",
+          "MUBARAKUSDT",
+          "DOTUSDT",
+          "TAOUSDT",
+          "FOLKSUSDT",
+          "XLMUSDT",
+          "AVNTUSDT",
+          "APTUSDT",
+          "RAVEUSDT",
+          "TSTUSDT",
+          "HBARUSDT",
+          "MONUSDT",
+          "IRUSDT",
+          "HUSDT",
+          "TIAUSDT",
+          "0GUSDT",
+          "PENGUUSDT",
+          "RVVUSDT",
+          "ARBUSDT",
+          "ONTUSDT",
+          "CLOUSDT",
+          "GIGGLEUSDT",
+          "MAGMAUSDT"
+        ],
+        "startDate": "2024-11-30",
+        "endDate": "2024-12-30",
+        "period": "2024-12"
+      },
+      "performance": {
+        "totalTrades": 171,
+        "wins": 62,
+        "losses": 109,
+        "winRate": 36.25730994152047,
+        "roi": -8.38086624187139,
+        "totalPnl": -838.086624187139,
+        "finalBalance": 9161.913375812861,
+        "sharpeRatio": 0,
+        "maxDrawdown": 0,
+        "tradesPerDay": 5.516129032258065
+      }
+    }
+  ],
+  "weekly": [],
+  "bySymbol": [
+    {
+      "symbol": "BNBUSDT",
+      "totalTrades": 2,
+      "wins": 2,
+      "losses": 0,
+      "winRate": 100,
+      "roi": 0.8832488461155481,
+      "totalPnl": 88.32488461155481,
+      "finalBalance": 10088.324884611555,
+      "tradesPerDay": 0.03333333333333333
+    },
+    {
+      "symbol": "LITUSDT",
+      "totalTrades": 5,
+      "wins": 2,
+      "losses": 3,
+      "winRate": 40,
+      "roi": 0.748441182521292,
+      "totalPnl": 74.84411825212919,
+      "finalBalance": 10074.84411825213,
+      "tradesPerDay": 0.08333333333333333
+    },
+    {
+      "symbol": "XRPUSDT",
+      "totalTrades": 11,
+      "wins": 5,
+      "losses": 6,
+      "winRate": 45.45454545454545,
+      "roi": 0.5725085607912115,
+      "totalPnl": 57.25085607912115,
+      "finalBalance": 10057.250856079121,
+      "tradesPerDay": 0.18333333333333332
+    },
+    {
+      "symbol": "SOLUSDT",
+      "totalTrades": 2,
+      "wins": 1,
+      "losses": 1,
+      "winRate": 50,
+      "roi": 0.4471341388534165,
+      "totalPnl": 44.71341388534165,
+      "finalBalance": 10044.713413885342,
+      "tradesPerDay": 0.03333333333333333
+    },
+    {
+      "symbol": "BTCUSDT",
+      "totalTrades": 0,
+      "wins": 0,
+      "losses": 0,
+      "winRate": 0,
+      "roi": 0,
+      "totalPnl": 0,
+      "finalBalance": 10000,
+      "tradesPerDay": 0
+    },
+    {
+      "symbol": "ETHUSDT",
+      "totalTrades": 1,
+      "wins": 0,
+      "losses": 1,
+      "winRate": 0,
+      "roi": -0.38051381115923505,
+      "totalPnl": -38.051381115923505,
+      "finalBalance": 9961.948618884076,
+      "tradesPerDay": 0.016666666666666666
+    },
+    {
+      "symbol": "SUIUSDT",
+      "totalTrades": 6,
+      "wins": 2,
+      "losses": 4,
+      "winRate": 33.33333333333333,
+      "roi": -0.651108968205117,
+      "totalPnl": -65.1108968205117,
+      "finalBalance": 9934.889103179488,
+      "tradesPerDay": 0.1
+    },
+    {
+      "symbol": "ZECUSDT",
+      "totalTrades": 9,
+      "wins": 2,
+      "losses": 7,
+      "winRate": 22.22222222222222,
+      "roi": -1.4008105054124644,
+      "totalPnl": -140.08105054124644,
+      "finalBalance": 9859.918949458754,
+      "tradesPerDay": 0.15
+    },
+    {
+      "symbol": "1000PEPEUSDT",
+      "totalTrades": 15,
+      "wins": 3,
+      "losses": 12,
+      "winRate": 20,
+      "roi": -2.403326979559315,
+      "totalPnl": -240.3326979559315,
+      "finalBalance": 9759.667302044068,
+      "tradesPerDay": 0.25
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "totalTrades": 11,
+      "wins": 2,
+      "losses": 9,
+      "winRate": 18.181818181818183,
+      "roi": -2.409986883148795,
+      "totalPnl": -240.99868831487947,
+      "finalBalance": 9759.00131168512,
+      "tradesPerDay": 0.18333333333333332
+    },
+    {
+      "symbol": "ADAUSDT",
+      "totalTrades": 10,
+      "wins": 0,
+      "losses": 10,
+      "winRate": 0,
+      "roi": -3.742021050935164,
+      "totalPnl": -374.20210509351637,
+      "finalBalance": 9625.797894906484,
+      "tradesPerDay": 0.16666666666666666
+    }
+  ],
+  "summary": {
+    "timestamp": "2026-01-01T03:44:30.236Z",
+    "config": {
+      "symbols": 80,
+      "startDate": "2024-11-01",
+      "endDate": "2024-12-31",
+      "totalDays": 60
+    },
+    "topIndividual": [
+      {
+        "config": {
+          "strategies": [
+            "PSAR_EMA_MACD"
+          ],
+          "symbols": [
+            "BTCUSDT",
+            "ETHUSDT",
+            "SOLUSDT",
+            "LIGHTUSDT",
+            "RIVERUSDT",
+            "ZECUSDT",
+            "XRPUSDT",
+            "DOGEUSDT",
+            "BNBUSDT",
+            "BEATUSDT",
+            "BROCCOLI714USDT",
+            "ADAUSDT",
+            "LITUSDT",
+            "SUIUSDT",
+            "LYNUSDT",
+            "COLLECTUSDT",
+            "1000PEPEUSDT",
+            "ZBTUSDT",
+            "XPLUSDT",
+            "QUSDT",
+            "TRADOORUSDT",
+            "SQDUSDT",
+            "CHZUSDT",
+            "LINKUSDT",
+            "HYPEUSDT",
+            "PAXGUSDT",
+            "ATUSDT",
+            "AVAXUSDT",
+            "PIPPINUSDT",
+            "BCHUSDT",
+            "TAKEUSDT",
+            "1000LUNCUSDT",
+            "CYBERUSDT",
+            "FILUSDT",
+            "ENAUSDT",
+            "PIEVERSEUSDT",
+            "WCTUSDT",
+            "NIGHTUSDT",
+            "ASTERUSDT",
+            "CCUSDT",
+            "LUNA2USDT",
+            "QTUMUSDT",
+            "AAVEUSDT",
+            "POLYXUSDT",
+            "LTCUSDT",
+            "ZKPUSDT",
+            "NEARUSDT",
+            "PUMPUSDT",
+            "TRUMPUSDT",
+            "UNIUSDT",
+            "FARTCOINUSDT",
+            "ZRXUSDT",
+            "WIFUSDT",
+            "AUCTIONUSDT",
+            "ICPUSDT",
+            "WLDUSDT",
+            "SAPIENUSDT",
+            "1000SHIBUSDT",
+            "MUBARAKUSDT",
+            "DOTUSDT",
+            "TAOUSDT",
+            "FOLKSUSDT",
+            "XLMUSDT",
+            "AVNTUSDT",
+            "APTUSDT",
+            "RAVEUSDT",
+            "TSTUSDT",
+            "HBARUSDT",
+            "MONUSDT",
+            "IRUSDT",
+            "HUSDT",
+            "TIAUSDT",
+            "0GUSDT",
+            "PENGUUSDT",
+            "RVVUSDT",
+            "ARBUSDT",
+            "ONTUSDT",
+            "CLOUSDT",
+            "GIGGLEUSDT",
+            "MAGMAUSDT"
+          ],
+          "startDate": "2024-11-01",
+          "endDate": "2024-12-31"
+        },
+        "performance": {
+          "totalTrades": 418,
+          "wins": 160,
+          "losses": 258,
+          "winRate": 38.27751196172249,
+          "roi": -8.108655419305324,
+          "totalPnl": -810.8655419305323,
+          "finalBalance": 9189.134458069468,
+          "sharpeRatio": 0,
+          "maxDrawdown": 0,
+          "tradesPerDay": 6.966666666666667
+        },
+        "strategyStats": {
+          "PSAR_EMA_MACD": {
+            "totalTrades": 418,
+            "wins": 160,
+            "losses": 258,
+            "totalPnl": -289.99999999999943,
+            "winRate": 38.27751196172249,
+            "avgPnl": -0.6937799043062187
+          }
+        },
+        "symbolStats": {
+          "DOGEUSDT": {
+            "totalTrades": 11,
+            "wins": 2,
+            "losses": 9,
+            "totalPnl": -229.11999999999998,
+            "winRate": 18.181818181818183
+          },
+          "AAVEUSDT": {
+            "totalTrades": 12,
+            "wins": 5,
+            "losses": 7,
+            "totalPnl": 1.6500000000000057,
+            "winRate": 41.66666666666667
+          },
+          "APTUSDT": {
+            "totalTrades": 13,
+            "wins": 8,
+            "losses": 5,
+            "totalPnl": 299.24000000000007,
+            "winRate": 61.53846153846154
+          },
+          "WLDUSDT": {
+            "totalTrades": 9,
+            "wins": 4,
+            "losses": 5,
+            "totalPnl": -10.159999999999997,
+            "winRate": 44.44444444444444
+          },
+          "WIFUSDT": {
+            "totalTrades": 18,
+            "wins": 5,
+            "losses": 13,
+            "totalPnl": -185.25,
+            "winRate": 27.77777777777778
+          },
+          "TAOUSDT": {
+            "totalTrades": 11,
+            "wins": 7,
+            "losses": 4,
+            "totalPnl": 254.32,
+            "winRate": 63.63636363636363
+          },
+          "FILUSDT": {
+            "totalTrades": 15,
+            "wins": 10,
+            "losses": 5,
+            "totalPnl": 288.31000000000006,
+            "winRate": 66.66666666666666
+          },
+          "LITUSDT": {
+            "totalTrades": 5,
+            "wins": 2,
+            "losses": 3,
+            "totalPnl": 81.82,
+            "winRate": 40
+          },
+          "AUCTIONUSDT": {
+            "totalTrades": 22,
+            "wins": 11,
+            "losses": 11,
+            "totalPnl": 264.29,
+            "winRate": 50
+          },
+          "1000PEPEUSDT": {
+            "totalTrades": 15,
+            "wins": 3,
+            "losses": 12,
+            "totalPnl": -226.36,
+            "winRate": 20
+          },
+          "AVAXUSDT": {
+            "totalTrades": 10,
+            "wins": 5,
+            "losses": 5,
+            "totalPnl": 81.31,
+            "winRate": 50
+          },
+          "ENAUSDT": {
+            "totalTrades": 16,
+            "wins": 5,
+            "losses": 11,
+            "totalPnl": 33.92999999999998,
+            "winRate": 31.25
+          },
+          "ADAUSDT": {
+            "totalTrades": 10,
+            "wins": 0,
+            "losses": 10,
+            "totalPnl": -362.02000000000004,
+            "winRate": 0
+          },
+          "CYBERUSDT": {
+            "totalTrades": 3,
+            "wins": 0,
+            "losses": 3,
+            "totalPnl": -110.14,
+            "winRate": 0
+          },
+          "HBARUSDT": {
+            "totalTrades": 24,
+            "wins": 9,
+            "losses": 15,
+            "totalPnl": -29.450000000000045,
+            "winRate": 37.5
+          },
+          "1000SHIBUSDT": {
+            "totalTrades": 14,
+            "wins": 2,
+            "losses": 12,
+            "totalPnl": -324.75,
+            "winRate": 14.285714285714285
+          },
+          "POLYXUSDT": {
+            "totalTrades": 21,
+            "wins": 8,
+            "losses": 13,
+            "totalPnl": -30.46999999999999,
+            "winRate": 38.095238095238095
+          },
+          "ARBUSDT": {
+            "totalTrades": 7,
+            "wins": 3,
+            "losses": 4,
+            "totalPnl": 25.589999999999996,
+            "winRate": 42.857142857142854
+          },
+          "NEARUSDT": {
+            "totalTrades": 5,
+            "wins": 0,
+            "losses": 5,
+            "totalPnl": -180.69,
+            "winRate": 0
+          },
+          "SUIUSDT": {
+            "totalTrades": 6,
+            "wins": 2,
+            "losses": 4,
+            "totalPnl": -58.18,
+            "winRate": 33.33333333333333
+          },
+          "TIAUSDT": {
+            "totalTrades": 10,
+            "wins": 6,
+            "losses": 4,
+            "totalPnl": 136.63999999999996,
+            "winRate": 60
+          },
+          "DOTUSDT": {
+            "totalTrades": 11,
+            "wins": 4,
+            "losses": 7,
+            "totalPnl": -62.65000000000001,
+            "winRate": 36.36363636363637
+          },
+          "LINKUSDT": {
+            "totalTrades": 14,
+            "wins": 5,
+            "losses": 9,
+            "totalPnl": -63.39999999999997,
+            "winRate": 35.714285714285715
+          },
+          "ETHUSDT": {
+            "totalTrades": 1,
+            "wins": 0,
+            "losses": 1,
+            "totalPnl": -36.52,
+            "winRate": 0
+          },
+          "XLMUSDT": {
+            "totalTrades": 19,
+            "wins": 8,
+            "losses": 11,
+            "totalPnl": 102.35999999999999,
+            "winRate": 42.10526315789473
+          },
+          "SOLUSDT": {
+            "totalTrades": 2,
+            "wins": 1,
+            "losses": 1,
+            "totalPnl": 45.76,
+            "winRate": 50
+          },
+          "LUNA2USDT": {
+            "totalTrades": 11,
+            "wins": 4,
+            "losses": 7,
+            "totalPnl": -68.16,
+            "winRate": 36.36363636363637
+          },
+          "ONTUSDT": {
+            "totalTrades": 4,
+            "wins": 0,
+            "losses": 4,
+            "totalPnl": -145.03,
+            "winRate": 0
+          },
+          "XRPUSDT": {
+            "totalTrades": 11,
+            "wins": 5,
+            "losses": 6,
+            "totalPnl": 66.45000000000002,
+            "winRate": 45.45454545454545
+          },
+          "QTUMUSDT": {
+            "totalTrades": 7,
+            "wins": 3,
+            "losses": 4,
+            "totalPnl": 53.690000000000005,
+            "winRate": 42.857142857142854
+          },
+          "LTCUSDT": {
+            "totalTrades": 5,
+            "wins": 4,
+            "losses": 1,
+            "totalPnl": 164.57000000000002,
+            "winRate": 80
+          },
+          "ICPUSDT": {
+            "totalTrades": 9,
+            "wins": 2,
+            "losses": 7,
+            "totalPnl": -66.1,
+            "winRate": 22.22222222222222
+          },
+          "CHZUSDT": {
+            "totalTrades": 4,
+            "wins": 2,
+            "losses": 2,
+            "totalPnl": 17.559999999999995,
+            "winRate": 50
+          },
+          "ZECUSDT": {
+            "totalTrades": 9,
+            "wins": 2,
+            "losses": 7,
+            "totalPnl": -130.73000000000002,
+            "winRate": 22.22222222222222
+          },
+          "1000LUNCUSDT": {
+            "totalTrades": 17,
+            "wins": 6,
+            "losses": 11,
+            "totalPnl": -109.44000000000003,
+            "winRate": 35.294117647058826
+          },
+          "ZRXUSDT": {
+            "totalTrades": 10,
+            "wins": 3,
+            "losses": 7,
+            "totalPnl": -24.22,
+            "winRate": 30
+          },
+          "UNIUSDT": {
+            "totalTrades": 7,
+            "wins": 4,
+            "losses": 3,
+            "totalPnl": 100.13999999999999,
+            "winRate": 57.14285714285714
+          },
+          "BCHUSDT": {
+            "totalTrades": 2,
+            "wins": 0,
+            "losses": 2,
+            "totalPnl": -73.44999999999999,
+            "winRate": 0
+          },
+          "BNBUSDT": {
+            "totalTrades": 2,
+            "wins": 2,
+            "losses": 0,
+            "totalPnl": 90.1,
+            "winRate": 100
+          },
+          "PENGUUSDT": {
+            "totalTrades": 4,
+            "wins": 0,
+            "losses": 4,
+            "totalPnl": -144.23000000000002,
+            "winRate": 0
+          },
+          "FARTCOINUSDT": {
+            "totalTrades": 12,
+            "wins": 8,
+            "losses": 4,
+            "totalPnl": 272.78999999999996,
+            "winRate": 66.66666666666666
+          }
+        }
+      },
+      {
+        "config": {
+          "strategies": [
+            "BB_MEAN_REV"
+          ],
+          "symbols": [
+            "BTCUSDT",
+            "ETHUSDT",
+            "SOLUSDT",
+            "LIGHTUSDT",
+            "RIVERUSDT",
+            "ZECUSDT",
+            "XRPUSDT",
+            "DOGEUSDT",
+            "BNBUSDT",
+            "BEATUSDT",
+            "BROCCOLI714USDT",
+            "ADAUSDT",
+            "LITUSDT",
+            "SUIUSDT",
+            "LYNUSDT",
+            "COLLECTUSDT",
+            "1000PEPEUSDT",
+            "ZBTUSDT",
+            "XPLUSDT",
+            "QUSDT",
+            "TRADOORUSDT",
+            "SQDUSDT",
+            "CHZUSDT",
+            "LINKUSDT",
+            "HYPEUSDT",
+            "PAXGUSDT",
+            "ATUSDT",
+            "AVAXUSDT",
+            "PIPPINUSDT",
+            "BCHUSDT",
+            "TAKEUSDT",
+            "1000LUNCUSDT",
+            "CYBERUSDT",
+            "FILUSDT",
+            "ENAUSDT",
+            "PIEVERSEUSDT",
+            "WCTUSDT",
+            "NIGHTUSDT",
+            "ASTERUSDT",
+            "CCUSDT",
+            "LUNA2USDT",
+            "QTUMUSDT",
+            "AAVEUSDT",
+            "POLYXUSDT",
+            "LTCUSDT",
+            "ZKPUSDT",
+            "NEARUSDT",
+            "PUMPUSDT",
+            "TRUMPUSDT",
+            "UNIUSDT",
+            "FARTCOINUSDT",
+            "ZRXUSDT",
+            "WIFUSDT",
+            "AUCTIONUSDT",
+            "ICPUSDT",
+            "WLDUSDT",
+            "SAPIENUSDT",
+            "1000SHIBUSDT",
+            "MUBARAKUSDT",
+            "DOTUSDT",
+            "TAOUSDT",
+            "FOLKSUSDT",
+            "XLMUSDT",
+            "AVNTUSDT",
+            "APTUSDT",
+            "RAVEUSDT",
+            "TSTUSDT",
+            "HBARUSDT",
+            "MONUSDT",
+            "IRUSDT",
+            "HUSDT",
+            "TIAUSDT",
+            "0GUSDT",
+            "PENGUUSDT",
+            "RVVUSDT",
+            "ARBUSDT",
+            "ONTUSDT",
+            "CLOUSDT",
+            "GIGGLEUSDT",
+            "MAGMAUSDT"
+          ],
+          "startDate": "2024-11-01",
+          "endDate": "2024-12-31"
+        },
+        "performance": {
+          "totalTrades": 1687,
+          "wins": 685,
+          "losses": 1002,
+          "winRate": 40.60462359217546,
+          "roi": -47.240159742691205,
+          "totalPnl": -4724.01597426912,
+          "finalBalance": 5275.98402573088,
+          "sharpeRatio": 0,
+          "maxDrawdown": 0,
+          "tradesPerDay": 28.116666666666667
+        },
+        "strategyStats": {
+          "BB_MEAN_REV": {
+            "totalTrades": 1687,
+            "wins": 685,
+            "losses": 1002,
+            "totalPnl": -3363.7900000000054,
+            "winRate": 40.60462359217546,
+            "avgPnl": -1.9939478363959724
+          }
+        },
+        "symbolStats": {
+          "ENAUSDT": {
+            "totalTrades": 81,
+            "wins": 29,
+            "losses": 52,
+            "totalPnl": -520.88,
+            "winRate": 35.80246913580247
+          },
+          "WIFUSDT": {
+            "totalTrades": 78,
+            "wins": 39,
+            "losses": 39,
+            "totalPnl": 352.4,
+            "winRate": 50
+          },
+          "SUIUSDT": {
+            "totalTrades": 70,
+            "wins": 28,
+            "losses": 42,
+            "totalPnl": -372.5799999999999,
+            "winRate": 40
+          },
+          "APTUSDT": {
+            "totalTrades": 34,
+            "wins": 17,
+            "losses": 17,
+            "totalPnl": 277.01,
+            "winRate": 50
+          },
+          "SOLUSDT": {
+            "totalTrades": 8,
+            "wins": 0,
+            "losses": 8,
+            "totalPnl": -327.1,
+            "winRate": 0
+          },
+          "AUCTIONUSDT": {
+            "totalTrades": 37,
+            "wins": 15,
+            "losses": 22,
+            "totalPnl": -41.62999999999999,
+            "winRate": 40.54054054054054
+          },
+          "WLDUSDT": {
+            "totalTrades": 50,
+            "wins": 22,
+            "losses": 28,
+            "totalPnl": -24.689999999999905,
+            "winRate": 44
+          },
+          "DOGEUSDT": {
+            "totalTrades": 76,
+            "wins": 39,
+            "losses": 37,
+            "totalPnl": 363.96000000000004,
+            "winRate": 51.31578947368421
+          },
+          "CHZUSDT": {
+            "totalTrades": 35,
+            "wins": 16,
+            "losses": 19,
+            "totalPnl": 126.84999999999985,
+            "winRate": 45.714285714285715
+          },
+          "AAVEUSDT": {
+            "totalTrades": 21,
+            "wins": 8,
+            "losses": 13,
+            "totalPnl": -128.64999999999998,
+            "winRate": 38.095238095238095
+          },
+          "1000PEPEUSDT": {
+            "totalTrades": 98,
+            "wins": 41,
+            "losses": 57,
+            "totalPnl": -223.0900000000001,
+            "winRate": 41.83673469387755
+          },
+          "1000SHIBUSDT": {
+            "totalTrades": 26,
+            "wins": 7,
+            "losses": 19,
+            "totalPnl": -428.64,
+            "winRate": 26.923076923076923
+          },
+          "TIAUSDT": {
+            "totalTrades": 22,
+            "wins": 9,
+            "losses": 13,
+            "totalPnl": -17.010000000000026,
+            "winRate": 40.909090909090914
+          },
+          "TAOUSDT": {
+            "totalTrades": 21,
+            "wins": 10,
+            "losses": 11,
+            "totalPnl": 47.080000000000005,
+            "winRate": 47.61904761904761
+          },
+          "ETHUSDT": {
+            "totalTrades": 5,
+            "wins": 0,
+            "losses": 5,
+            "totalPnl": -204.76000000000002,
+            "winRate": 0
+          },
+          "ICPUSDT": {
+            "totalTrades": 20,
+            "wins": 5,
+            "losses": 15,
+            "totalPnl": -316.51,
+            "winRate": 25
+          },
+          "ZECUSDT": {
+            "totalTrades": 62,
+            "wins": 26,
+            "losses": 36,
+            "totalPnl": 52.209999999999994,
+            "winRate": 41.935483870967744
+          },
+          "ZRXUSDT": {
+            "totalTrades": 50,
+            "wins": 20,
+            "losses": 30,
+            "totalPnl": -159.64999999999998,
+            "winRate": 40
+          },
+          "NEARUSDT": {
+            "totalTrades": 35,
+            "wins": 16,
+            "losses": 19,
+            "totalPnl": 118.72000000000001,
+            "winRate": 45.714285714285715
+          },
+          "LUNA2USDT": {
+            "totalTrades": 34,
+            "wins": 14,
+            "losses": 20,
+            "totalPnl": -172.57,
+            "winRate": 41.17647058823529
+          },
+          "POLYXUSDT": {
+            "totalTrades": 40,
+            "wins": 15,
+            "losses": 25,
+            "totalPnl": 32.270000000000024,
+            "winRate": 37.5
+          },
+          "BTCUSDT": {
+            "totalTrades": 5,
+            "wins": 4,
+            "losses": 1,
+            "totalPnl": 113.08999999999999,
+            "winRate": 80
+          },
+          "LITUSDT": {
+            "totalTrades": 44,
+            "wins": 19,
+            "losses": 25,
+            "totalPnl": 29.98000000000001,
+            "winRate": 43.18181818181818
+          },
+          "ARBUSDT": {
+            "totalTrades": 15,
+            "wins": 4,
+            "losses": 11,
+            "totalPnl": -189.76,
+            "winRate": 26.666666666666668
+          },
+          "ADAUSDT": {
+            "totalTrades": 58,
+            "wins": 23,
+            "losses": 35,
+            "totalPnl": -122.62000000000002,
+            "winRate": 39.6551724137931
+          },
+          "BCHUSDT": {
+            "totalTrades": 27,
+            "wins": 14,
+            "losses": 13,
+            "totalPnl": 71.16000000000003,
+            "winRate": 51.85185185185185
+          },
+          "XRPUSDT": {
+            "totalTrades": 73,
+            "wins": 29,
+            "losses": 44,
+            "totalPnl": -272.27000000000004,
+            "winRate": 39.726027397260275
+          },
+          "QTUMUSDT": {
+            "totalTrades": 19,
+            "wins": 6,
+            "losses": 13,
+            "totalPnl": 120.97000000000001,
+            "winRate": 31.57894736842105
+          },
+          "1000LUNCUSDT": {
+            "totalTrades": 34,
+            "wins": 16,
+            "losses": 18,
+            "totalPnl": 130.28000000000006,
+            "winRate": 47.05882352941176
+          },
+          "CYBERUSDT": {
+            "totalTrades": 33,
+            "wins": 17,
+            "losses": 16,
+            "totalPnl": 178.42999999999992,
+            "winRate": 51.515151515151516
+          },
+          "AVAXUSDT": {
+            "totalTrades": 35,
+            "wins": 15,
+            "losses": 20,
+            "totalPnl": -45.16999999999999,
+            "winRate": 42.857142857142854
+          },
+          "DOTUSDT": {
+            "totalTrades": 10,
+            "wins": 6,
+            "losses": 4,
+            "totalPnl": 61.910000000000004,
+            "winRate": 60
+          },
+          "XLMUSDT": {
+            "totalTrades": 74,
+            "wins": 28,
+            "losses": 46,
+            "totalPnl": -170.37999999999988,
+            "winRate": 37.83783783783784
+          },
+          "HBARUSDT": {
+            "totalTrades": 95,
+            "wins": 31,
+            "losses": 64,
+            "totalPnl": -773.1,
+            "winRate": 32.631578947368425
+          },
+          "FILUSDT": {
+            "totalTrades": 22,
+            "wins": 11,
+            "losses": 11,
+            "totalPnl": 15.030000000000015,
+            "winRate": 50
+          },
+          "BNBUSDT": {
+            "totalTrades": 4,
+            "wins": 0,
+            "losses": 4,
+            "totalPnl": -163.97,
+            "winRate": 0
+          },
+          "UNIUSDT": {
+            "totalTrades": 26,
+            "wins": 8,
+            "losses": 18,
+            "totalPnl": -431.78000000000003,
+            "winRate": 30.76923076923077
+          },
+          "LINKUSDT": {
+            "totalTrades": 46,
+            "wins": 18,
+            "losses": 28,
+            "totalPnl": 37.19,
+            "winRate": 39.130434782608695
+          },
+          "ONTUSDT": {
+            "totalTrades": 14,
+            "wins": 4,
+            "losses": 10,
+            "totalPnl": -157.18000000000004,
+            "winRate": 28.57142857142857
+          },
+          "LTCUSDT": {
+            "totalTrades": 22,
+            "wins": 7,
+            "losses": 15,
+            "totalPnl": -189.85,
+            "winRate": 31.818181818181817
+          },
+          "PENGUUSDT": {
+            "totalTrades": 53,
+            "wins": 17,
+            "losses": 36,
+            "totalPnl": -312.2199999999999,
+            "winRate": 32.075471698113205
+          },
+          "FARTCOINUSDT": {
+            "totalTrades": 75,
+            "wins": 32,
+            "losses": 43,
+            "totalPnl": 273.73,
+            "winRate": 42.66666666666667
+          }
+        }
+      },
+      {
+        "config": {
+          "strategies": [
+            "EMA_RIBBON"
+          ],
+          "symbols": [
+            "BTCUSDT",
+            "ETHUSDT",
+            "SOLUSDT",
+            "LIGHTUSDT",
+            "RIVERUSDT",
+            "ZECUSDT",
+            "XRPUSDT",
+            "DOGEUSDT",
+            "BNBUSDT",
+            "BEATUSDT",
+            "BROCCOLI714USDT",
+            "ADAUSDT",
+            "LITUSDT",
+            "SUIUSDT",
+            "LYNUSDT",
+            "COLLECTUSDT",
+            "1000PEPEUSDT",
+            "ZBTUSDT",
+            "XPLUSDT",
+            "QUSDT",
+            "TRADOORUSDT",
+            "SQDUSDT",
+            "CHZUSDT",
+            "LINKUSDT",
+            "HYPEUSDT",
+            "PAXGUSDT",
+            "ATUSDT",
+            "AVAXUSDT",
+            "PIPPINUSDT",
+            "BCHUSDT",
+            "TAKEUSDT",
+            "1000LUNCUSDT",
+            "CYBERUSDT",
+            "FILUSDT",
+            "ENAUSDT",
+            "PIEVERSEUSDT",
+            "WCTUSDT",
+            "NIGHTUSDT",
+            "ASTERUSDT",
+            "CCUSDT",
+            "LUNA2USDT",
+            "QTUMUSDT",
+            "AAVEUSDT",
+            "POLYXUSDT",
+            "LTCUSDT",
+            "ZKPUSDT",
+            "NEARUSDT",
+            "PUMPUSDT",
+            "TRUMPUSDT",
+            "UNIUSDT",
+            "FARTCOINUSDT",
+            "ZRXUSDT",
+            "WIFUSDT",
+            "AUCTIONUSDT",
+            "ICPUSDT",
+            "WLDUSDT",
+            "SAPIENUSDT",
+            "1000SHIBUSDT",
+            "MUBARAKUSDT",
+            "DOTUSDT",
+            "TAOUSDT",
+            "FOLKSUSDT",
+            "XLMUSDT",
+            "AVNTUSDT",
+            "APTUSDT",
+            "RAVEUSDT",
+            "TSTUSDT",
+            "HBARUSDT",
+            "MONUSDT",
+            "IRUSDT",
+            "HUSDT",
+            "TIAUSDT",
+            "0GUSDT",
+            "PENGUUSDT",
+            "RVVUSDT",
+            "ARBUSDT",
+            "ONTUSDT",
+            "CLOUSDT",
+            "GIGGLEUSDT",
+            "MAGMAUSDT"
+          ],
+          "startDate": "2024-11-01",
+          "endDate": "2024-12-31"
+        },
+        "performance": {
+          "totalTrades": 3972,
+          "wins": 1451,
+          "losses": 2521,
+          "winRate": 36.53071500503525,
+          "roi": -98.88723196751266,
+          "totalPnl": -9888.723196751265,
+          "finalBalance": 111.27680324873516,
+          "sharpeRatio": 0,
+          "maxDrawdown": 0,
+          "tradesPerDay": 66.2
+        },
+        "strategyStats": {
+          "EMA_RIBBON": {
+            "totalTrades": 3972,
+            "wins": 1451,
+            "losses": 2521,
+            "totalPnl": -5409.82999999999,
+            "winRate": 36.53071500503525,
+            "avgPnl": -1.3619914400805615
+          }
+        },
+        "symbolStats": {
+          "ENAUSDT": {
+            "totalTrades": 179,
+            "wins": 72,
+            "losses": 107,
+            "totalPnl": 83.59999999999982,
+            "winRate": 40.22346368715084
+          },
+          "ICPUSDT": {
+            "totalTrades": 68,
+            "wins": 28,
+            "losses": 40,
+            "totalPnl": 92.79999999999998,
+            "winRate": 41.17647058823529
+          },
+          "LITUSDT": {
+            "totalTrades": 84,
+            "wins": 26,
+            "losses": 58,
+            "totalPnl": -512.5799999999998,
+            "winRate": 30.952380952380953
+          },
+          "ONTUSDT": {
+            "totalTrades": 46,
+            "wins": 22,
+            "losses": 24,
+            "totalPnl": 289.66999999999996,
+            "winRate": 47.82608695652174
+          },
+          "LINKUSDT": {
+            "totalTrades": 85,
+            "wins": 32,
+            "losses": 53,
+            "totalPnl": -112.67999999999995,
+            "winRate": 37.64705882352941
+          },
+          "WLDUSDT": {
+            "totalTrades": 124,
+            "wins": 42,
+            "losses": 82,
+            "totalPnl": -263.37000000000023,
+            "winRate": 33.87096774193548
+          },
+          "UNIUSDT": {
+            "totalTrades": 113,
+            "wins": 34,
+            "losses": 79,
+            "totalPnl": -822.5800000000002,
+            "winRate": 30.08849557522124
+          },
+          "AAVEUSDT": {
+            "totalTrades": 104,
+            "wins": 30,
+            "losses": 74,
+            "totalPnl": -687.2200000000004,
+            "winRate": 28.846153846153843
+          },
+          "BNBUSDT": {
+            "totalTrades": 20,
+            "wins": 12,
+            "losses": 8,
+            "totalPnl": 245.34,
+            "winRate": 60
+          },
+          "ETHUSDT": {
+            "totalTrades": 22,
+            "wins": 6,
+            "losses": 16,
+            "totalPnl": -99.95999999999997,
+            "winRate": 27.27272727272727
+          },
+          "TAOUSDT": {
+            "totalTrades": 121,
+            "wins": 35,
+            "losses": 86,
+            "totalPnl": -693.1599999999999,
+            "winRate": 28.92561983471074
+          },
+          "AUCTIONUSDT": {
+            "totalTrades": 96,
+            "wins": 22,
+            "losses": 74,
+            "totalPnl": -1028.81,
+            "winRate": 22.916666666666664
+          },
+          "DOTUSDT": {
+            "totalTrades": 69,
+            "wins": 26,
+            "losses": 43,
+            "totalPnl": -111.78999999999995,
+            "winRate": 37.68115942028986
+          },
+          "BCHUSDT": {
+            "totalTrades": 59,
+            "wins": 19,
+            "losses": 40,
+            "totalPnl": -270.3099999999999,
+            "winRate": 32.20338983050847
+          },
+          "FILUSDT": {
+            "totalTrades": 84,
+            "wins": 35,
+            "losses": 49,
+            "totalPnl": 283.91,
+            "winRate": 41.66666666666667
+          },
+          "WIFUSDT": {
+            "totalTrades": 163,
+            "wins": 52,
+            "losses": 111,
+            "totalPnl": -840.0699999999996,
+            "winRate": 31.901840490797547
+          },
+          "SUIUSDT": {
+            "totalTrades": 169,
+            "wins": 67,
+            "losses": 102,
+            "totalPnl": 270.58,
+            "winRate": 39.64497041420118
+          },
+          "NEARUSDT": {
+            "totalTrades": 96,
+            "wins": 40,
+            "losses": 56,
+            "totalPnl": 244.60999999999987,
+            "winRate": 41.66666666666667
+          },
+          "DOGEUSDT": {
+            "totalTrades": 151,
+            "wins": 65,
+            "losses": 86,
+            "totalPnl": 425.39999999999986,
+            "winRate": 43.04635761589404
+          },
+          "1000SHIBUSDT": {
+            "totalTrades": 102,
+            "wins": 41,
+            "losses": 61,
+            "totalPnl": 136.0900000000002,
+            "winRate": 40.19607843137255
+          },
+          "1000LUNCUSDT": {
+            "totalTrades": 64,
+            "wins": 24,
+            "losses": 40,
+            "totalPnl": -187.17000000000013,
+            "winRate": 37.5
+          },
+          "TIAUSDT": {
+            "totalTrades": 147,
+            "wins": 54,
+            "losses": 93,
+            "totalPnl": 0.8300000000002576,
+            "winRate": 36.734693877551024
+          },
+          "1000PEPEUSDT": {
+            "totalTrades": 157,
+            "wins": 51,
+            "losses": 106,
+            "totalPnl": -665.7400000000001,
+            "winRate": 32.48407643312102
+          },
+          "CYBERUSDT": {
+            "totalTrades": 70,
+            "wins": 22,
+            "losses": 48,
+            "totalPnl": -309.90999999999997,
+            "winRate": 31.428571428571427
+          },
+          "ZECUSDT": {
+            "totalTrades": 152,
+            "wins": 53,
+            "losses": 99,
+            "totalPnl": -440.92999999999995,
+            "winRate": 34.868421052631575
+          },
+          "APTUSDT": {
+            "totalTrades": 96,
+            "wins": 37,
+            "losses": 59,
+            "totalPnl": -37.36999999999989,
+            "winRate": 38.54166666666667
+          },
+          "POLYXUSDT": {
+            "totalTrades": 138,
+            "wins": 44,
+            "losses": 94,
+            "totalPnl": -247.07999999999993,
+            "winRate": 31.88405797101449
+          },
+          "HBARUSDT": {
+            "totalTrades": 145,
+            "wins": 54,
+            "losses": 91,
+            "totalPnl": -303.6600000000001,
+            "winRate": 37.24137931034483
+          },
+          "XRPUSDT": {
+            "totalTrades": 81,
+            "wins": 28,
+            "losses": 53,
+            "totalPnl": -321.84000000000003,
+            "winRate": 34.5679012345679
+          },
+          "SOLUSDT": {
+            "totalTrades": 57,
+            "wins": 32,
+            "losses": 25,
+            "totalPnl": 480.3800000000001,
+            "winRate": 56.14035087719298
+          },
+          "ADAUSDT": {
+            "totalTrades": 113,
+            "wins": 43,
+            "losses": 70,
+            "totalPnl": 141.78999999999996,
+            "winRate": 38.05309734513274
+          },
+          "LTCUSDT": {
+            "totalTrades": 48,
+            "wins": 13,
+            "losses": 35,
+            "totalPnl": -248.6,
+            "winRate": 27.083333333333332
+          },
+          "CHZUSDT": {
+            "totalTrades": 65,
+            "wins": 15,
+            "losses": 50,
+            "totalPnl": -673.7400000000001,
+            "winRate": 23.076923076923077
+          },
+          "BTCUSDT": {
+            "totalTrades": 20,
+            "wins": 10,
+            "losses": 10,
+            "totalPnl": 78.20999999999997,
+            "winRate": 50
+          },
+          "QTUMUSDT": {
+            "totalTrades": 60,
+            "wins": 27,
+            "losses": 33,
+            "totalPnl": 246.95999999999995,
+            "winRate": 45
+          },
+          "LUNA2USDT": {
+            "totalTrades": 94,
+            "wins": 44,
+            "losses": 50,
+            "totalPnl": 468.07999999999987,
+            "winRate": 46.808510638297875
+          },
+          "ARBUSDT": {
+            "totalTrades": 47,
+            "wins": 16,
+            "losses": 31,
+            "totalPnl": -99.41999999999997,
+            "winRate": 34.04255319148936
+          },
+          "ZRXUSDT": {
+            "totalTrades": 116,
+            "wins": 47,
+            "losses": 69,
+            "totalPnl": 51.66999999999985,
+            "winRate": 40.51724137931034
+          },
+          "XLMUSDT": {
+            "totalTrades": 151,
+            "wins": 54,
+            "losses": 97,
+            "totalPnl": -273.61999999999995,
+            "winRate": 35.76158940397351
+          },
+          "AVAXUSDT": {
+            "totalTrades": 89,
+            "wins": 35,
+            "losses": 54,
+            "totalPnl": 200.2999999999999,
+            "winRate": 39.325842696629216
+          },
+          "PENGUUSDT": {
+            "totalTrades": 44,
+            "wins": 21,
+            "losses": 23,
+            "totalPnl": 284.42999999999995,
+            "winRate": 47.72727272727273
+          },
+          "FARTCOINUSDT": {
+            "totalTrades": 63,
+            "wins": 21,
+            "losses": 42,
+            "totalPnl": -182.86999999999995,
+            "winRate": 33.33333333333333
+          }
+        }
+      }
+    ],
+    "topCombinations": [
+      {
+        "config": {
+          "strategies": [
+            "BB_MEAN_REV",
+            "PSAR_EMA_MACD"
+          ],
+          "symbols": [
+            "BTCUSDT",
+            "ETHUSDT",
+            "SOLUSDT",
+            "LIGHTUSDT",
+            "RIVERUSDT",
+            "ZECUSDT",
+            "XRPUSDT",
+            "DOGEUSDT",
+            "BNBUSDT",
+            "BEATUSDT",
+            "BROCCOLI714USDT",
+            "ADAUSDT",
+            "LITUSDT",
+            "SUIUSDT",
+            "LYNUSDT",
+            "COLLECTUSDT",
+            "1000PEPEUSDT",
+            "ZBTUSDT",
+            "XPLUSDT",
+            "QUSDT",
+            "TRADOORUSDT",
+            "SQDUSDT",
+            "CHZUSDT",
+            "LINKUSDT",
+            "HYPEUSDT",
+            "PAXGUSDT",
+            "ATUSDT",
+            "AVAXUSDT",
+            "PIPPINUSDT",
+            "BCHUSDT",
+            "TAKEUSDT",
+            "1000LUNCUSDT",
+            "CYBERUSDT",
+            "FILUSDT",
+            "ENAUSDT",
+            "PIEVERSEUSDT",
+            "WCTUSDT",
+            "NIGHTUSDT",
+            "ASTERUSDT",
+            "CCUSDT",
+            "LUNA2USDT",
+            "QTUMUSDT",
+            "AAVEUSDT",
+            "POLYXUSDT",
+            "LTCUSDT",
+            "ZKPUSDT",
+            "NEARUSDT",
+            "PUMPUSDT",
+            "TRUMPUSDT",
+            "UNIUSDT",
+            "FARTCOINUSDT",
+            "ZRXUSDT",
+            "WIFUSDT",
+            "AUCTIONUSDT",
+            "ICPUSDT",
+            "WLDUSDT",
+            "SAPIENUSDT",
+            "1000SHIBUSDT",
+            "MUBARAKUSDT",
+            "DOTUSDT",
+            "TAOUSDT",
+            "FOLKSUSDT",
+            "XLMUSDT",
+            "AVNTUSDT",
+            "APTUSDT",
+            "RAVEUSDT",
+            "TSTUSDT",
+            "HBARUSDT",
+            "MONUSDT",
+            "IRUSDT",
+            "HUSDT",
+            "TIAUSDT",
+            "0GUSDT",
+            "PENGUUSDT",
+            "RVVUSDT",
+            "ARBUSDT",
+            "ONTUSDT",
+            "CLOUSDT",
+            "GIGGLEUSDT",
+            "MAGMAUSDT"
+          ],
+          "startDate": "2024-11-01",
+          "endDate": "2024-12-31"
+        },
+        "performance": {
+          "totalTrades": 2081,
+          "wins": 845,
+          "losses": 1236,
+          "winRate": 40.605478135511774,
+          "roi": -53.030322205721994,
+          "totalPnl": -5303.032220572199,
+          "finalBalance": 4696.967779427801,
+          "sharpeRatio": 0,
+          "maxDrawdown": 0,
+          "tradesPerDay": 34.68333333333333
+        },
+        "strategyStats": {
+          "BB_MEAN_REV": {
+            "totalTrades": 1755,
+            "wins": 714,
+            "losses": 1041,
+            "totalPnl": -2711.9600000000028,
+            "winRate": 40.68376068376068,
+            "avgPnl": -1.545276353276355
+          },
+          "PSAR_EMA_MACD": {
+            "totalTrades": 326,
+            "wins": 131,
+            "losses": 195,
+            "totalPnl": 410.9100000000002,
+            "winRate": 40.1840490797546,
+            "avgPnl": 1.260460122699387
+          }
+        }
+      },
+      {
+        "config": {
+          "strategies": [
+            "BB_MEAN_REV",
+            "EMA_RIBBON"
+          ],
+          "symbols": [
+            "BTCUSDT",
+            "ETHUSDT",
+            "SOLUSDT",
+            "LIGHTUSDT",
+            "RIVERUSDT",
+            "ZECUSDT",
+            "XRPUSDT",
+            "DOGEUSDT",
+            "BNBUSDT",
+            "BEATUSDT",
+            "BROCCOLI714USDT",
+            "ADAUSDT",
+            "LITUSDT",
+            "SUIUSDT",
+            "LYNUSDT",
+            "COLLECTUSDT",
+            "1000PEPEUSDT",
+            "ZBTUSDT",
+            "XPLUSDT",
+            "QUSDT",
+            "TRADOORUSDT",
+            "SQDUSDT",
+            "CHZUSDT",
+            "LINKUSDT",
+            "HYPEUSDT",
+            "PAXGUSDT",
+            "ATUSDT",
+            "AVAXUSDT",
+            "PIPPINUSDT",
+            "BCHUSDT",
+            "TAKEUSDT",
+            "1000LUNCUSDT",
+            "CYBERUSDT",
+            "FILUSDT",
+            "ENAUSDT",
+            "PIEVERSEUSDT",
+            "WCTUSDT",
+            "NIGHTUSDT",
+            "ASTERUSDT",
+            "CCUSDT",
+            "LUNA2USDT",
+            "QTUMUSDT",
+            "AAVEUSDT",
+            "POLYXUSDT",
+            "LTCUSDT",
+            "ZKPUSDT",
+            "NEARUSDT",
+            "PUMPUSDT",
+            "TRUMPUSDT",
+            "UNIUSDT",
+            "FARTCOINUSDT",
+            "ZRXUSDT",
+            "WIFUSDT",
+            "AUCTIONUSDT",
+            "ICPUSDT",
+            "WLDUSDT",
+            "SAPIENUSDT",
+            "1000SHIBUSDT",
+            "MUBARAKUSDT",
+            "DOTUSDT",
+            "TAOUSDT",
+            "FOLKSUSDT",
+            "XLMUSDT",
+            "AVNTUSDT",
+            "APTUSDT",
+            "RAVEUSDT",
+            "TSTUSDT",
+            "HBARUSDT",
+            "MONUSDT",
+            "IRUSDT",
+            "HUSDT",
+            "TIAUSDT",
+            "0GUSDT",
+            "PENGUUSDT",
+            "RVVUSDT",
+            "ARBUSDT",
+            "ONTUSDT",
+            "CLOUSDT",
+            "GIGGLEUSDT",
+            "MAGMAUSDT"
+          ],
+          "startDate": "2024-11-01",
+          "endDate": "2024-12-31"
+        },
+        "performance": {
+          "totalTrades": 3085,
+          "wins": 1138,
+          "losses": 1947,
+          "winRate": 36.88816855753647,
+          "roi": -98.4965210187967,
+          "totalPnl": -9849.65210187967,
+          "finalBalance": 150.3478981203305,
+          "sharpeRatio": 0,
+          "maxDrawdown": 0,
+          "tradesPerDay": 51.416666666666664
+        },
+        "strategyStats": {
+          "BB_MEAN_REV": {
+            "totalTrades": 754,
+            "wins": 287,
+            "losses": 467,
+            "totalPnl": -3785.930000000004,
+            "winRate": 38.06366047745358,
+            "avgPnl": -5.021127320954912
+          },
+          "EMA_RIBBON": {
+            "totalTrades": 2331,
+            "wins": 851,
+            "losses": 1480,
+            "totalPnl": -2818.849999999994,
+            "winRate": 36.507936507936506,
+            "avgPnl": -1.2092878592878566
+          }
+        }
+      },
+      {
+        "config": {
+          "strategies": [
+            "PSAR_EMA_MACD",
+            "EMA_RIBBON"
+          ],
+          "symbols": [
+            "BTCUSDT",
+            "ETHUSDT",
+            "SOLUSDT",
+            "LIGHTUSDT",
+            "RIVERUSDT",
+            "ZECUSDT",
+            "XRPUSDT",
+            "DOGEUSDT",
+            "BNBUSDT",
+            "BEATUSDT",
+            "BROCCOLI714USDT",
+            "ADAUSDT",
+            "LITUSDT",
+            "SUIUSDT",
+            "LYNUSDT",
+            "COLLECTUSDT",
+            "1000PEPEUSDT",
+            "ZBTUSDT",
+            "XPLUSDT",
+            "QUSDT",
+            "TRADOORUSDT",
+            "SQDUSDT",
+            "CHZUSDT",
+            "LINKUSDT",
+            "HYPEUSDT",
+            "PAXGUSDT",
+            "ATUSDT",
+            "AVAXUSDT",
+            "PIPPINUSDT",
+            "BCHUSDT",
+            "TAKEUSDT",
+            "1000LUNCUSDT",
+            "CYBERUSDT",
+            "FILUSDT",
+            "ENAUSDT",
+            "PIEVERSEUSDT",
+            "WCTUSDT",
+            "NIGHTUSDT",
+            "ASTERUSDT",
+            "CCUSDT",
+            "LUNA2USDT",
+            "QTUMUSDT",
+            "AAVEUSDT",
+            "POLYXUSDT",
+            "LTCUSDT",
+            "ZKPUSDT",
+            "NEARUSDT",
+            "PUMPUSDT",
+            "TRUMPUSDT",
+            "UNIUSDT",
+            "FARTCOINUSDT",
+            "ZRXUSDT",
+            "WIFUSDT",
+            "AUCTIONUSDT",
+            "ICPUSDT",
+            "WLDUSDT",
+            "SAPIENUSDT",
+            "1000SHIBUSDT",
+            "MUBARAKUSDT",
+            "DOTUSDT",
+            "TAOUSDT",
+            "FOLKSUSDT",
+            "XLMUSDT",
+            "AVNTUSDT",
+            "APTUSDT",
+            "RAVEUSDT",
+            "TSTUSDT",
+            "HBARUSDT",
+            "MONUSDT",
+            "IRUSDT",
+            "HUSDT",
+            "TIAUSDT",
+            "0GUSDT",
+            "PENGUUSDT",
+            "RVVUSDT",
+            "ARBUSDT",
+            "ONTUSDT",
+            "CLOUSDT",
+            "GIGGLEUSDT",
+            "MAGMAUSDT"
+          ],
+          "startDate": "2024-11-01",
+          "endDate": "2024-12-31"
+        },
+        "performance": {
+          "totalTrades": 5590,
+          "wins": 2124,
+          "losses": 3466,
+          "winRate": 37.99642218246869,
+          "roi": -98.83886583715949,
+          "totalPnl": -9883.886583715948,
+          "finalBalance": 116.113416284052,
+          "sharpeRatio": 0,
+          "maxDrawdown": 0,
+          "tradesPerDay": 93.16666666666667
+        },
+        "strategyStats": {
+          "EMA_RIBBON": {
+            "totalTrades": 5433,
+            "wins": 2071,
+            "losses": 3362,
+            "totalPnl": -1575.6000000000029,
+            "winRate": 38.11890300018406,
+            "avgPnl": -0.2900055218111546
+          },
+          "PSAR_EMA_MACD": {
+            "totalTrades": 157,
+            "wins": 53,
+            "losses": 104,
+            "totalPnl": -606.4800000000004,
+            "winRate": 33.75796178343949,
+            "avgPnl": -3.8629299363057346
+          }
+        }
+      },
+      {
+        "config": {
+          "strategies": [
+            "PSAR_EMA_MACD",
+            "BB_MEAN_REV",
+            "EMA_RIBBON"
+          ],
+          "symbols": [
+            "BTCUSDT",
+            "ETHUSDT",
+            "SOLUSDT",
+            "LIGHTUSDT",
+            "RIVERUSDT",
+            "ZECUSDT",
+            "XRPUSDT",
+            "DOGEUSDT",
+            "BNBUSDT",
+            "BEATUSDT",
+            "BROCCOLI714USDT",
+            "ADAUSDT",
+            "LITUSDT",
+            "SUIUSDT",
+            "LYNUSDT",
+            "COLLECTUSDT",
+            "1000PEPEUSDT",
+            "ZBTUSDT",
+            "XPLUSDT",
+            "QUSDT",
+            "TRADOORUSDT",
+            "SQDUSDT",
+            "CHZUSDT",
+            "LINKUSDT",
+            "HYPEUSDT",
+            "PAXGUSDT",
+            "ATUSDT",
+            "AVAXUSDT",
+            "PIPPINUSDT",
+            "BCHUSDT",
+            "TAKEUSDT",
+            "1000LUNCUSDT",
+            "CYBERUSDT",
+            "FILUSDT",
+            "ENAUSDT",
+            "PIEVERSEUSDT",
+            "WCTUSDT",
+            "NIGHTUSDT",
+            "ASTERUSDT",
+            "CCUSDT",
+            "LUNA2USDT",
+            "QTUMUSDT",
+            "AAVEUSDT",
+            "POLYXUSDT",
+            "LTCUSDT",
+            "ZKPUSDT",
+            "NEARUSDT",
+            "PUMPUSDT",
+            "TRUMPUSDT",
+            "UNIUSDT",
+            "FARTCOINUSDT",
+            "ZRXUSDT",
+            "WIFUSDT",
+            "AUCTIONUSDT",
+            "ICPUSDT",
+            "WLDUSDT",
+            "SAPIENUSDT",
+            "1000SHIBUSDT",
+            "MUBARAKUSDT",
+            "DOTUSDT",
+            "TAOUSDT",
+            "FOLKSUSDT",
+            "XLMUSDT",
+            "AVNTUSDT",
+            "APTUSDT",
+            "RAVEUSDT",
+            "TSTUSDT",
+            "HBARUSDT",
+            "MONUSDT",
+            "IRUSDT",
+            "HUSDT",
+            "TIAUSDT",
+            "0GUSDT",
+            "PENGUUSDT",
+            "RVVUSDT",
+            "ARBUSDT",
+            "ONTUSDT",
+            "CLOUSDT",
+            "GIGGLEUSDT",
+            "MAGMAUSDT"
+          ],
+          "startDate": "2024-11-01",
+          "endDate": "2024-12-31"
+        },
+        "performance": {
+          "totalTrades": 2905,
+          "wins": 1068,
+          "losses": 1837,
+          "winRate": 36.76419965576592,
+          "roi": -99.35125703326457,
+          "totalPnl": -9935.125703326457,
+          "finalBalance": 64.87429667354178,
+          "sharpeRatio": 0,
+          "maxDrawdown": 0,
+          "tradesPerDay": 48.416666666666664
+        },
+        "strategyStats": {
+          "BB_MEAN_REV": {
+            "totalTrades": 681,
+            "wins": 255,
+            "losses": 426,
+            "totalPnl": -3330.0400000000022,
+            "winRate": 37.44493392070485,
+            "avgPnl": -4.889926578560943
+          },
+          "EMA_RIBBON": {
+            "totalTrades": 2164,
+            "wins": 799,
+            "losses": 1365,
+            "totalPnl": -2652.8900000000017,
+            "winRate": 36.92236598890943,
+            "avgPnl": -1.225919593345657
+          },
+          "PSAR_EMA_MACD": {
+            "totalTrades": 60,
+            "wins": 14,
+            "losses": 46,
+            "totalPnl": -941.22,
+            "winRate": 23.333333333333332,
+            "avgPnl": -15.687000000000001
+          }
+        }
+      }
+    ],
+    "monthlyPerformance": [
+      {
+        "config": {
+          "strategies": [
+            "PSAR_EMA_MACD"
+          ],
+          "symbols": [
+            "BTCUSDT",
+            "ETHUSDT",
+            "SOLUSDT",
+            "LIGHTUSDT",
+            "RIVERUSDT",
+            "ZECUSDT",
+            "XRPUSDT",
+            "DOGEUSDT",
+            "BNBUSDT",
+            "BEATUSDT",
+            "BROCCOLI714USDT",
+            "ADAUSDT",
+            "LITUSDT",
+            "SUIUSDT",
+            "LYNUSDT",
+            "COLLECTUSDT",
+            "1000PEPEUSDT",
+            "ZBTUSDT",
+            "XPLUSDT",
+            "QUSDT",
+            "TRADOORUSDT",
+            "SQDUSDT",
+            "CHZUSDT",
+            "LINKUSDT",
+            "HYPEUSDT",
+            "PAXGUSDT",
+            "ATUSDT",
+            "AVAXUSDT",
+            "PIPPINUSDT",
+            "BCHUSDT",
+            "TAKEUSDT",
+            "1000LUNCUSDT",
+            "CYBERUSDT",
+            "FILUSDT",
+            "ENAUSDT",
+            "PIEVERSEUSDT",
+            "WCTUSDT",
+            "NIGHTUSDT",
+            "ASTERUSDT",
+            "CCUSDT",
+            "LUNA2USDT",
+            "QTUMUSDT",
+            "AAVEUSDT",
+            "POLYXUSDT",
+            "LTCUSDT",
+            "ZKPUSDT",
+            "NEARUSDT",
+            "PUMPUSDT",
+            "TRUMPUSDT",
+            "UNIUSDT",
+            "FARTCOINUSDT",
+            "ZRXUSDT",
+            "WIFUSDT",
+            "AUCTIONUSDT",
+            "ICPUSDT",
+            "WLDUSDT",
+            "SAPIENUSDT",
+            "1000SHIBUSDT",
+            "MUBARAKUSDT",
+            "DOTUSDT",
+            "TAOUSDT",
+            "FOLKSUSDT",
+            "XLMUSDT",
+            "AVNTUSDT",
+            "APTUSDT",
+            "RAVEUSDT",
+            "TSTUSDT",
+            "HBARUSDT",
+            "MONUSDT",
+            "IRUSDT",
+            "HUSDT",
+            "TIAUSDT",
+            "0GUSDT",
+            "PENGUUSDT",
+            "RVVUSDT",
+            "ARBUSDT",
+            "ONTUSDT",
+            "CLOUSDT",
+            "GIGGLEUSDT",
+            "MAGMAUSDT"
+          ],
+          "startDate": "2024-11-01",
+          "endDate": "2024-11-29",
+          "period": "2024-11"
+        },
+        "performance": {
+          "totalTrades": 261,
+          "wins": 105,
+          "losses": 156,
+          "winRate": 40.229885057471265,
+          "roi": 2.573320369920875,
+          "totalPnl": 257.3320369920875,
+          "finalBalance": 10257.332036992088,
+          "sharpeRatio": 0,
+          "maxDrawdown": 0,
+          "tradesPerDay": 9
+        }
+      },
+      {
+        "config": {
+          "strategies": [
+            "PSAR_EMA_MACD"
+          ],
+          "symbols": [
+            "BTCUSDT",
+            "ETHUSDT",
+            "SOLUSDT",
+            "LIGHTUSDT",
+            "RIVERUSDT",
+            "ZECUSDT",
+            "XRPUSDT",
+            "DOGEUSDT",
+            "BNBUSDT",
+            "BEATUSDT",
+            "BROCCOLI714USDT",
+            "ADAUSDT",
+            "LITUSDT",
+            "SUIUSDT",
+            "LYNUSDT",
+            "COLLECTUSDT",
+            "1000PEPEUSDT",
+            "ZBTUSDT",
+            "XPLUSDT",
+            "QUSDT",
+            "TRADOORUSDT",
+            "SQDUSDT",
+            "CHZUSDT",
+            "LINKUSDT",
+            "HYPEUSDT",
+            "PAXGUSDT",
+            "ATUSDT",
+            "AVAXUSDT",
+            "PIPPINUSDT",
+            "BCHUSDT",
+            "TAKEUSDT",
+            "1000LUNCUSDT",
+            "CYBERUSDT",
+            "FILUSDT",
+            "ENAUSDT",
+            "PIEVERSEUSDT",
+            "WCTUSDT",
+            "NIGHTUSDT",
+            "ASTERUSDT",
+            "CCUSDT",
+            "LUNA2USDT",
+            "QTUMUSDT",
+            "AAVEUSDT",
+            "POLYXUSDT",
+            "LTCUSDT",
+            "ZKPUSDT",
+            "NEARUSDT",
+            "PUMPUSDT",
+            "TRUMPUSDT",
+            "UNIUSDT",
+            "FARTCOINUSDT",
+            "ZRXUSDT",
+            "WIFUSDT",
+            "AUCTIONUSDT",
+            "ICPUSDT",
+            "WLDUSDT",
+            "SAPIENUSDT",
+            "1000SHIBUSDT",
+            "MUBARAKUSDT",
+            "DOTUSDT",
+            "TAOUSDT",
+            "FOLKSUSDT",
+            "XLMUSDT",
+            "AVNTUSDT",
+            "APTUSDT",
+            "RAVEUSDT",
+            "TSTUSDT",
+            "HBARUSDT",
+            "MONUSDT",
+            "IRUSDT",
+            "HUSDT",
+            "TIAUSDT",
+            "0GUSDT",
+            "PENGUUSDT",
+            "RVVUSDT",
+            "ARBUSDT",
+            "ONTUSDT",
+            "CLOUSDT",
+            "GIGGLEUSDT",
+            "MAGMAUSDT"
+          ],
+          "startDate": "2024-11-30",
+          "endDate": "2024-12-30",
+          "period": "2024-12"
+        },
+        "performance": {
+          "totalTrades": 171,
+          "wins": 62,
+          "losses": 109,
+          "winRate": 36.25730994152047,
+          "roi": -8.38086624187139,
+          "totalPnl": -838.086624187139,
+          "finalBalance": 9161.913375812861,
+          "sharpeRatio": 0,
+          "maxDrawdown": 0,
+          "tradesPerDay": 5.516129032258065
+        }
+      }
+    ],
+    "topSymbols": [
+      {
+        "symbol": "BNBUSDT",
+        "totalTrades": 2,
+        "wins": 2,
+        "losses": 0,
+        "winRate": 100,
+        "roi": 0.8832488461155481,
+        "totalPnl": 88.32488461155481,
+        "finalBalance": 10088.324884611555,
+        "tradesPerDay": 0.03333333333333333
+      },
+      {
+        "symbol": "LITUSDT",
+        "totalTrades": 5,
+        "wins": 2,
+        "losses": 3,
+        "winRate": 40,
+        "roi": 0.748441182521292,
+        "totalPnl": 74.84411825212919,
+        "finalBalance": 10074.84411825213,
+        "tradesPerDay": 0.08333333333333333
+      },
+      {
+        "symbol": "XRPUSDT",
+        "totalTrades": 11,
+        "wins": 5,
+        "losses": 6,
+        "winRate": 45.45454545454545,
+        "roi": 0.5725085607912115,
+        "totalPnl": 57.25085607912115,
+        "finalBalance": 10057.250856079121,
+        "tradesPerDay": 0.18333333333333332
+      },
+      {
+        "symbol": "SOLUSDT",
+        "totalTrades": 2,
+        "wins": 1,
+        "losses": 1,
+        "winRate": 50,
+        "roi": 0.4471341388534165,
+        "totalPnl": 44.71341388534165,
+        "finalBalance": 10044.713413885342,
+        "tradesPerDay": 0.03333333333333333
+      },
+      {
+        "symbol": "BTCUSDT",
+        "totalTrades": 0,
+        "wins": 0,
+        "losses": 0,
+        "winRate": 0,
+        "roi": 0,
+        "totalPnl": 0,
+        "finalBalance": 10000,
+        "tradesPerDay": 0
+      },
+      {
+        "symbol": "ETHUSDT",
+        "totalTrades": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRate": 0,
+        "roi": -0.38051381115923505,
+        "totalPnl": -38.051381115923505,
+        "finalBalance": 9961.948618884076,
+        "tradesPerDay": 0.016666666666666666
+      },
+      {
+        "symbol": "SUIUSDT",
+        "totalTrades": 6,
+        "wins": 2,
+        "losses": 4,
+        "winRate": 33.33333333333333,
+        "roi": -0.651108968205117,
+        "totalPnl": -65.1108968205117,
+        "finalBalance": 9934.889103179488,
+        "tradesPerDay": 0.1
+      },
+      {
+        "symbol": "ZECUSDT",
+        "totalTrades": 9,
+        "wins": 2,
+        "losses": 7,
+        "winRate": 22.22222222222222,
+        "roi": -1.4008105054124644,
+        "totalPnl": -140.08105054124644,
+        "finalBalance": 9859.918949458754,
+        "tradesPerDay": 0.15
+      },
+      {
+        "symbol": "1000PEPEUSDT",
+        "totalTrades": 15,
+        "wins": 3,
+        "losses": 12,
+        "winRate": 20,
+        "roi": -2.403326979559315,
+        "totalPnl": -240.3326979559315,
+        "finalBalance": 9759.667302044068,
+        "tradesPerDay": 0.25
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "totalTrades": 11,
+        "wins": 2,
+        "losses": 9,
+        "winRate": 18.181818181818183,
+        "roi": -2.409986883148795,
+        "totalPnl": -240.99868831487947,
+        "finalBalance": 9759.00131168512,
+        "tradesPerDay": 0.18333333333333332
+      }
+    ]
+  }
+}

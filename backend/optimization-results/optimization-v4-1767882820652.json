@@ -1,0 +1,64 @@
+{
+  "timestamp": "2026-01-08T14:33:40.652Z",
+  "period": "2025-10-01 to 2025-12-31",
+  "symbolCount": 79,
+  "baseline": {
+    "params": {
+      "rrRatio": 3,
+      "minAwayMultRangebound": 0.3,
+      "minAwayMultNormal": 0.8,
+      "minAwayMultTrending": 2,
+      "tp1Ratio": 1,
+      "tp1Percent": 0.9
+    },
+    "totalTrades": 20315,
+    "winRate": 48.254984001968985,
+    "roi": 10.946518236460214,
+    "maxDrawdown": 92.39606653447878,
+    "sharpeApprox": 3.4399995976934292,
+    "score": 32.75038877654927
+  },
+  "optimized": {
+    "params": {
+      "rrRatio": 4,
+      "minAwayMultRangebound": 0.2,
+      "minAwayMultNormal": 0.8,
+      "minAwayMultTrending": 2,
+      "tp1Ratio": 1.2,
+      "tp1Percent": 1
+    },
+    "totalTrades": 18771,
+    "winRate": 44.05199509882265,
+    "roi": 49.1585770598425,
+    "maxDrawdown": 85.50388889256934,
+    "sharpeApprox": 3.3639109070856437,
+    "score": 48.19260660061588
+  },
+  "changes": [
+    {
+      "param": "rrRatio",
+      "from": 3,
+      "to": 3.5
+    },
+    {
+      "param": "rrRatio",
+      "from": 3.5,
+      "to": 4
+    },
+    {
+      "param": "minAwayMultRangebound",
+      "from": 0.3,
+      "to": 0.2
+    },
+    {
+      "param": "tp1Ratio",
+      "from": 1,
+      "to": 1.2
+    },
+    {
+      "param": "tp1Percent",
+      "from": 0.9,
+      "to": 1
+    }
+  ]
+}

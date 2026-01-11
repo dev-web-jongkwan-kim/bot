@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-01-03T04:26:48.988Z",
+  "testConfig": {
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT"
+    ],
+    "period": {
+      "start": "2025-01-01",
+      "end": "2025-01-31"
+    }
+  },
+  "result": {
+    "summary": {
+      "totalTrades": 101,
+      "wins": 42,
+      "losses": 59,
+      "winRate": 41.58,
+      "totalPnl": -323.43,
+      "roi": -3.23,
+      "initialBalance": 10000,
+      "finalBalance": 9676.57,
+      "maxDrawdown": 0,
+      "sharpeRatio": 0
+    },
+    "strategyStats": {
+      "Range Mean Reversion Scalping": {
+        "totalTrades": 101,
+        "wins": 42,
+        "losses": 59,
+        "totalPnl": -283.8899999999998,
+        "winRate": 41.584158415841586,
+        "avgPnl": -2.810792079207919
+      }
+    },
+    "dataDownloadSummary": {
+      "totalRequested": 3,
+      "successCount": 3,
+      "failedCount": 0,
+      "successSymbols": [
+        "BTCUSDT",
+        "ETHUSDT",
+        "SOLUSDT"
+      ],
+      "failedSymbols": []
+    }
+  }
+}

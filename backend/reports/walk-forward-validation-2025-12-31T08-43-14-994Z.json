@@ -1,0 +1,105 @@
+{
+  "metadata": {
+    "timestamp": "2025-12-31T08:43:14.994Z",
+    "trainingPeriod": {
+      "start": "2024-11-01",
+      "end": "2024-11-30"
+    },
+    "testingPeriod": {
+      "start": "2024-12-01",
+      "end": "2024-12-31"
+    },
+    "symbolCount": 80
+  },
+  "results": [
+    {
+      "strategy": "ORB_BALANCED",
+      "trainingPeriod": {
+        "startDate": "2024-11-01",
+        "endDate": "2024-11-30",
+        "roi": -66.7336599988781,
+        "winRate": 27.835051546391753,
+        "totalTrades": 194,
+        "sharpe": 0,
+        "maxDrawdown": 0
+      },
+      "testingPeriod": {
+        "startDate": "2024-12-01",
+        "endDate": "2024-12-31",
+        "roi": -20.804060435233424,
+        "winRate": 29.756097560975608,
+        "totalTrades": 205,
+        "sharpe": 0,
+        "maxDrawdown": 0
+      },
+      "degradation": {
+        "roiDelta": 45.92959956364467,
+        "roiDeltaPercent": 68.82523686609849,
+        "winRateDelta": 1.9210460145838546,
+        "overfitting": false
+      }
+    },
+    {
+      "strategy": "BB_MEAN_REV",
+      "trainingPeriod": {
+        "startDate": "2024-11-01",
+        "endDate": "2024-11-30",
+        "roi": -29.45481738883847,
+        "winRate": 39.98724489795919,
+        "totalTrades": 1568,
+        "sharpe": 0,
+        "maxDrawdown": 0
+      },
+      "testingPeriod": {
+        "startDate": "2024-12-01",
+        "endDate": "2024-12-31",
+        "roi": -47.41438937665294,
+        "winRate": 39.76331360946745,
+        "totalTrades": 1690,
+        "sharpe": 0,
+        "maxDrawdown": 0
+      },
+      "degradation": {
+        "roiDelta": -17.95957198781447,
+        "roiDeltaPercent": -60.97329258819314,
+        "winRateDelta": -0.22393128849173394,
+        "overfitting": true
+      }
+    },
+    {
+      "strategy": "ORB_BALANCED + BB_MEAN_REV",
+      "trainingPeriod": {
+        "startDate": "2024-11-01",
+        "endDate": "2024-11-30",
+        "roi": -46.55733573258993,
+        "winRate": 40.45307443365696,
+        "totalTrades": 927,
+        "sharpe": 0,
+        "maxDrawdown": 0
+      },
+      "testingPeriod": {
+        "startDate": "2024-12-01",
+        "endDate": "2024-12-31",
+        "roi": -51.38512927168393,
+        "winRate": 38.274932614555254,
+        "totalTrades": 742,
+        "sharpe": 0,
+        "maxDrawdown": 0
+      },
+      "degradation": {
+        "roiDelta": -4.827793539094003,
+        "roiDeltaPercent": -10.369565747540337,
+        "winRateDelta": -2.178141819101704,
+        "overfitting": false
+      }
+    }
+  ],
+  "validationCriteria": {
+    "positiveROI": false,
+    "decentWinRate": false,
+    "limitedDegradation": false,
+    "noOverfitting": true,
+    "sufficientTrades": true
+  },
+  "passed": false
+}

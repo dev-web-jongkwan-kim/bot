@@ -1,0 +1,108 @@
+{
+  "timestamp": "2026-01-08T14:03:25.318Z",
+  "period": "2025-10-01 to 2025-12-31",
+  "symbolCount": 79,
+  "baseline": {
+    "config": {
+      "lookback": 2,
+      "minBodyRatio": 0.5,
+      "minVolume": 2,
+      "maxAtrMult": 2,
+      "obMaxBars": 60,
+      "minAwayMultRangebound": 0.3,
+      "minAwayMultNormal": 0.8,
+      "minAwayMultTrending": 2,
+      "orbAtr": 1.2,
+      "orbVol": 1.5,
+      "londonHour": 7,
+      "nyHour": 14
+    },
+    "totalTrades": 21366,
+    "winRate": 32.22877468875784,
+    "roi": -10.225022210092147,
+    "sharpeApprox": -0.05942653420653876,
+    "score": 3.367590617450502
+  },
+  "optimized": {
+    "config": {
+      "lookback": 5,
+      "minBodyRatio": 0.3,
+      "minVolume": 2.5,
+      "maxAtrMult": 1.5,
+      "obMaxBars": 80,
+      "minAwayMultRangebound": 0.5,
+      "minAwayMultNormal": 0.6,
+      "minAwayMultTrending": 2.5,
+      "orbAtr": 0.8,
+      "orbVol": 1.5,
+      "londonHour": 7,
+      "nyHour": 14
+    },
+    "totalTrades": 17143,
+    "winRate": 33.98471679402672,
+    "roi": -5.841634150595204,
+    "sharpeApprox": -0.042394935288864295,
+    "score": 6.4266992571331265
+  },
+  "changes": [
+    {
+      "param": "lookback",
+      "oldValue": 2,
+      "newValue": 5,
+      "improvement": 0.38329493125871217
+    },
+    {
+      "param": "minBodyRatio",
+      "oldValue": 0.5,
+      "newValue": 0.3,
+      "improvement": 0.5053456903746949
+    },
+    {
+      "param": "minVolume",
+      "oldValue": 2,
+      "newValue": 2.5,
+      "improvement": 1.5708069070036563
+    },
+    {
+      "param": "maxAtrMult",
+      "oldValue": 2,
+      "newValue": 1.5,
+      "improvement": 1.5708069070036563
+    },
+    {
+      "param": "obMaxBars",
+      "oldValue": 60,
+      "newValue": 80,
+      "improvement": 2.063432343134208
+    },
+    {
+      "param": "minAwayMultRangebound",
+      "oldValue": 0.3,
+      "newValue": 0.5,
+      "improvement": 2.4621380109541082
+    },
+    {
+      "param": "minAwayMultNormal",
+      "oldValue": 0.8,
+      "newValue": 0.6,
+      "improvement": 2.679061879255668
+    },
+    {
+      "param": "minAwayMultTrending",
+      "oldValue": 2,
+      "newValue": 2.5,
+      "improvement": 2.759812955632861
+    },
+    {
+      "param": "orbAtr",
+      "oldValue": 1.2,
+      "newValue": 0.8,
+      "improvement": 3.0591086396826244
+    }
+  ],
+  "improvement": {
+    "roi": 4.383388059496943,
+    "winRate": 1.755942105268879,
+    "score": 3.0591086396826244
+  }
+}

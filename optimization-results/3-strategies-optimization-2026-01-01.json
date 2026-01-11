@@ -1,0 +1,3352 @@
+{
+  "timestamp": "2026-01-01T12:12:08.678Z",
+  "config": {
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "BNBUSDT",
+      "SOLUSDT",
+      "XRPUSDT",
+      "ADAUSDT",
+      "DOGEUSDT",
+      "DOTUSDT",
+      "LTCUSDT",
+      "LINKUSDT",
+      "UNIUSDT",
+      "NEARUSDT",
+      "AVAXUSDT",
+      "FILUSDT",
+      "OPUSDT",
+      "ARBUSDT",
+      "APTUSDT",
+      "SUIUSDT",
+      "WIFUSDT",
+      "HYPEUSDT"
+    ],
+    "strategies": [],
+    "startDate": "2024-11-01",
+    "endDate": "2024-12-31",
+    "initialBalance": 10000,
+    "maxPositions": 8
+  },
+  "bestResults": {
+    "MULTI_TF_CONFLUENCE": {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 4,
+        "minStrength": 0.5
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    "INSTITUTIONAL_SHADOW": {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.25,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    "CORRELATION_BREAKDOWN": {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 1.8,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    }
+  },
+  "allResults": [
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 4,
+        "minStrength": 0.5
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 4,
+        "minStrength": 0.6
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 4,
+        "minStrength": 0.7
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 4,
+        "minStrength": 0.8
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 5,
+        "minStrength": 0.5
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 5,
+        "minStrength": 0.6
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 5,
+        "minStrength": 0.7
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 5,
+        "minStrength": 0.8
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 6,
+        "minStrength": 0.5
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 6,
+        "minStrength": 0.6
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 6,
+        "minStrength": 0.7
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 6,
+        "minStrength": 0.8
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 7,
+        "minStrength": 0.5
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 7,
+        "minStrength": 0.6
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 7,
+        "minStrength": 0.7
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 2,
+        "leverage": 7,
+        "minStrength": 0.8
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 3,
+        "leverage": 4,
+        "minStrength": 0.5
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 3,
+        "leverage": 4,
+        "minStrength": 0.6
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 3,
+        "leverage": 4,
+        "minStrength": 0.7
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 3,
+        "leverage": 4,
+        "minStrength": 0.8
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 3,
+        "leverage": 5,
+        "minStrength": 0.5
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 3,
+        "leverage": 5,
+        "minStrength": 0.6
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 3,
+        "leverage": 5,
+        "minStrength": 0.7
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 3,
+        "leverage": 5,
+        "minStrength": 0.8
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 3,
+        "leverage": 6,
+        "minStrength": 0.5
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 3,
+        "leverage": 6,
+        "minStrength": 0.6
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 3,
+        "leverage": 6,
+        "minStrength": 0.7
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 3,
+        "leverage": 6,
+        "minStrength": 0.8
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 3,
+        "leverage": 7,
+        "minStrength": 0.5
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 3,
+        "leverage": 7,
+        "minStrength": 0.6
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 3,
+        "leverage": 7,
+        "minStrength": 0.7
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 3,
+        "leverage": 7,
+        "minStrength": 0.8
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 4,
+        "leverage": 4,
+        "minStrength": 0.5
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 4,
+        "leverage": 4,
+        "minStrength": 0.6
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 4,
+        "leverage": 4,
+        "minStrength": 0.7
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 4,
+        "leverage": 4,
+        "minStrength": 0.8
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 4,
+        "leverage": 5,
+        "minStrength": 0.5
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 4,
+        "leverage": 5,
+        "minStrength": 0.6
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 4,
+        "leverage": 5,
+        "minStrength": 0.7
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 4,
+        "leverage": 5,
+        "minStrength": 0.8
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 4,
+        "leverage": 6,
+        "minStrength": 0.5
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 4,
+        "leverage": 6,
+        "minStrength": 0.6
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 4,
+        "leverage": 6,
+        "minStrength": 0.7
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 4,
+        "leverage": 6,
+        "minStrength": 0.8
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 4,
+        "leverage": 7,
+        "minStrength": 0.5
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 4,
+        "leverage": 7,
+        "minStrength": 0.6
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 4,
+        "leverage": 7,
+        "minStrength": 0.7
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "MULTI_TF_CONFLUENCE",
+      "params": {
+        "minAlignedCount": 4,
+        "leverage": 7,
+        "minStrength": 0.8
+      },
+      "winRate": 64.63636363636364,
+      "roi": 1.715824586979852,
+      "totalTrades": 1100,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 10171.582458697985,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.25,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.25,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.25,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.3,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.3,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.3,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.35,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.35,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.35,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.25,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.25,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.25,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.3,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.3,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.3,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.35,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.35,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.35,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.25,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.25,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.25,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.3,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.3,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.3,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.35,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.35,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.6,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.35,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.25,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.25,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.25,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.3,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.3,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.3,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.35,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.35,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.35,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.25,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.25,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.25,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.3,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.3,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.3,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.35,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.35,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.35,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.25,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.25,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.25,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.3,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.3,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.3,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.35,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.35,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.65,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.35,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.25,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.25,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.25,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.3,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.3,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.3,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.35,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.35,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 1.8,
+        "imbalanceThreshold": 0.35,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.25,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.25,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.25,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.3,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.3,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.3,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.35,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.35,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2,
+        "imbalanceThreshold": 0.35,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.25,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.25,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.25,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.3,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.3,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.3,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.35,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.35,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "INSTITUTIONAL_SHADOW",
+      "params": {
+        "vpinThreshold": 0.7,
+        "volumeRatioThreshold": 2.5,
+        "imbalanceThreshold": 0.35,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 46.666666666666664,
+      "roi": -1.0217343296328727,
+      "totalTrades": 15,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 9897.826567036713,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 1.8,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 1.8,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 1.8,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 1.8,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 2,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 2,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 2,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 2,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 2.2,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 2.2,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 2.2,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 2.2,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 2.5,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 2.5,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 2.5,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.35,
+        "minZScore": 2.5,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.4,
+        "minZScore": 1.8,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.4,
+        "minZScore": 1.8,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.4,
+        "minZScore": 1.8,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.4,
+        "minZScore": 1.8,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.4,
+        "minZScore": 2,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.4,
+        "minZScore": 2,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.4,
+        "minZScore": 2,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.4,
+        "minZScore": 2,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.4,
+        "minZScore": 2.2,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.4,
+        "minZScore": 2.2,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.4,
+        "minZScore": 2.2,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.4,
+        "minZScore": 2.2,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.4,
+        "minZScore": 2.5,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.4,
+        "minZScore": 2.5,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.4,
+        "minZScore": 2.5,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.4,
+        "minZScore": 2.5,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.45,
+        "minZScore": 1.8,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.45,
+        "minZScore": 1.8,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.45,
+        "minZScore": 1.8,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.45,
+        "minZScore": 1.8,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.45,
+        "minZScore": 2,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.45,
+        "minZScore": 2,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.45,
+        "minZScore": 2,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.45,
+        "minZScore": 2,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.45,
+        "minZScore": 2.2,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.45,
+        "minZScore": 2.2,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.45,
+        "minZScore": 2.2,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.45,
+        "minZScore": 2.2,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.45,
+        "minZScore": 2.5,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.45,
+        "minZScore": 2.5,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.45,
+        "minZScore": 2.5,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.45,
+        "minZScore": 2.5,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.5,
+        "minZScore": 1.8,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.5,
+        "minZScore": 1.8,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.5,
+        "minZScore": 1.8,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.5,
+        "minZScore": 1.8,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.5,
+        "minZScore": 2,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.5,
+        "minZScore": 2,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.5,
+        "minZScore": 2,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.5,
+        "minZScore": 2,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.5,
+        "minZScore": 2.2,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.5,
+        "minZScore": 2.2,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.5,
+        "minZScore": 2.2,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.5,
+        "minZScore": 2.2,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.5,
+        "minZScore": 2.5,
+        "leverage": 3,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.5,
+        "minZScore": 2.5,
+        "leverage": 4,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.5,
+        "minZScore": 2.5,
+        "leverage": 5,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    },
+    {
+      "strategy": "CORRELATION_BREAKDOWN",
+      "params": {
+        "minCorrChange": 0.5,
+        "minZScore": 2.5,
+        "leverage": 6,
+        "targetPct1": 0.01,
+        "targetPct2": 0.02
+      },
+      "winRate": 56.5962534874452,
+      "roi": -68.54150590255225,
+      "totalTrades": 2509,
+      "sharpeRatio": 0,
+      "maxDrawdown": 0,
+      "finalBalance": 3145.8494097447756,
+      "profitFactor": 0
+    }
+  ]
+}
