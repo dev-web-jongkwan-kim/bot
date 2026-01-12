@@ -277,11 +277,30 @@ export class OrderMonitorService implements OnModuleInit {
       // ═══════════════════════════════════════════════════════════
       // 2. SL 주문 생성 (필수 - 재시도 포함)
       // ═══════════════════════════════════════════════════════════
+      // ⚠️ 주문 체결 직후 Binance가 포지션을 인식하는 데 시간이 필요함
+      // "Time in Force (TIF) GTE can only be used with open positions" 에러 방지
+      this.logger.log(`[MONITOR] ⏳ Waiting 2s for Binance to recognize position...`);
+      await this.delay(2000);
+
       let slOrder: any = null;
       let slRetryCount = 0;
 
       while (!slOrder && slRetryCount <= this.MAX_SLTP_RETRIES) {
         try {
+          // 포지션 존재 확인 (closePosition 사용 전 필수)
+          const positions = await this.binanceService.getOpenPositions();
+          const position = positions.find((p: any) => p.symbol === symbol);
+          const positionAmt = position ? Math.abs(parseFloat(position.positionAmt)) : 0;
+
+          if (positionAmt === 0) {
+            slRetryCount++;
+            this.logger.warn(`[MONITOR] Position not ready yet (retry ${slRetryCount}/${this.MAX_SLTP_RETRIES})`);
+            if (slRetryCount <= this.MAX_SLTP_RETRIES) {
+              await this.delay(2000);  // 2초 더 대기
+            }
+            continue;
+          }
+
           // 기존 algo order 정리
           if (slRetryCount === 0) {
             try {
@@ -313,11 +332,18 @@ export class OrderMonitorService implements OnModuleInit {
           if (slError.code === -4130 || slError.message?.includes('-4130')) {
             this.logger.log(`[MONITOR] SL already exists (verified via -4130)`);
             slOrder = { algoId: 'existing' };
+          } else if (slError.code === -4509 || slError.message?.includes('-4509')) {
+            // "TIF GTE can only be used with open positions" - 포지션 아직 미인식
+            slRetryCount++;
+            this.logger.warn(`[MONITOR] Position not recognized by Binance yet (retry ${slRetryCount}/${this.MAX_SLTP_RETRIES})`);
+            if (slRetryCount <= this.MAX_SLTP_RETRIES) {
+              await this.delay(2000);  // 2초 더 대기
+            }
           } else {
             slRetryCount++;
             this.logger.warn(`[MONITOR] SL failed (${slRetryCount}/${this.MAX_SLTP_RETRIES}): ${slError.message}`);
             if (slRetryCount <= this.MAX_SLTP_RETRIES) {
-              await this.delay(500);
+              await this.delay(1000);
             }
           }
         }

@@ -1006,19 +1006,49 @@ export class PositionSyncService {
         continue;
       }
 
-      // PENDING 신호 확인 (최근 5분 이내)
-      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-      const pendingSignal = await this.signalRepo.findOne({
-        where: {
-          symbol,
-          side: positionAmt > 0 ? 'LONG' : 'SHORT',
-          status: 'PENDING',
-          createdAt: MoreThan(fiveMinutesAgo),
-        },
+      // PENDING 또는 FILLED 신호 확인 (최근 30분 이내)
+      // - 주문 체결까지 시간이 걸릴 수 있음 (Limit 주문은 최대 15분)
+      // - FILLED 직후 OrderMonitorService와 경쟁 상태 발생 가능
+      const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+      const recentSignal = await this.signalRepo.findOne({
+        where: [
+          {
+            symbol,
+            side: positionAmt > 0 ? 'LONG' : 'SHORT',
+            status: 'PENDING',
+            createdAt: MoreThan(thirtyMinutesAgo),
+          },
+          {
+            symbol,
+            side: positionAmt > 0 ? 'LONG' : 'SHORT',
+            status: 'FILLED',
+            createdAt: MoreThan(thirtyMinutesAgo),
+          },
+        ],
       });
 
-      if (pendingSignal) {
-        this.logger.debug(`[DEFENSE] ${symbol}: Has pending signal, allowing`);
+      if (recentSignal) {
+        this.logger.debug(`[DEFENSE] ${symbol}: Has recent signal (${recentSignal.status}), allowing`);
+        continue;
+      }
+
+      // ⚠️ 추가 대기: 방금 체결된 주문일 수 있음 (Race Condition 방지)
+      // OrderMonitorService가 처리할 시간을 줌
+      this.logger.debug(`[DEFENSE] ${symbol}: No signal found, waiting 3s before final check...`);
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      // 3초 대기 후 다시 확인
+      if (OrderService.isSymbolPending(symbol)) {
+        this.logger.debug(`[DEFENSE] ${symbol}: Now being processed by OrderService after wait, skipping`);
+        continue;
+      }
+
+      // DB에 포지션이 생성되었는지 재확인
+      const newDbPosition = await this.positionRepo.findOne({
+        where: { symbol, status: 'OPEN' },
+      });
+      if (newDbPosition) {
+        this.logger.debug(`[DEFENSE] ${symbol}: Position was created during wait, skipping`);
         continue;
       }
 

@@ -53,6 +53,18 @@ export class BinanceService {
         errorThresholdPercentage: 50,  // 50% 실패율에서 열림
         resetTimeout: 60000,  // 1분 후 반열림 상태로 전환
         volumeThreshold: 5,  // 최소 5번의 요청 후 판단
+        // ✅ 특정 에러는 Circuit Breaker 실패로 카운트하지 않음
+        errorFilter: (err: any) => {
+          // -4509: "TIF GTE can only be used with open positions"
+          // 이 에러는 일시적 상태 문제 (포지션 인식 지연)
+          // -4130: 이미 동일한 주문이 존재함
+          // 이러한 에러는 실패로 카운트하지 않음 (true 반환 = 성공 취급)
+          if (err?.code === -4509 || err?.code === -4130) {
+            this.logger.debug(`[CIRCUIT BREAKER] Ignoring error ${err.code} - not counting as failure`);
+            return true;  // 실패로 카운트하지 않음
+          }
+          return false;  // 다른 에러는 실패로 카운트
+        },
       }
     );
 
