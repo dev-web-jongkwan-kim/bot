@@ -35,6 +35,11 @@ export class RiskService {
   private dailyStartBalance: number = 0;
   private dailyStartBalanceDate: string = '';  // YYYY-MM-DD 형식
 
+  // ✅ 마진 범위 제한 (v16)
+  private readonly MIN_MARGIN = 15;   // 최소 마진 $15
+  private readonly MAX_MARGIN = 30;   // 최대 마진 $30
+  private readonly ABNORMAL_MARGIN_THRESHOLD = 35;  // 비정상 마진 기준 $35
+
   // ✅ 캔들 기반 동시 진입 제한 (상관관계 필터링)
   // 같은 캔들 내 같은 방향 최대 주문 수
   private readonly MAX_SAME_DIRECTION_PER_CANDLE = 2;
@@ -554,10 +559,12 @@ export class RiskService {
     let leverage: number;
 
     if (useMinPositionMode) {
-      // ✅ 소자본 모드: 백테스트와 동일한 마진 계산 (v7 수정)
-      // margin = max(자본 × 10%, MIN_POSITION_SIZE)
+      // ✅ 소자본 모드: 마진 범위 제한 (v16 수정)
+      // margin = clamp(자본 × 10%, MIN_MARGIN, MAX_MARGIN)
       const capitalUsage = 0.1;  // 10% - 백테스트와 동일
-      const marginUsdt = Math.max(accountBalance * capitalUsage, this.minPositionSize);
+      const calculatedMargin = Math.max(accountBalance * capitalUsage, this.minPositionSize);
+      // v16: 마진을 MIN_MARGIN ~ MAX_MARGIN 범위로 제한
+      const marginUsdt = Math.min(Math.max(calculatedMargin, this.MIN_MARGIN), this.MAX_MARGIN);
       // v7: 신호의 동적 레버리지 사용 (ATR% 기반), 없으면 FIXED_LEVERAGE fallback
       leverage = signal.leverage || this.fixedLeverage;
       positionSizeUsdt = marginUsdt * leverage; // 마진 × 레버리지 = 포지션 가치
@@ -566,7 +573,8 @@ export class RiskService {
         `\n🔸 [SMALL CAPITAL MODE ACTIVATED]\n` +
         `  Account Balance:  $${accountBalance.toFixed(2)} ${this.useDynamicBalance ? '(LIVE)' : '(FIXED)'}\n` +
         `  Capital Usage:    ${(capitalUsage * 100).toFixed(0)}%\n` +
-        `  Margin:           $${marginUsdt.toFixed(2)} (max of ${(accountBalance * capitalUsage).toFixed(2)} vs ${this.minPositionSize})\n` +
+        `  Calculated:       $${calculatedMargin.toFixed(2)}\n` +
+        `  Margin (clamped): $${marginUsdt.toFixed(2)} (range: $${this.MIN_MARGIN}~$${this.MAX_MARGIN})\n` +
         `  Leverage:         ${leverage}x (${signal.leverage ? 'DYNAMIC from signal' : 'FIXED_LEVERAGE fallback'})\n` +
         `  Position Value:   $${positionSizeUsdt.toFixed(2)}\n` +
         `  Reason:           Balance < $1000`
@@ -595,14 +603,27 @@ export class RiskService {
       );
     }
 
-    const marginRequired = positionSizeUsdt / leverage;
+    let marginRequired = positionSizeUsdt / leverage;
+
+    // ✅ v16: 최종 마진 범위 검증 및 조정
+    const originalMargin = marginRequired;
+    if (marginRequired < this.MIN_MARGIN) {
+      marginRequired = this.MIN_MARGIN;
+      positionSizeUsdt = marginRequired * leverage;
+      this.logger.warn(`[MARGIN CLAMP] Margin $${originalMargin.toFixed(2)} < MIN → Adjusted to $${this.MIN_MARGIN}`);
+    } else if (marginRequired > this.MAX_MARGIN) {
+      marginRequired = this.MAX_MARGIN;
+      positionSizeUsdt = marginRequired * leverage;
+      this.logger.warn(`[MARGIN CLAMP] Margin $${originalMargin.toFixed(2)} > MAX → Adjusted to $${this.MAX_MARGIN}`);
+    }
+
     const quantity = positionSizeUsdt / signal.entryPrice;
 
     this.logger.log(
       `\n✅ [FINAL CALCULATION]\n` +
       `  Position Size:    $${positionSizeUsdt.toFixed(2)}\n` +
       `  Leverage:         ${leverage}x\n` +
-      `  Margin Required:  $${marginRequired.toFixed(2)}\n` +
+      `  Margin Required:  $${marginRequired.toFixed(2)} (range: $${this.MIN_MARGIN}~$${this.MAX_MARGIN})\n` +
       `  Quantity:         ${quantity.toFixed(6)}\n` +
       `  Notional Value:   $${(quantity * signal.entryPrice).toFixed(2)}\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`
@@ -614,6 +635,21 @@ export class RiskService {
       quantity,
       leverage,
     };
+  }
+
+  /**
+   * ✅ v16: 비정상 마진 체크
+   * 마진이 ABNORMAL_MARGIN_THRESHOLD 이상이면 비정상으로 판단
+   */
+  isAbnormalMargin(marginUsdt: number): boolean {
+    return marginUsdt >= this.ABNORMAL_MARGIN_THRESHOLD;
+  }
+
+  /**
+   * ✅ v16: 비정상 마진 기준값 반환 (외부에서 사용)
+   */
+  getAbnormalMarginThreshold(): number {
+    return this.ABNORMAL_MARGIN_THRESHOLD;
   }
 
   // 전략별 자본 배분 비율

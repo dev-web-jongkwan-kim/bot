@@ -14,12 +14,14 @@
  * - v8: 재진입 쿨다운 12캔들 (5분봉 1시간, 15분봉 3시간)
  * - v9: tp1Ratio 1.0 (승률 57%, MDD 22.5%, ROI +1207%)
  * - v10: ATR + CVD 필터 추가 (승률 58.8% → 62.5%, +3.7%p)
- * - v11: 파라미터 최적화 (ROI 2969% → 8008%, +170%)
- *   - orbAtr: 1.5 → 1.0, orbVol: 2.0 → 1.5
- *   - slBuffer: 1.0% → 0.5%, tp1Ratio: 1.2R → 0.8R
- *   - retryCooldown: 12 → 6, atrFilterMin: 0.5 → 0.4
- *   - 동적 레버리지: 15/10/5 → 20/15/10
+ * - v11: 파라미터 최적화 → ❌ 실패 (실전 승률 25%, 청산 급증)
+ * - v10 롤백 (2026-01-13): v11 전체 롤백 완료
+ *   - slBuffer: 0.5% → 1.0%, tp1Ratio: 0.8R → 1.2R
+ *   - 레버리지: 20/15/10 → 15/10/5
+ *   - orbAtr: 1.0 → 1.5, orbVol: 1.5 → 2.0
+ *   - retryCooldown: 6 → 12, atrFilterMin: 0.4 → 0.5
  *
+ * 현재 버전: v10 (안정화)
  * 최종 성능 (백테스트 2025-10-05 ~ 2026-01-05, 고정마진 $15):
  * - ROI: +1207%, Win Rate: 57.0%, MDD: 22.5%
  */
@@ -104,8 +106,8 @@ export class SimpleTrueOBStrategy implements IStrategy {
   // ✅ 실시간 모드 플래그 (과거 데이터 로딩 중에는 false)
   private isLiveMode = false;
 
-  // v8: 재진입 쿨다운 (v11 최적화: 12 → 6)
-  private readonly REENTRY_COOLDOWN_BARS = 6;  // 5분봉 30분, 15분봉 1.5시간
+  // v8: 재진입 쿨다운 (v10 원복)
+  private readonly REENTRY_COOLDOWN_BARS = 12;  // 5분봉 1시간, 15분봉 3시간
   private lastExitCandleIndexMap: Map<string, number> = new Map();
 
   constructor() {
@@ -121,8 +123,8 @@ export class SimpleTrueOBStrategy implements IStrategy {
       sweepWickMin: 0.6,
       sweepPenMin: 0.1,
       sweepPenMax: 1.0,
-      orbAtr: 1.0,              // v11 최적화: 1.5 → 1.0 (더 많은 OB 감지)
-      orbVol: 1.5,              // v11 최적화: 2.0 → 1.5 (더 많은 OB 감지)
+      orbAtr: 1.5,              // v10 원복 (1.0 → 1.5)
+      orbVol: 2.0,              // v10 원복 (1.5 → 2.0)
       londonHour: 7,
       nyHour: 14,
       rrRatio: 4.0,             // v4 최적화: 3.0 → 4.0
@@ -146,7 +148,7 @@ export class SimpleTrueOBStrategy implements IStrategy {
       useDynamicLeverage: true,     // 활성화
       // v10: ATR + CVD 방향 필터
       useATRCVDFilter: true,        // 활성화
-      atrFilterMin: 0.4,            // v11 최적화: 0.5 → 0.4
+      atrFilterMin: 0.5,            // v10 원복 (0.4 → 0.5)
       atrFilterMax: 3.0,            // ATR% 최대 3.0%
       cvdLookback: 20,              // CVD 20캔들 기준
     };

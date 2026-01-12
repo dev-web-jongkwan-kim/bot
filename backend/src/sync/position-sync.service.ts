@@ -21,8 +21,9 @@ export class PositionSyncService {
   private slTpRetryCount: Map<string, number> = new Map();
   private readonly MAX_SLTP_RETRIES = 3;
 
-  // ✅ 방어 로직: 비정상 마진(원금) 임계값 (총 자본의 %)
+  // ✅ 방어 로직: 비정상 마진(원금) 임계값
   private readonly MAX_MARGIN_PERCENT = 0.10;  // 마진이 총 자본의 10% 초과 시 청산
+  private readonly ABSOLUTE_MAX_MARGIN = 35;   // v16: 절대 마진 임계값 $35 이상이면 무조건 청산
 
   // ✅ 방어 로직: SL 없이 오래된 포지션 강제 청산 (분)
   private readonly MAX_TIME_WITHOUT_SL_MINUTES = 5;  // SL 없이 5분 이상 방치 시 청산
@@ -1099,8 +1100,17 @@ export class PositionSyncService {
       // ✅ 마진(원금) 계산 = 포지션 가치 / 레버리지
       const margin = positionValue / leverage;
 
-      // ✅ 마진 임계값 초과 체크 (총 자본의 10%)
-      if (margin > maxMargin) {
+      // ✅ v16: 비정상 마진 체크 - 2가지 조건
+      // 1) 총 자본의 10% 초과
+      // 2) 절대값 $35 이상 (무조건)
+      const exceedsPercentLimit = margin > maxMargin;
+      const exceedsAbsoluteLimit = margin >= this.ABSOLUTE_MAX_MARGIN;
+
+      if (exceedsPercentLimit || exceedsAbsoluteLimit) {
+        const reason = exceedsAbsoluteLimit
+          ? `ABSOLUTE LIMIT ($${this.ABSOLUTE_MAX_MARGIN}+)`
+          : `PERCENT LIMIT (${(this.MAX_MARGIN_PERCENT * 100).toFixed(0)}% of capital)`;
+
         this.logger.error(
           `\n🚨🚨🚨 [CRITICAL] OVERSIZED MARGIN DETECTED! 🚨🚨🚨\n` +
           `  Symbol:         ${symbol}\n` +
@@ -1110,7 +1120,9 @@ export class PositionSyncService {
           `  Leverage:       ${leverage}x\n` +
           `  Margin (원금):  $${margin.toFixed(2)}\n` +
           `  Total Capital:  $${totalCapital.toFixed(2)}\n` +
-          `  Max Allowed:    $${maxMargin.toFixed(2)} (${(this.MAX_MARGIN_PERCENT * 100).toFixed(0)}% of capital)\n` +
+          `  Percent Limit:  $${maxMargin.toFixed(2)} (${(this.MAX_MARGIN_PERCENT * 100).toFixed(0)}% of capital)\n` +
+          `  Absolute Limit: $${this.ABSOLUTE_MAX_MARGIN}\n` +
+          `  Reason:         ${reason}\n` +
           `  → CLOSING IMMEDIATELY!`
         );
 
@@ -1141,10 +1153,11 @@ export class PositionSyncService {
             dbPos.metadata = {
               ...dbPos.metadata,
               forceClose: true,
-              forceCloseReason: 'OVERSIZED_MARGIN',
+              forceCloseReason: exceedsAbsoluteLimit ? 'ABSOLUTE_MARGIN_LIMIT' : 'OVERSIZED_MARGIN',
               forceCloseTime: new Date().toISOString(),
               margin: margin,
               maxAllowedMargin: maxMargin,
+              absoluteMarginLimit: this.ABSOLUTE_MAX_MARGIN,
               totalCapital: totalCapital,
               positionValue: positionValue,
               leverage: leverage,
