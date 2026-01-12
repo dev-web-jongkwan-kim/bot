@@ -75,3 +75,11 @@ export const tradesApi = {
   getDailyStats: () => api.get('/api/trades/daily-stats'),
   getByDate: (date: string) => api.get(`/api/trades/by-date/${date}`),
 };
+
+// ✅ 매매 제어 API
+export const tradingControlApi = {
+  getStatus: () => api.get('/api/trading/status'),
+  start: () => api.post('/api/trading/start'),
+  stop: (reason?: string) => api.post('/api/trading/stop', { reason }),
+  toggle: () => api.post('/api/trading/toggle'),
+};

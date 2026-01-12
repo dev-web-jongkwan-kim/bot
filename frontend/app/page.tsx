@@ -27,6 +27,7 @@ import { BacktestForm } from './components/Backtest/BacktestForm';
 import { BacktestResults } from './components/Backtest/BacktestResults';
 import { SignalsFeed } from './components/LiveTrading/SignalsFeed';
 import { Statistics } from './components/Dashboard/Statistics';
+import TradingControlButton from './components/Dashboard/TradingControlButton';
 import { useThemeMode } from './components/ThemeProvider';
 import {
   DashboardMetrics,
@@ -219,6 +220,9 @@ export default function Home() {
 
           <Box sx={{ flexGrow: 1 }} />
 
+          {/* Trading Control Button */}
+          <TradingControlButton size="md" showStatus={true} />
+
           <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
             <IconButton onClick={toggleTheme} color="inherit" sx={{ color: 'text.primary' }}>
               {mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
@@ -303,6 +307,23 @@ export default function Home() {
 
         {tab === 3 && (
           <Box>
+            {/* Trading Control Section */}
+            <Box
+              sx={{
+                mb: 3,
+                p: 2,
+                bgcolor: 'background.paper',
+                borderRadius: 2,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Typography variant="h6" fontWeight="bold">
+                Live Trading Control
+              </Typography>
+              <TradingControlButton size="lg" showStatus={true} />
+            </Box>
             <SignalsFeed />
           </Box>
         )}

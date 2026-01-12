@@ -14,6 +14,7 @@ import { BacktestModule } from './backtest/backtest.module';
 import { ApiModule } from './api/api.module';
 import { SyncModule } from './sync/sync.module';
 import { SymbolSelectionModule } from './symbol-selection/symbol-selection.module';
+import { TradingControlModule } from './trading-control/trading-control.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Position } from './database/entities/position.entity';
@@ -47,6 +48,7 @@ import { Signal } from './database/entities/signal.entity';
     }),
     DatabaseModule,
     CacheModule,
+    TradingControlModule,  // ✅ 매매 시작/종료 제어 (Global)
     BinanceModule,
     WebSocketModule,
     SymbolSelectionModule, // 동적 종목 선택 모듈

@@ -8,6 +8,7 @@ import { RiskService } from '../risk/risk.service';
 import { OrderService } from '../order/order.service';
 import { AppWebSocketGateway } from '../websocket/websocket.gateway';
 import { OrderBlockHistoryService } from '../strategies/order-block-history.service';
+import { TradingControlService } from '../trading-control/trading-control.service';
 
 @Injectable()
 export class SignalProcessorService {
@@ -30,12 +31,19 @@ export class SignalProcessorService {
     private orderService: OrderService,
     private wsGateway: AppWebSocketGateway,
     private obHistoryService: OrderBlockHistoryService,
+    private tradingControl: TradingControlService,
   ) {
     this.logger.log('🚀 SignalProcessorService initialized, starting queue processor...');
     this.startProcessing();
   }
 
   async addSignal(signal: any) {
+    // ✅ 매매 상태 체크 - 중지 상태면 신호 무시
+    if (!this.tradingControl.isRunning()) {
+      this.logger.debug(`[FLOW-4] ⏸️ Trading is STOPPED - ignoring signal: ${signal.symbol} ${signal.side}`);
+      return;
+    }
+
     // [FLOW-4] 신호 수신 로깅
     this.logger.log(
       `[FLOW-4] SignalProcessor → Queue | ${signal.symbol} ${signal.side} received | Score: ${signal.score}`
