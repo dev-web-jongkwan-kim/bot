@@ -40,6 +40,7 @@ export class SimpleTrueOBBacktest {
     skippedDeviation: 0,
     skippedOBExit: 0,
     skippedTimeout: 0,
+    skippedATRCVD: 0,  // v10: ATR+CVD 필터로 스킵된 신호
     filled: 0,
   };
 
@@ -57,15 +58,15 @@ export class SimpleTrueOBBacktest {
       sweepWickMin: 0.6,
       sweepPenMin: 0.1,
       sweepPenMax: 1.0,
-      orbAtr: 1.5,              // 상향: 1.2 → 1.5 (더 강한 OB만 필터)
-      orbVol: 2.0,              // 상향: 1.5 → 2.0 (더 강한 OB만 필터)
+      orbAtr: 1.0,              // v11 최적화: 1.5 → 1.0 (더 많은 OB 감지)
+      orbVol: 1.5,              // v11 최적화: 2.0 → 1.5 (더 많은 OB 감지)
       londonHour: 7,
       nyHour: 14,
       rrRatio: 4.0,             // v4 최적화: 3.0 → 4.0
       obMaxBars: 60,            // 원복: 60봉 유지
       makerFee: 0.0004,         // 0.04%
       takerFee: 0.00075,        // 0.075% - 실시간과 동일
-      leverage: 15,             // v5 최적화: 10 → 15
+      leverage: 20,             // v11 최적화: 15 → 20
       capitalUsage: 0.1,
       slippage: 0.0002,
       maxHoldingBars: 48,       // v5 최적화: 72 → 48 (4시간)
@@ -74,14 +75,19 @@ export class SimpleTrueOBBacktest {
       minAwayMultRangebound: 0.2,   // v4 최적화: 0.3 → 0.2 (횡보장)
       minAwayMultNormal: 0.8,       // (동일)
       minAwayMultTrending: 2.0,     // (동일)
-      // v4 최적화: TP 설정
-      tp1Ratio: 1.2,                // v4 최적화: 1.0 → 1.2 (TP1 = 1.2R)
+      // v11 최적화: TP 설정
+      tp1Ratio: 0.8,                // v11 최적화: 1.2 → 0.8 (TP1 = 0.8R)
       tp1Percent: 1.0,              // v4 최적화: 0.9 → 1.0 (100% 청산)
       // OB 교체 설정
       enableOBReplacement: true,    // 기본값: 강한 OB가 나오면 교체
       // 리스크 캡 설정 (v16 테스트)
       enableRiskCap: false,         // 기본값: false (기존 로직)
       maxRiskAtr: 2.0,              // 최대 리스크 = 2 ATR
+      // v10: ATR + CVD 방향 필터 (기본 활성화)
+      useATRCVDFilter: true,        // 활성화
+      atrFilterMin: 0.4,            // v11 최적화: 0.5 → 0.4
+      atrFilterMax: 3.0,            // ATR% 최대 3.0%
+      cvdLookback: 20,              // CVD 20캔들 기준
     };
   }
 
@@ -113,6 +119,7 @@ export class SimpleTrueOBBacktest {
       skippedDeviation: 0,
       skippedOBExit: 0,
       skippedTimeout: 0,
+      skippedATRCVD: 0,
       filled: 0,
     };
   }
@@ -201,8 +208,8 @@ export class SimpleTrueOBBacktest {
     } | null = null;
     let failedOBs: Array<{ price: number; barIndex: number }> = [];
 
-    // ✅ v8: 재진입 쿨다운 (라이브 전략과 동일)
-    const REENTRY_COOLDOWN_BARS = 12;  // 5분봉 1시간, 15분봉 3시간
+    // ✅ v11: 재진입 쿨다운 (라이브 전략과 동일)
+    const REENTRY_COOLDOWN_BARS = 6;  // v11 최적화: 12 → 6 (5분봉 30분, 15분봉 1.5시간)
     let lastExitBarIndex: number = -999;  // 마지막 청산 캔들 인덱스
 
     // 캔들 순회 (Pine Script처럼)
@@ -653,7 +660,16 @@ export class SimpleTrueOBBacktest {
               }
             }
 
-            // 6️⃣ 진입 가격 결정 (MIDPOINT 전략: OB 중간가 + maker 슬리피지)
+            // 6️⃣ v10: ATR + CVD 필터 체크 (진입 직전)
+            if (this.config.useATRCVDFilter) {
+              const filterPassed = this.checkATRCVDFilter(candles, limitOrder.type, i);
+              if (!filterPassed) {
+                this.stats.skippedATRCVD++;
+                continue; // 필터 실패 → 다음 캔들에서 재시도
+              }
+            }
+
+            // 7️⃣ 진입 가격 결정 (MIDPOINT 전략: OB 중간가 + maker 슬리피지)
             const slippageFactor = limitOrder.type === 'LONG'
               ? (1 + this.REALISTIC_CONFIG.makerSlippage)
               : (1 - this.REALISTIC_CONFIG.makerSlippage);
@@ -670,7 +686,7 @@ export class SimpleTrueOBBacktest {
             let tp2: number;
             let riskWasCapped = false;
 
-            const slBuffer = 0.01;  // Phase 2 optimized: 0.01
+            const slBuffer = 0.005;  // v11 최적화: 0.01 → 0.005 (1.0% → 0.5%)
 
             if (limitOrder.type === 'LONG') {
               const obBasedSL = limitOrder.ob.bottom * (1 - slBuffer);
@@ -882,6 +898,94 @@ export class SimpleTrueOBBacktest {
     }
 
     return null;
+  }
+
+  /**
+   * v10: ATR 변동성 필터 - 적정 변동성 범위 확인 (0.5% ~ 3.0%)
+   */
+  private checkATRVolatilityFilter(candles: OHLCV[], currentIndex: number): boolean {
+    if (currentIndex < 100) return true;  // 데이터 부족시 통과
+
+    const slice = candles.slice(Math.max(0, currentIndex - 100), currentIndex + 1);
+
+    // ATR 계산
+    const atrValues = ATR.calculate({
+      high: slice.map(c => c.high),
+      low: slice.map(c => c.low),
+      close: slice.map(c => c.close),
+      period: 14,
+    });
+
+    if (atrValues.length === 0) return true;
+
+    const currentATR = atrValues[atrValues.length - 1];
+    const currentPrice = slice[slice.length - 1].close;
+    const atrPercent = (currentATR / currentPrice) * 100;
+
+    const minATR = this.config.atrFilterMin ?? 0.5;
+    const maxATR = this.config.atrFilterMax ?? 3.0;
+
+    // 적정 변동성 범위
+    return atrPercent >= minATR && atrPercent <= maxATR;
+  }
+
+  /**
+   * v10: CVD (Cumulative Volume Delta) 필터 - 매수/매도 압력 분석
+   */
+  private checkCVDFilter(candles: OHLCV[], obType: 'LONG' | 'SHORT', currentIndex: number): boolean {
+    if (currentIndex < 50) return true;  // 데이터 부족시 통과
+
+    const lookback = this.config.cvdLookback ?? 20;
+    const slice = candles.slice(Math.max(0, currentIndex - lookback), currentIndex + 1);
+
+    if (slice.length < lookback) return true;
+
+    // Delta 계산 (캔들 기반 근사치)
+    const deltas: number[] = [];
+
+    for (const candle of slice) {
+      const range = candle.high - candle.low;
+      if (range === 0) {
+        deltas.push(0);
+        continue;
+      }
+
+      const buyRatio = (candle.close - candle.low) / range;
+      const sellRatio = (candle.high - candle.close) / range;
+      const delta = candle.volume * (buyRatio - sellRatio);
+      deltas.push(delta);
+    }
+
+    // CVD 계산 (누적 델타)
+    let cvd = 0;
+    const cvdValues: number[] = [];
+    for (const delta of deltas) {
+      cvd += delta;
+      cvdValues.push(cvd);
+    }
+
+    // CVD 추세 판단 (최근 10개 캔들)
+    const recentCVD = cvdValues.slice(-10);
+    const cvdStart = recentCVD[0];
+    const cvdEnd = recentCVD[recentCVD.length - 1];
+    const cvdTrend = cvdEnd - cvdStart;
+
+    // LONG: CVD 상승 (매수 압력 증가)
+    // SHORT: CVD 하락 (매도 압력 증가)
+    if (obType === 'LONG') {
+      return cvdTrend > 0;
+    } else {
+      return cvdTrend < 0;
+    }
+  }
+
+  /**
+   * v10: ATR + CVD 조합 필터
+   */
+  private checkATRCVDFilter(candles: OHLCV[], obType: 'LONG' | 'SHORT', currentIndex: number): boolean {
+    const atrPassed = this.checkATRVolatilityFilter(candles, currentIndex);
+    const cvdPassed = this.checkCVDFilter(candles, obType, currentIndex);
+    return atrPassed && cvdPassed;
   }
 
   private checkExit(

@@ -52,6 +52,11 @@ export interface PineConfig {
   // 리스크 캡 설정 (v16 테스트)
   enableRiskCap?: boolean;       // true: 리스크 캡 적용, false: 기존 OB 기반
   maxRiskAtr?: number;           // 최대 리스크 ATR 배수 (기본 2.0)
+  // v10: ATR + CVD 방향 필터
+  useATRCVDFilter?: boolean;     // ATR + CVD 필터 사용 여부
+  atrFilterMin?: number;         // ATR% 최소값 (0.5%)
+  atrFilterMax?: number;         // ATR% 최대값 (3.0%)
+  cvdLookback?: number;          // CVD 계산 기간 (20캔들)
 }
 
 // Order Block 인터페이스

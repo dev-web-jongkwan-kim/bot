@@ -258,19 +258,41 @@ export class OrderService {
     );
 
     try {
-      // 1. 레버리지 설정 (실패 시 fallback)
+      // 1. 레버리지 설정 (실패 시 fallback - v11: 다단계 retry)
       let actualLeverage = positionSize.leverage;
       this.logger.log(`[ORDER] Step 1/6: Setting leverage to ${actualLeverage}x for ${signal.symbol}...`);
+
+      // v11: 레버리지 fallback 순서 (심볼별 최대 레버리지 제한 대응)
+      const leverageFallbacks = [20, 15, 10, 5];
+      let leverageSet = false;
+
+      // 먼저 요청된 레버리지 시도
       try {
         await this.binanceService.changeLeverage(signal.symbol, actualLeverage);
         this.logger.log(`[ORDER] ✓ Leverage set to ${actualLeverage}x successfully`);
+        leverageSet = true;
       } catch (leverageError: any) {
-        // 레버리지 설정 실패 시 10x로 fallback
         this.logger.warn(`[ORDER] ⚠️ Failed to set leverage ${actualLeverage}x: ${leverageError.message}`);
-        actualLeverage = 10;
-        this.logger.log(`[ORDER] Retrying with fallback leverage ${actualLeverage}x...`);
-        await this.binanceService.changeLeverage(signal.symbol, actualLeverage);
-        this.logger.log(`[ORDER] ✓ Leverage set to ${actualLeverage}x (fallback) successfully`);
+
+        // fallback 순서대로 시도
+        for (const fallback of leverageFallbacks) {
+          if (fallback >= actualLeverage) continue; // 이미 시도한 것보다 높은 레버리지는 스킵
+          try {
+            this.logger.log(`[ORDER] Retrying with fallback leverage ${fallback}x...`);
+            await this.binanceService.changeLeverage(signal.symbol, fallback);
+            this.logger.log(`[ORDER] ✓ Leverage set to ${fallback}x (fallback) successfully`);
+            actualLeverage = fallback;
+            leverageSet = true;
+            break;
+          } catch (fallbackError: any) {
+            this.logger.warn(`[ORDER] ⚠️ Fallback ${fallback}x also failed: ${fallbackError.message}`);
+          }
+        }
+
+        if (!leverageSet) {
+          throw new Error(`Failed to set leverage for ${signal.symbol} - all fallbacks exhausted`);
+        }
+
         // 포지션 사이즈 재계산 (레버리지가 낮아졌으므로)
         positionSize.leverage = actualLeverage;
       }
@@ -1086,14 +1108,38 @@ export class OrderService {
     this.addPendingSymbol(signal.symbol);
 
     try {
-      // 1. 레버리지 설정
+      // 1. 레버리지 설정 (v11: 다단계 retry)
       let actualLeverage = positionSize.leverage;
+
+      // v11: 레버리지 fallback 순서 (심볼별 최대 레버리지 제한 대응)
+      const leverageFallbacks = [20, 15, 10, 5];
+      let leverageSet = false;
+
       try {
         await this.binanceService.changeLeverage(signal.symbol, actualLeverage);
+        leverageSet = true;
       } catch (leverageError: any) {
-        this.logger.warn(`[ASYNC] Leverage ${actualLeverage}x failed, trying 10x`);
-        actualLeverage = 10;
-        await this.binanceService.changeLeverage(signal.symbol, actualLeverage);
+        this.logger.warn(`[ASYNC] Leverage ${actualLeverage}x failed: ${leverageError.message}`);
+
+        // fallback 순서대로 시도
+        for (const fallback of leverageFallbacks) {
+          if (fallback >= actualLeverage) continue;
+          try {
+            this.logger.log(`[ASYNC] Retrying with fallback leverage ${fallback}x...`);
+            await this.binanceService.changeLeverage(signal.symbol, fallback);
+            this.logger.log(`[ASYNC] ✓ Leverage set to ${fallback}x (fallback)`);
+            actualLeverage = fallback;
+            leverageSet = true;
+            break;
+          } catch (fallbackError: any) {
+            this.logger.warn(`[ASYNC] Fallback ${fallback}x also failed`);
+          }
+        }
+
+        if (!leverageSet) {
+          throw new Error(`Failed to set leverage for ${signal.symbol} - all fallbacks exhausted`);
+        }
+
         positionSize.leverage = actualLeverage;
       }
 

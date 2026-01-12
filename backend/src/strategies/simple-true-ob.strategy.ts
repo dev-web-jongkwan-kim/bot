@@ -13,6 +13,12 @@
  * - v7: ATR% 기반 동적 레버리지 (< 1.5% → 15x, 1.5-3% → 10x, > 3% → 5x)
  * - v8: 재진입 쿨다운 12캔들 (5분봉 1시간, 15분봉 3시간)
  * - v9: tp1Ratio 1.0 (승률 57%, MDD 22.5%, ROI +1207%)
+ * - v10: ATR + CVD 필터 추가 (승률 58.8% → 62.5%, +3.7%p)
+ * - v11: 파라미터 최적화 (ROI 2969% → 8008%, +170%)
+ *   - orbAtr: 1.5 → 1.0, orbVol: 2.0 → 1.5
+ *   - slBuffer: 1.0% → 0.5%, tp1Ratio: 1.2R → 0.8R
+ *   - retryCooldown: 12 → 6, atrFilterMin: 0.5 → 0.4
+ *   - 동적 레버리지: 15/10/5 → 20/15/10
  *
  * 최종 성능 (백테스트 2025-10-05 ~ 2026-01-05, 고정마진 $15):
  * - ROI: +1207%, Win Rate: 57.0%, MDD: 22.5%
@@ -64,6 +70,11 @@ interface Config {
   orderValidityBars15m: number;   // 15분봉 주문 유효시간 (캔들 수)
   // v7: ATR% 기반 동적 레버리지
   useDynamicLeverage: boolean;    // 동적 레버리지 사용 여부
+  // v10: ATR + CVD 방향 필터
+  useATRCVDFilter: boolean;       // ATR + CVD 필터 사용 여부
+  atrFilterMin: number;           // ATR% 최소값 (0.5%)
+  atrFilterMax: number;           // ATR% 최대값 (3.0%)
+  cvdLookback: number;            // CVD 계산 기간 (20캔들)
 }
 
 @Injectable()
@@ -93,8 +104,8 @@ export class SimpleTrueOBStrategy implements IStrategy {
   // ✅ 실시간 모드 플래그 (과거 데이터 로딩 중에는 false)
   private isLiveMode = false;
 
-  // v8: 재진입 쿨다운 (백테스트와 동일)
-  private readonly REENTRY_COOLDOWN_BARS = 12;  // 5분봉 1시간, 15분봉 3시간
+  // v8: 재진입 쿨다운 (v11 최적화: 12 → 6)
+  private readonly REENTRY_COOLDOWN_BARS = 6;  // 5분봉 30분, 15분봉 1.5시간
   private lastExitCandleIndexMap: Map<string, number> = new Map();
 
   constructor() {
@@ -110,8 +121,8 @@ export class SimpleTrueOBStrategy implements IStrategy {
       sweepWickMin: 0.6,
       sweepPenMin: 0.1,
       sweepPenMax: 1.0,
-      orbAtr: 1.5,              // 상향: 1.2 → 1.5 (더 강한 OB만 필터)
-      orbVol: 2.0,              // 상향: 1.5 → 2.0 (더 강한 OB만 필터)
+      orbAtr: 1.0,              // v11 최적화: 1.5 → 1.0 (더 많은 OB 감지)
+      orbVol: 1.5,              // v11 최적화: 2.0 → 1.5 (더 많은 OB 감지)
       londonHour: 7,
       nyHour: 14,
       rrRatio: 4.0,             // v4 최적화: 3.0 → 4.0
@@ -129,20 +140,113 @@ export class SimpleTrueOBStrategy implements IStrategy {
       minAwayMultTrending: 2.0,     // (동일)
       // v6: 백테스트와 동일한 필터 추가
       maxPriceDeviation: 0.02,      // 2% - 현재가가 OB 중간가에서 2% 이상 벗어나면 진입 스킵
-      orderValidityBars5m: 15,      // 5분봉 75분 (15 × 5분)
-      orderValidityBars15m: 15,     // 15분봉 3.75시간 (15 × 15분)
+      orderValidityBars5m: 3,       // 5분봉 15분 (3 × 5분) - 백테스트 REALISTIC_CONFIG와 동일
+      orderValidityBars15m: 3,      // 15분봉 45분 (3 × 15분) - 백테스트 REALISTIC_CONFIG와 동일
       // v7: ATR% 기반 동적 레버리지
       useDynamicLeverage: true,     // 활성화
+      // v10: ATR + CVD 방향 필터
+      useATRCVDFilter: true,        // 활성화
+      atrFilterMin: 0.4,            // v11 최적화: 0.5 → 0.4
+      atrFilterMax: 3.0,            // ATR% 최대 3.0%
+      cvdLookback: 20,              // CVD 20캔들 기준
     };
   }
 
   /**
-   * ATR% 기반 동적 레버리지 계산 (백테스트와 동일)
+   * ATR% 기반 동적 레버리지 계산 (v11 최적화: 15/10/5 → 20/15/10)
    */
   private getDynamicLeverage(atrPercent: number): number {
-    if (atrPercent < 1.5) return 15;      // 낮은 변동성 → 공격적
-    if (atrPercent <= 3.0) return 10;     // 보통 변동성 → 중립
-    return 5;                              // 높은 변동성 → 방어적
+    if (atrPercent < 1.5) return 20;      // 낮은 변동성 → 공격적 (v11: 15→20)
+    if (atrPercent <= 3.0) return 15;     // 보통 변동성 → 중립 (v11: 10→15)
+    return 10;                             // 높은 변동성 → 방어적 (v11: 5→10)
+  }
+
+  /**
+   * v10: ATR 변동성 필터 - 적정 변동성 범위 확인 (0.5% ~ 3.0%)
+   */
+  private checkATRVolatilityFilter(candles: OHLCV[], currentIndex: number): boolean {
+    if (currentIndex < 100) return true;  // 데이터 부족시 통과
+
+    const slice = candles.slice(Math.max(0, currentIndex - 100), currentIndex + 1);
+
+    // ATR 계산
+    const atrValues = ATR.calculate({
+      high: slice.map(c => c.high),
+      low: slice.map(c => c.low),
+      close: slice.map(c => c.close),
+      period: 14,
+    });
+
+    if (atrValues.length === 0) return true;
+
+    const currentATR = atrValues[atrValues.length - 1];
+    const currentPrice = slice[slice.length - 1].close;
+    const atrPercent = (currentATR / currentPrice) * 100;
+
+    // 적정 변동성 범위: 0.5% ~ 3.0%
+    return atrPercent >= this.config.atrFilterMin && atrPercent <= this.config.atrFilterMax;
+  }
+
+  /**
+   * v10: CVD (Cumulative Volume Delta) 필터 - 매수/매도 압력 분석
+   */
+  private checkCVDFilter(candles: OHLCV[], obType: 'LONG' | 'SHORT', currentIndex: number): boolean {
+    if (currentIndex < 50) return true;  // 데이터 부족시 통과
+
+    const lookback = this.config.cvdLookback;  // 20캔들
+    const slice = candles.slice(Math.max(0, currentIndex - lookback), currentIndex + 1);
+
+    if (slice.length < lookback) return true;
+
+    // Delta 계산 (캔들 기반 근사치)
+    // Buy Volume: (Close - Low) / (High - Low) * Volume
+    // Sell Volume: (High - Close) / (High - Low) * Volume
+    // Delta = Buy Volume - Sell Volume
+    const deltas: number[] = [];
+
+    for (const candle of slice) {
+      const range = candle.high - candle.low;
+      if (range === 0) {
+        deltas.push(0);
+        continue;
+      }
+
+      const buyRatio = (candle.close - candle.low) / range;
+      const sellRatio = (candle.high - candle.close) / range;
+      const delta = candle.volume * (buyRatio - sellRatio);
+      deltas.push(delta);
+    }
+
+    // CVD 계산 (누적 델타)
+    let cvd = 0;
+    const cvdValues: number[] = [];
+    for (const delta of deltas) {
+      cvd += delta;
+      cvdValues.push(cvd);
+    }
+
+    // CVD 추세 판단 (최근 10개 캔들)
+    const recentCVD = cvdValues.slice(-10);
+    const cvdStart = recentCVD[0];
+    const cvdEnd = recentCVD[recentCVD.length - 1];
+    const cvdTrend = cvdEnd - cvdStart;
+
+    // LONG: CVD 상승 (매수 압력 증가)
+    // SHORT: CVD 하락 (매도 압력 증가)
+    if (obType === 'LONG') {
+      return cvdTrend > 0;  // 매수 압력 있음
+    } else {
+      return cvdTrend < 0;  // 매도 압력 있음
+    }
+  }
+
+  /**
+   * v10: ATR + CVD 조합 필터
+   */
+  private checkATRCVDFilter(candles: OHLCV[], obType: 'LONG' | 'SHORT', currentIndex: number): boolean {
+    const atrPassed = this.checkATRVolatilityFilter(candles, currentIndex);
+    const cvdPassed = this.checkCVDFilter(candles, obType, currentIndex);
+    return atrPassed && cvdPassed;
   }
 
   private getStateKey(symbol: string, timeframe: string): string {
@@ -717,8 +821,38 @@ export class SimpleTrueOBStrategy implements IStrategy {
       }
     }
 
+    // v10: ATR + CVD 방향 필터 체크
+    if (this.config.useATRCVDFilter) {
+      const currentIndex = candles.length - 1;
+      const atrPassed = this.checkATRVolatilityFilter(candles, currentIndex);
+      const cvdPassed = this.checkCVDFilter(candles, activeOB.type, currentIndex);
+
+      if (!atrPassed) {
+        // ATR% 계산하여 로그
+        const atrValues = ATR.calculate({
+          high: candles.slice(-100).map(c => c.high),
+          low: candles.slice(-100).map(c => c.low),
+          close: candles.slice(-100).map(c => c.close),
+          period: 14,
+        });
+        const currentATR = atrValues.length > 0 ? atrValues[atrValues.length - 1] : 0;
+        const atrPct = (currentATR / currentCandle.close) * 100;
+        this.logger.debug(`[${symbol}/${timeframe}] Signal rejected: ATR filter (${atrPct.toFixed(2)}% not in ${this.config.atrFilterMin}-${this.config.atrFilterMax}%)`);
+        return null;  // OB 유지, 다음 캔들에서 재시도
+      }
+
+      if (!cvdPassed) {
+        this.logger.debug(`[${symbol}/${timeframe}] Signal rejected: CVD filter (no ${activeOB.type === 'LONG' ? 'buy' : 'sell'} pressure)`);
+        return null;  // OB 유지, 다음 캔들에서 재시도
+      }
+
+      if (this.isLiveMode) {
+        this.logger.log(`[${symbol}/${timeframe}] ✅ ATR+CVD filter passed`);
+      }
+    }
+
     // 진입 시그널 생성 (OB 중간가 사용)
-    const slBuffer = 0.01;  // 1.0% (백테스트와 동일)
+    const slBuffer = 0.005;  // v11 최적화: 1.0% → 0.5%
 
     // 슬리피지 적용 (백테스트와 동일)
     const slippageFactor = activeOB.type === 'LONG'
@@ -733,12 +867,12 @@ export class SimpleTrueOBStrategy implements IStrategy {
     if (activeOB.type === 'LONG') {
       stopLoss = activeOB.bottom * (1 - slBuffer);
       const risk = entry - stopLoss;
-      takeProfit1 = entry + (risk * 1.2);  // TP1=1.2R (백테스트와 동일)
+      takeProfit1 = entry + (risk * 0.8);  // v11 최적화: TP1=1.2R → 0.8R
       takeProfit2 = entry + (risk * this.config.rrRatio);  // rrRatio = 4.0
     } else {
       stopLoss = activeOB.top * (1 + slBuffer);
       const risk = stopLoss - entry;
-      takeProfit1 = entry - (risk * 1.2);  // TP1=1.2R (백테스트와 동일)
+      takeProfit1 = entry - (risk * 0.8);  // v11 최적화: TP1=1.2R → 0.8R
       takeProfit2 = entry - (risk * this.config.rrRatio);  // rrRatio = 4.0
     }
 
