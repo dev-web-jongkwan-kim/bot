@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Signal } from '../database/entities/signal.entity';
@@ -6,6 +6,7 @@ import { Position } from '../database/entities/position.entity';
 import { ConfigService } from '@nestjs/config';
 import { BinanceService } from '../binance/binance.service';
 import { SymbolSectorService, Sector } from '../symbol-selection/symbol-sector.service';
+import { OrderMonitorService } from '../order/order-monitor.service';
 
 @Injectable()
 export class RiskService {
@@ -34,6 +35,13 @@ export class RiskService {
   private dailyStartBalance: number = 0;
   private dailyStartBalanceDate: string = '';  // YYYY-MM-DD 형식
 
+  // ✅ 캔들 기반 동시 진입 제한 (상관관계 필터링)
+  // 같은 캔들 내 같은 방향 최대 주문 수
+  private readonly MAX_SAME_DIRECTION_PER_CANDLE = 2;
+
+  // 캔들별 진입 카운터: { '5m': { candleStart: timestamp, long: count, short: count }, '15m': {...} }
+  private candleEntryCount: Map<string, { candleStart: number; long: number; short: number }> = new Map();
+
   constructor(
     @InjectRepository(Signal)
     private signalRepo: Repository<Signal>,
@@ -42,6 +50,8 @@ export class RiskService {
     private configService: ConfigService,
     private binanceService: BinanceService,       // v10: 바이낸스 서비스 주입
     private symbolSectorService: SymbolSectorService,  // v12: 섹터 관리 서비스
+    @Inject(forwardRef(() => OrderMonitorService))
+    private orderMonitorService: OrderMonitorService,  // ✅ 대기 주문 추적용
   ) {
     this.initialBalance = parseFloat(
       this.configService.get<string>('ACCOUNT_BALANCE') || '10000',
@@ -201,45 +211,59 @@ export class RiskService {
   async checkPositionLimit(direction?: 'LONG' | 'SHORT'): Promise<boolean> {
     this.logger.log(`[RISK CHECK] Checking position limit... (direction: ${direction || 'ANY'})`);
 
-    // 1. 전체 포지션 수 체크
-    const openPositions = await this.positionRepo.count({
-      where: { status: 'OPEN' },
-    });
+    // ✅ 통합 슬롯 체크: OPEN 포지션 + 대기 중 LIMIT 주문
+    const slotUsage = await this.orderMonitorService.getTotalSlotUsage();
+    const { openPositions, pendingOrders, total, openLongPositions, openShortPositions } = slotUsage;
 
-    if (openPositions >= this.maxPositions) {
+    // 대기 주문의 방향별 개수
+    const pendingLong = this.orderMonitorService.getPendingOrderCountBySide('LONG');
+    const pendingShort = this.orderMonitorService.getPendingOrderCountBySide('SHORT');
+
+    this.logger.log(
+      `  [SLOT USAGE]\n` +
+      `    OPEN Positions:  ${openPositions} (LONG: ${openLongPositions}, SHORT: ${openShortPositions})\n` +
+      `    Pending LIMIT:   ${pendingOrders} (LONG: ${pendingLong}, SHORT: ${pendingShort})\n` +
+      `    Total Slots:     ${total}/${this.maxPositions}`
+    );
+
+    // 1. 전체 슬롯 체크 (OPEN + PENDING)
+    if (total >= this.maxPositions) {
       this.logger.warn(
-        `\n🛑 [MAX POSITIONS REACHED]\n` +
-        `  Open Positions: ${openPositions}/${this.maxPositions}\n` +
+        `\n🛑 [MAX SLOTS REACHED]\n` +
+        `  Total Slots:      ${total}/${this.maxPositions}\n` +
+        `  Open Positions:   ${openPositions}\n` +
+        `  Pending Orders:   ${pendingOrders}\n` +
         `  → Cannot open new position`
       );
       return false;
     }
 
-    // 2. 방향별 포지션 수 체크 (direction이 제공된 경우)
+    // 2. 방향별 슬롯 체크 (direction이 제공된 경우)
     if (direction) {
-      const directionCount = await this.positionRepo.count({
-        where: { status: 'OPEN', side: direction },
-      });
+      const totalDirectionSlots = direction === 'LONG'
+        ? openLongPositions + pendingLong
+        : openShortPositions + pendingShort;
 
       const maxForDirection = direction === 'LONG' ? this.maxLongPositions : this.maxShortPositions;
 
       this.logger.log(
-        `  [POSITION LIMIT CHECK] Total: ${openPositions}/${this.maxPositions} | ` +
-        `${direction}: ${directionCount}/${maxForDirection} | ` +
-        `Status: ${directionCount >= maxForDirection ? '❌ DIRECTION LIMIT' : '✅ PASSED'}`
+        `  [DIRECTION LIMIT CHECK] ${direction}: ${totalDirectionSlots}/${maxForDirection} | ` +
+        `Status: ${totalDirectionSlots >= maxForDirection ? '❌ DIRECTION LIMIT' : '✅ PASSED'}`
       );
 
-      if (directionCount >= maxForDirection) {
+      if (totalDirectionSlots >= maxForDirection) {
         this.logger.warn(
-          `\n🛑 [${direction} POSITIONS LIMIT REACHED]\n` +
-          `  ${direction} Positions: ${directionCount}/${maxForDirection}\n` +
+          `\n🛑 [${direction} SLOTS LIMIT REACHED]\n` +
+          `  ${direction} Slots:  ${totalDirectionSlots}/${maxForDirection}\n` +
+          `  (Open: ${direction === 'LONG' ? openLongPositions : openShortPositions}, ` +
+          `Pending: ${direction === 'LONG' ? pendingLong : pendingShort})\n` +
           `  → Cannot open new ${direction} position`
         );
         return false;
       }
     } else {
       this.logger.log(
-        `  [POSITION LIMIT CHECK] ${openPositions}/${this.maxPositions} positions open | Status: ✅ PASSED`
+        `  [POSITION LIMIT CHECK] ${total}/${this.maxPositions} slots used | Status: ✅ PASSED`
       );
     }
 
@@ -394,6 +418,110 @@ export class RiskService {
     }
 
     return true;
+  }
+
+  /**
+   * ✅ 캔들 기반 동시 진입 제한 체크
+   *
+   * 같은 캔들 내 같은 방향으로 MAX_SAME_DIRECTION_PER_CANDLE개까지만 진입 허용
+   * - 상관관계 높은 종목들이 동시에 신호 발생 시 손실 확대 방지
+   * - 5분봉, 15분봉 각각 별도로 카운트
+   */
+  checkCandleEntryLimit(signal: any): boolean {
+    const timeframe = signal.timeframe || signal.metadata?.timeframe || '5m';
+    const side = signal.side as 'LONG' | 'SHORT';
+
+    // 현재 캔들 시작 시간 계산
+    const now = Date.now();
+    const candleDuration = timeframe === '15m' ? 15 * 60 * 1000 : 5 * 60 * 1000;
+    const currentCandleStart = Math.floor(now / candleDuration) * candleDuration;
+
+    // 현재 타임프레임의 카운터 조회
+    let counter = this.candleEntryCount.get(timeframe);
+
+    // 새 캔들이 시작되었으면 카운터 리셋
+    if (!counter || counter.candleStart !== currentCandleStart) {
+      counter = {
+        candleStart: currentCandleStart,
+        long: 0,
+        short: 0,
+      };
+      this.candleEntryCount.set(timeframe, counter);
+      this.logger.log(
+        `[CANDLE LIMIT] 🕐 New ${timeframe} candle started at ${new Date(currentCandleStart).toISOString()}`
+      );
+    }
+
+    // 현재 방향의 진입 수 확인
+    const currentCount = side === 'LONG' ? counter.long : counter.short;
+
+    this.logger.log(
+      `  [CANDLE ENTRY CHECK] ${timeframe} | ${side}: ${currentCount}/${this.MAX_SAME_DIRECTION_PER_CANDLE} | ` +
+      `Status: ${currentCount >= this.MAX_SAME_DIRECTION_PER_CANDLE ? '❌ LIMIT REACHED' : '✅ PASSED'}`
+    );
+
+    if (currentCount >= this.MAX_SAME_DIRECTION_PER_CANDLE) {
+      this.logger.warn(
+        `\n🛑 [CANDLE ENTRY LIMIT REACHED]\n` +
+        `  Timeframe:  ${timeframe}\n` +
+        `  Direction:  ${side}\n` +
+        `  Count:      ${currentCount}/${this.MAX_SAME_DIRECTION_PER_CANDLE}\n` +
+        `  Signal:     ${signal.symbol}\n` +
+        `  → Rejecting to prevent correlated entries`
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * ✅ 캔들 진입 카운터 증가 (주문 성공 시 호출)
+   */
+  recordCandleEntry(timeframe: string, side: 'LONG' | 'SHORT'): void {
+    const tf = timeframe || '5m';
+    const now = Date.now();
+    const candleDuration = tf === '15m' ? 15 * 60 * 1000 : 5 * 60 * 1000;
+    const currentCandleStart = Math.floor(now / candleDuration) * candleDuration;
+
+    let counter = this.candleEntryCount.get(tf);
+
+    if (!counter || counter.candleStart !== currentCandleStart) {
+      counter = {
+        candleStart: currentCandleStart,
+        long: 0,
+        short: 0,
+      };
+      this.candleEntryCount.set(tf, counter);
+    }
+
+    if (side === 'LONG') {
+      counter.long++;
+    } else {
+      counter.short++;
+    }
+
+    this.logger.log(
+      `[CANDLE ENTRY] 📝 Recorded ${tf} ${side} | ` +
+      `Current: LONG=${counter.long}, SHORT=${counter.short}`
+    );
+  }
+
+  /**
+   * ✅ 현재 캔들 진입 상태 조회 (디버그/API용)
+   */
+  getCandleEntryStatus(): Record<string, { candleStart: string; long: number; short: number }> {
+    const result: Record<string, { candleStart: string; long: number; short: number }> = {};
+
+    for (const [tf, counter] of this.candleEntryCount) {
+      result[tf] = {
+        candleStart: new Date(counter.candleStart).toISOString(),
+        long: counter.long,
+        short: counter.short,
+      };
+    }
+
+    return result;
   }
 
   async calculatePositionSize(signal: any): Promise<any> {

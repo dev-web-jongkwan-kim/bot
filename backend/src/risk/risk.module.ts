@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { RiskService } from './risk.service';
 import { DatabaseModule } from '../database/database.module';
 import { ConfigModule } from '@nestjs/config';
 import { BinanceModule } from '../binance/binance.module';
 import { SymbolSelectionModule } from '../symbol-selection/symbol-selection.module';
+import { OrderModule } from '../order/order.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { SymbolSelectionModule } from '../symbol-selection/symbol-selection.modu
     ConfigModule,
     BinanceModule,              // v10: Dynamic balance
     SymbolSelectionModule,      // v12: Sector management
+    forwardRef(() => OrderModule),  // ✅ 통합 슬롯 체크용
   ],
   providers: [RiskService],
   exports: [RiskService],

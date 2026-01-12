@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BinanceService } from '../binance/binance.service';
 import { Position } from '../database/entities/position.entity';
+import { OrderMonitorService, PendingLimitOrder } from './order-monitor.service';
 
 @Injectable()
 export class OrderService {
@@ -29,6 +30,8 @@ export class OrderService {
     private binanceService: BinanceService,
     @InjectRepository(Position)
     private positionRepo: Repository<Position>,
+    @Inject(forwardRef(() => OrderMonitorService))
+    private orderMonitorService: OrderMonitorService,
   ) {
     // 1시간마다 통계 로깅
     setInterval(() => this.logOrderStats(), 60 * 60 * 1000);
@@ -197,6 +200,21 @@ export class OrderService {
     this.logger.log(
       `\n🚀 [ORDER SERVICE] Received order execution request for ${signal.symbol} ${signal.side}`
     );
+
+    // ✅ [중복 방지] 주문 전 바이낸스에서 기존 포지션/주문 확인
+    const duplicateCheck = await this.checkExistingPositionOrOrder(signal.symbol, signal.side);
+    if (duplicateCheck.shouldSkip) {
+      this.logger.warn(
+        `\n🚫 [DUPLICATE PREVENTION] Skipping order!\n` +
+        `  Symbol: ${signal.symbol} ${signal.side}\n` +
+        `  Reason: ${duplicateCheck.reason}`
+      );
+      this.recordOrderResult(signal.symbol, 'SKIPPED', duplicateCheck.reason);
+      return {
+        status: 'SKIPPED',
+        error: duplicateCheck.reason,
+      };
+    }
 
     // ✅ 중복 포지션 방지: 처리 시작 시 pending 세트에 추가
     this.addPendingSymbol(signal.symbol);
@@ -1025,6 +1043,292 @@ export class OrderService {
     );
 
     return parseFloat(formattedPrice);
+  }
+
+  /**
+   * ✅ [비동기 모드] LIMIT 주문 생성 후 즉시 반환
+   *
+   * - LIMIT 주문만 생성하고 즉시 반환 (blocking 없음)
+   * - OrderMonitorService에 등록하여 비동기로 체결 감지
+   * - 체결 시 OrderMonitorService가 SL/TP 생성 및 포지션 저장
+   *
+   * @returns { status: 'PENDING' | 'SKIPPED' | 'FAILED', orderId?, error? }
+   */
+  async executeOrderAsync(signal: any, positionSize: any): Promise<{
+    status: 'PENDING' | 'SKIPPED' | 'FAILED';
+    orderId?: number;
+    error?: string;
+  }> {
+    this.logger.log(
+      `\n🚀 [ASYNC ORDER] ${signal.symbol} ${signal.side}\n` +
+      `  Strategy:   ${signal.strategy}\n` +
+      `  Entry:      ${signal.entryPrice}\n` +
+      `  Quantity:   ${positionSize.quantity}\n` +
+      `  Leverage:   ${positionSize.leverage}x`
+    );
+
+    // ✅ [중복 방지] 주문 전 바이낸스에서 기존 포지션/주문 확인
+    const duplicateCheck = await this.checkExistingPositionOrOrder(signal.symbol, signal.side);
+    if (duplicateCheck.shouldSkip) {
+      this.logger.warn(
+        `\n🚫 [ASYNC DUPLICATE PREVENTION] Skipping order!\n` +
+        `  Symbol: ${signal.symbol} ${signal.side}\n` +
+        `  Reason: ${duplicateCheck.reason}`
+      );
+      this.recordOrderResult(signal.symbol, 'SKIPPED', duplicateCheck.reason);
+      return {
+        status: 'SKIPPED',
+        error: duplicateCheck.reason,
+      };
+    }
+
+    // 중복 방지
+    this.addPendingSymbol(signal.symbol);
+
+    try {
+      // 1. 레버리지 설정
+      let actualLeverage = positionSize.leverage;
+      try {
+        await this.binanceService.changeLeverage(signal.symbol, actualLeverage);
+      } catch (leverageError: any) {
+        this.logger.warn(`[ASYNC] Leverage ${actualLeverage}x failed, trying 10x`);
+        actualLeverage = 10;
+        await this.binanceService.changeLeverage(signal.symbol, actualLeverage);
+        positionSize.leverage = actualLeverage;
+      }
+
+      // 2. 마진 모드 설정
+      await this.binanceService.changeMarginType(signal.symbol, 'ISOLATED');
+
+      // 3. LIMIT 주문 생성
+      const obMidpoint = signal.entryPrice;
+      const limitPrice = parseFloat(this.binanceService.formatPrice(signal.symbol, obMidpoint));
+
+      const timeframe = signal.metadata?.timeframe || signal.timeframe || '5m';
+      const maxWaitTime = timeframe === '15m' ? 2700000 : 900000; // 15분봉: 45분, 5분봉: 15분
+
+      const mainOrder = await this.binanceService.createOrder({
+        symbol: signal.symbol,
+        side: signal.side === 'LONG' ? 'BUY' : 'SELL',
+        type: 'LIMIT',
+        quantity: positionSize.quantity,
+        price: limitPrice,
+        timeInForce: 'GTC',
+      });
+
+      this.logger.log(
+        `[ASYNC] ✅ LIMIT order placed:\n` +
+        `  Order ID: ${mainOrder.orderId}\n` +
+        `  Price:    ${limitPrice}\n` +
+        `  Status:   ${mainOrder.status}`
+      );
+
+      // 즉시 체결된 경우
+      if (mainOrder.status === 'FILLED') {
+        const entryPrice = parseFloat(mainOrder.avgPrice || mainOrder.price);
+        const executedQty = parseFloat(mainOrder.executedQty || mainOrder.origQty);
+
+        this.logger.log(`[ASYNC] ⚡ Immediately filled! Entry: ${entryPrice}`);
+
+        // 동기식으로 SL/TP 생성 필요 - executeOrder로 fallback하거나 여기서 처리
+        // OrderMonitorService에 바로 onOrderFilled 호출하는 것보다
+        // 직접 처리하는 게 더 안전함 (동기적으로)
+        const result = await this.executeOrder(signal, positionSize);
+        this.removePendingSymbol(signal.symbol);
+        return {
+          status: result.status === 'FILLED' ? 'PENDING' : 'FAILED',
+          orderId: mainOrder.orderId,
+          error: result.error,
+        };
+      }
+
+      // 대기 중인 경우 - OrderMonitorService에 등록
+      if (mainOrder.status === 'NEW') {
+        const pendingOrder: PendingLimitOrder = {
+          symbol: signal.symbol,
+          orderId: mainOrder.orderId,
+          side: signal.side,
+          quantity: positionSize.quantity,
+          price: limitPrice,
+          signal: { ...signal, leverage: actualLeverage },
+          positionSize,
+          createdAt: Date.now(),
+          expireAt: Date.now() + maxWaitTime,
+          obTop: signal.metadata?.obTop,
+          obBottom: signal.metadata?.obBottom,
+          timeframe,
+          retryCount: 0,
+        };
+
+        this.orderMonitorService.registerPendingOrder(pendingOrder);
+
+        this.logger.log(
+          `[ASYNC] 📝 Registered for monitoring:\n` +
+          `  Symbol:  ${signal.symbol}\n` +
+          `  Expire:  ${new Date(pendingOrder.expireAt).toISOString()}`
+        );
+
+        // pendingSymbol은 유지 (OrderMonitorService가 체결/취소 시 정리)
+        // 하지만 SignalProcessor가 다음 시그널 처리할 수 있도록 여기서 제거
+        this.removePendingSymbol(signal.symbol);
+
+        this.recordOrderResult(signal.symbol, 'PENDING', 'Async monitoring');
+
+        return {
+          status: 'PENDING',
+          orderId: mainOrder.orderId,
+        };
+      }
+
+      // 기타 상태
+      this.logger.warn(`[ASYNC] Unexpected status: ${mainOrder.status}`);
+      this.recordOrderResult(signal.symbol, 'FAILED', `Unexpected: ${mainOrder.status}`);
+      return {
+        status: 'FAILED',
+        error: `Unexpected status: ${mainOrder.status}`,
+      };
+
+    } catch (error: any) {
+      this.logger.error(`[ASYNC] ❌ Failed: ${error.message}`);
+      this.recordOrderResult(signal.symbol, 'FAILED', error.message);
+      return {
+        status: 'FAILED',
+        error: error.message,
+      };
+    } finally {
+      this.removePendingSymbol(signal.symbol);
+    }
+  }
+
+  /**
+   * ✅ 대기 주문 개수 반환 (RiskService용)
+   */
+  static getPendingOrderCount(): number {
+    return OrderService.pendingSymbols.size;
+  }
+
+  /**
+   * ✅ [중복 방지] 주문 전 바이낸스에서 기존 포지션/주문 확인
+   *
+   * 발생 가능 시나리오:
+   * 1. 주문이 "실패"로 처리되었지만 실제로 체결됨
+   * 2. 네트워크 지연으로 중복 주문 발생
+   * 3. 시스템 재시작 후 상태 불일치
+   *
+   * @returns { hasPosition, hasLimitOrder, shouldSkip, reason }
+   */
+  async checkExistingPositionOrOrder(symbol: string, side: 'LONG' | 'SHORT'): Promise<{
+    hasPosition: boolean;
+    hasLimitOrder: boolean;
+    shouldSkip: boolean;
+    reason?: string;
+    positionAmt?: number;
+    limitOrderId?: number;
+  }> {
+    try {
+      // 1. 바이낸스에서 현재 포지션 확인
+      const positions = await this.binanceService.getOpenPositions();
+      const existingPosition = positions.find(
+        (p: any) => p.symbol === symbol && Math.abs(parseFloat(p.positionAmt)) > 0.000001
+      );
+
+      if (existingPosition) {
+        const positionAmt = parseFloat(existingPosition.positionAmt);
+        const positionSide = positionAmt > 0 ? 'LONG' : 'SHORT';
+
+        // 같은 방향의 포지션이 이미 있음
+        if (positionSide === side) {
+          this.logger.warn(
+            `\n🚫 [DUPLICATE CHECK] Position already exists!\n` +
+            `  Symbol:   ${symbol}\n` +
+            `  Side:     ${positionSide}\n` +
+            `  Amount:   ${Math.abs(positionAmt)}\n` +
+            `  Entry:    ${existingPosition.entryPrice}\n` +
+            `  → Skipping new order`
+          );
+
+          return {
+            hasPosition: true,
+            hasLimitOrder: false,
+            shouldSkip: true,
+            reason: `Position already exists: ${Math.abs(positionAmt)} ${positionSide}`,
+            positionAmt: Math.abs(positionAmt),
+          };
+        }
+
+        // 반대 방향 포지션 - 허용 (헤지 또는 청산 후 반대 진입)
+        this.logger.log(
+          `[DUPLICATE CHECK] Opposite position exists: ${symbol} ${positionSide} - allowing ${side}`
+        );
+      }
+
+      // 2. 바이낸스에서 대기 중인 LIMIT 주문 확인
+      const openOrders = await this.binanceService.getOpenOrders(symbol);
+      const limitOrder = openOrders.find((o: any) => {
+        const orderSide = o.side === 'BUY' ? 'LONG' : 'SHORT';
+        return o.type === 'LIMIT' && orderSide === side;
+      });
+
+      if (limitOrder) {
+        this.logger.warn(
+          `\n🚫 [DUPLICATE CHECK] LIMIT order already exists!\n` +
+          `  Symbol:   ${symbol}\n` +
+          `  Side:     ${side}\n` +
+          `  Order ID: ${limitOrder.orderId}\n` +
+          `  Price:    ${limitOrder.price}\n` +
+          `  Status:   ${limitOrder.status}\n` +
+          `  → Skipping new order`
+        );
+
+        return {
+          hasPosition: false,
+          hasLimitOrder: true,
+          shouldSkip: true,
+          reason: `LIMIT order already exists: #${limitOrder.orderId}`,
+          limitOrderId: limitOrder.orderId,
+        };
+      }
+
+      // 3. DB에서도 확인 (OPEN 상태 포지션)
+      const dbPosition = await this.positionRepo.findOne({
+        where: { symbol, status: 'OPEN' },
+      });
+
+      if (dbPosition && dbPosition.side === side) {
+        this.logger.warn(
+          `\n🚫 [DUPLICATE CHECK] DB position exists!\n` +
+          `  Symbol:   ${symbol}\n` +
+          `  Side:     ${dbPosition.side}\n` +
+          `  → Skipping new order`
+        );
+
+        return {
+          hasPosition: true,
+          hasLimitOrder: false,
+          shouldSkip: true,
+          reason: `DB position exists: ${dbPosition.side}`,
+        };
+      }
+
+      // 중복 없음 - 진행 가능
+      this.logger.debug(`[DUPLICATE CHECK] ${symbol} ${side}: No duplicates found ✓`);
+
+      return {
+        hasPosition: false,
+        hasLimitOrder: false,
+        shouldSkip: false,
+      };
+
+    } catch (error: any) {
+      this.logger.warn(`[DUPLICATE CHECK] Error: ${error.message} - proceeding with caution`);
+      // 에러 시에도 진행 (하지만 경고)
+      return {
+        hasPosition: false,
+        hasLimitOrder: false,
+        shouldSkip: false,
+        reason: `Check failed: ${error.message}`,
+      };
+    }
   }
 }
 

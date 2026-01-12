@@ -17,6 +17,19 @@ export class PositionSyncService {
   // TP1 체결 추적 (심볼 -> 본전 이동 완료 여부)
   private tp1TriggeredPositions: Set<string> = new Set();
 
+  // ✅ 방어 로직: SL/TP 생성 실패 재시도 카운터 (심볼 -> 실패 횟수)
+  private slTpRetryCount: Map<string, number> = new Map();
+  private readonly MAX_SLTP_RETRIES = 3;
+
+  // ✅ 방어 로직: 비정상 포지션 사이즈 임계값 (총 자본의 %)
+  private readonly MAX_POSITION_VALUE_PERCENT = 0.10;  // 총 자본의 10% 초과 시 청산
+
+  // ✅ 방어 로직: SL 없이 오래된 포지션 강제 청산 (분)
+  private readonly MAX_TIME_WITHOUT_SL_MINUTES = 5;  // SL 없이 5분 이상 방치 시 청산
+
+  // ✅ 방어 로직: 포지션별 SL 부재 시작 시간 추적
+  private positionWithoutSlSince: Map<string, number> = new Map();
+
   // v15: 타임프레임별 최대 보유 시간 (밀리초)
   // 5분봉: 2시간 (24캔들) - 데이터 분석 결과 120분 이후 승률 급락
   // 15분봉: 4시간 (16캔들) - 기존 유지
@@ -68,10 +81,17 @@ export class PositionSyncService {
         where: { status: 'OPEN' },
       });
 
+      // ✅ [방어 로직 1] 미인식 포지션 감지 및 즉시 청산
+      await this.detectAndCloseUnknownPositions(dbPositions, activePositions);
+
+      // ✅ [방어 로직 2] 비정상 사이즈 포지션 감지 및 청산
+      await this.detectAndCloseOversizedPositions(activePositions);
+
       // [FLOW-7] TP1 체결 감지 및 SL 본전 이동
       await this.checkAndMoveSlToBreakeven(dbPositions, activePositions);
 
       // ✅ SL Watchdog: SL이 없는 오픈 포지션에 자동으로 SL 생성
+      // [방어 로직 3] 재시도 횟수 초과 시 강제 청산
       await this.checkAndPlaceMissingSL(dbPositions);
 
       // v14: 최대 보유시간 초과 포지션 강제 청산 (30분)
@@ -681,6 +701,7 @@ export class PositionSyncService {
 
   /**
    * ✅ SL Watchdog: SL이 없는 오픈 포지션에 자동으로 SL 생성
+   * [방어 로직 3] 재시도 횟수 초과 시 강제 청산
    *
    * 발생 가능 시나리오:
    * 1. 진입 주문 체결 후 SL 주문 실패
@@ -702,9 +723,127 @@ export class PositionSyncService {
         // TP 체크: TAKE_PROFIT_MARKET (quantity 또는 closePosition)
         const existingTP = algoOrders.find(o => o.type === 'TAKE_PROFIT_MARKET');
 
-        // 둘 다 있으면 OK
+        // 둘 다 있으면 OK - 재시도 카운터 및 SL 부재 추적 초기화
         if (existingSL && existingTP) {
           this.logger.debug(`[WATCHDOG] ${dbPos.symbol}: SL ✓ TP ✓`);
+          this.slTpRetryCount.delete(dbPos.symbol);  // 성공 시 카운터 리셋
+          this.positionWithoutSlSince.delete(dbPos.symbol);  // SL 부재 추적 해제
+          continue;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // [방어 로직] SL 없이 오래된 포지션 강제 청산
+        // ═══════════════════════════════════════════════════════════
+        if (!existingSL) {
+          const now = Date.now();
+          const firstDetected = this.positionWithoutSlSince.get(dbPos.symbol);
+
+          if (!firstDetected) {
+            // 처음 SL 부재 감지 - 시간 기록
+            this.positionWithoutSlSince.set(dbPos.symbol, now);
+            this.logger.warn(
+              `[WATCHDOG] ⚠️ ${dbPos.symbol}: SL missing - tracking started`
+            );
+          } else {
+            const minutesWithoutSL = (now - firstDetected) / 60000;
+
+            if (minutesWithoutSL >= this.MAX_TIME_WITHOUT_SL_MINUTES) {
+              this.logger.error(
+                `\n🚨🚨🚨 [CRITICAL] POSITION WITHOUT SL FOR ${minutesWithoutSL.toFixed(1)} MINUTES! 🚨🚨🚨\n` +
+                `  Symbol: ${dbPos.symbol}\n` +
+                `  → FORCE CLOSING due to prolonged SL absence!`
+              );
+
+              try {
+                const binancePositions = await this.binanceService.getOpenPositions();
+                const binancePos = binancePositions.find(p => p.symbol === dbPos.symbol);
+
+                if (binancePos) {
+                  const currentQty = Math.abs(parseFloat(binancePos.positionAmt));
+                  if (currentQty > 0) {
+                    await this.binanceService.cancelAllAlgoOrders(dbPos.symbol);
+
+                    const closeSide = dbPos.side === 'LONG' ? 'SELL' : 'BUY';
+                    await this.binanceService.createOrder({
+                      symbol: dbPos.symbol,
+                      side: closeSide,
+                      type: 'MARKET',
+                      quantity: currentQty,
+                      reduceOnly: true,
+                    });
+
+                    this.logger.log(`  ✅ Position force closed due to SL absence`);
+
+                    dbPos.metadata = {
+                      ...dbPos.metadata,
+                      forceClose: true,
+                      forceCloseReason: 'PROLONGED_SL_ABSENCE',
+                      forceCloseTime: new Date().toISOString(),
+                      minutesWithoutSL: minutesWithoutSL,
+                    };
+                    await this.positionRepo.save(dbPos);
+                  }
+                }
+
+                this.positionWithoutSlSince.delete(dbPos.symbol);
+                this.slTpRetryCount.delete(dbPos.symbol);
+              } catch (forceCloseError: any) {
+                this.logger.error(`  ❌ Force close failed: ${forceCloseError.message}`);
+              }
+              continue;
+            }
+          }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // [방어 로직] 재시도 횟수 체크 - 초과 시 강제 청산
+        // ═══════════════════════════════════════════════════════════
+        const currentRetries = this.slTpRetryCount.get(dbPos.symbol) || 0;
+        if (currentRetries >= this.MAX_SLTP_RETRIES) {
+          this.logger.error(
+            `\n🚨🚨🚨 [CRITICAL] SL/TP CREATION FAILED ${this.MAX_SLTP_RETRIES} TIMES! 🚨🚨🚨\n` +
+            `  Symbol: ${dbPos.symbol}\n` +
+            `  SL exists: ${!!existingSL}\n` +
+            `  TP exists: ${!!existingTP}\n` +
+            `  → FORCE CLOSING POSITION!`
+          );
+
+          try {
+            // 시장가로 강제 청산
+            const binancePositions = await this.binanceService.getOpenPositions();
+            const binancePos = binancePositions.find(p => p.symbol === dbPos.symbol);
+
+            if (binancePos) {
+              const currentQty = Math.abs(parseFloat(binancePos.positionAmt));
+              if (currentQty > 0) {
+                await this.binanceService.cancelAllAlgoOrders(dbPos.symbol);
+
+                const closeSide = dbPos.side === 'LONG' ? 'SELL' : 'BUY';
+                await this.binanceService.createOrder({
+                  symbol: dbPos.symbol,
+                  side: closeSide,
+                  type: 'MARKET',
+                  quantity: currentQty,
+                  reduceOnly: true,
+                });
+
+                this.logger.log(`  ✅ Position force closed due to SL/TP failure`);
+
+                dbPos.metadata = {
+                  ...dbPos.metadata,
+                  forceClose: true,
+                  forceCloseReason: 'SLTP_CREATION_FAILED',
+                  forceCloseTime: new Date().toISOString(),
+                  slTpRetries: currentRetries,
+                };
+                await this.positionRepo.save(dbPos);
+              }
+            }
+
+            this.slTpRetryCount.delete(dbPos.symbol);
+          } catch (forceCloseError: any) {
+            this.logger.error(`  ❌ Force close failed: ${forceCloseError.message}`);
+          }
           continue;
         }
 
@@ -752,11 +891,16 @@ export class PositionSyncService {
             await this.positionRepo.save(dbPos);
 
             this.logger.log(`  ✅ Emergency SL created: ${slOrder.algoId} @ ${formattedSL}`);
+            // SL 성공 - 카운터 리셋하지 않음 (TP도 필요하므로)
           } catch (slError: any) {
             if (slError.code === -4130 || slError.message?.includes('-4130')) {
               this.logger.log(`[SL WATCHDOG] ${dbPos.symbol}: SL already exists`);
             } else {
-              this.logger.error(`[SL WATCHDOG] Failed: ${slError.message}`);
+              // ✅ [방어 로직] SL 생성 실패 - 재시도 카운터 증가
+              this.slTpRetryCount.set(dbPos.symbol, currentRetries + 1);
+              this.logger.error(
+                `[SL WATCHDOG] Failed (retry ${currentRetries + 1}/${this.MAX_SLTP_RETRIES}): ${slError.message}`
+              );
             }
           }
         }
@@ -810,16 +954,200 @@ export class PositionSyncService {
               await this.positionRepo.save(dbPos);
 
               this.logger.log(`  ✅ Emergency TP created: ${tpOrder.algoId} @ ${formattedTP}`);
+              // SL과 TP 둘 다 성공하면 다음 사이클에서 카운터 리셋됨
             } catch (tpError: any) {
-              this.logger.warn(`[TP WATCHDOG] Failed: ${tpError.message}`);
+              // ✅ [방어 로직] TP 생성 실패 - 재시도 카운터 증가
+              this.slTpRetryCount.set(dbPos.symbol, currentRetries + 1);
+              this.logger.error(
+                `[TP WATCHDOG] Failed (retry ${currentRetries + 1}/${this.MAX_SLTP_RETRIES}): ${tpError.message}`
+              );
             }
           } else {
-            this.logger.warn(`[TP WATCHDOG] ${dbPos.symbol}: Cannot create TP - no valid price`);
+            // TP 가격을 구할 수 없는 경우도 재시도 카운터 증가
+            this.slTpRetryCount.set(dbPos.symbol, currentRetries + 1);
+            this.logger.warn(
+              `[TP WATCHDOG] ${dbPos.symbol}: Cannot create TP - no valid price (retry ${currentRetries + 1}/${this.MAX_SLTP_RETRIES})`
+            );
           }
         }
 
       } catch (error: any) {
         this.logger.error(`[WATCHDOG] Error for ${dbPos.symbol}: ${error.message}`);
+      }
+    }
+  }
+
+  /**
+   * ✅ [방어 로직 1] 미인식 포지션 감지 및 즉시 청산
+   *
+   * 시스템이 생성하지 않은 포지션을 감지하고 즉시 청산합니다.
+   * - DB에 없고
+   * - 매칭되는 PENDING 신호도 없고
+   * - OrderService에서 처리 중이 아닌 경우
+   * → 즉시 시장가 청산
+   */
+  private async detectAndCloseUnknownPositions(
+    dbPositions: Position[],
+    binancePositions: any[]
+  ): Promise<void> {
+    const dbSymbols = new Set(dbPositions.map(p => p.symbol));
+
+    for (const binancePos of binancePositions) {
+      const symbol = binancePos.symbol;
+      const positionAmt = parseFloat(binancePos.positionAmt);
+
+      // 이미 DB에 있으면 스킵
+      if (dbSymbols.has(symbol)) continue;
+
+      // OrderService에서 처리 중이면 스킵
+      if (OrderService.isSymbolPending(symbol)) {
+        this.logger.debug(`[DEFENSE] ${symbol}: Being processed by OrderService, skipping`);
+        continue;
+      }
+
+      // PENDING 신호 확인 (최근 5분 이내)
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+      const pendingSignal = await this.signalRepo.findOne({
+        where: {
+          symbol,
+          side: positionAmt > 0 ? 'LONG' : 'SHORT',
+          status: 'PENDING',
+          createdAt: MoreThan(fiveMinutesAgo),
+        },
+      });
+
+      if (pendingSignal) {
+        this.logger.debug(`[DEFENSE] ${symbol}: Has pending signal, allowing`);
+        continue;
+      }
+
+      // ⚠️ 미인식 포지션 발견 - 즉시 청산!
+      const entryPrice = parseFloat(binancePos.entryPrice);
+      const currentQty = Math.abs(positionAmt);
+      const positionValue = entryPrice * currentQty;
+
+      this.logger.error(
+        `\n🚨🚨🚨 [CRITICAL] UNKNOWN POSITION DETECTED! 🚨🚨🚨\n` +
+        `  Symbol:    ${symbol}\n` +
+        `  Side:      ${positionAmt > 0 ? 'LONG' : 'SHORT'}\n` +
+        `  Quantity:  ${currentQty}\n` +
+        `  Entry:     ${entryPrice}\n` +
+        `  Value:     $${positionValue.toFixed(2)}\n` +
+        `  → CLOSING IMMEDIATELY!`
+      );
+
+      try {
+        // 1. 모든 관련 주문 취소
+        await this.binanceService.cancelAllAlgoOrders(symbol);
+
+        // 2. 시장가로 즉시 청산
+        const closeSide = positionAmt > 0 ? 'SELL' : 'BUY';
+        const closeOrder = await this.binanceService.createOrder({
+          symbol,
+          side: closeSide,
+          type: 'MARKET',
+          quantity: currentQty,
+          reduceOnly: true,
+        });
+
+        this.logger.log(
+          `  ✅ Unknown position CLOSED: ${closeOrder.orderId}\n` +
+          `  ════════════════════════════════════════════════════`
+        );
+
+      } catch (error: any) {
+        this.logger.error(`  ❌ Failed to close unknown position: ${error.message}`);
+      }
+    }
+  }
+
+  /**
+   * ✅ [방어 로직 2] 비정상 사이즈 포지션 감지 및 청산
+   *
+   * 리스크 관리 기준을 초과하는 큰 포지션을 감지하고 청산합니다.
+   * MAX_POSITION_VALUE_USDT ($500) 초과 시 즉시 청산
+   */
+  private async detectAndCloseOversizedPositions(
+    binancePositions: any[]
+  ): Promise<void> {
+    // ✅ 총 자본 조회 (Available Balance + Unrealized PnL)
+    let totalCapital: number;
+    try {
+      const availableBalance = await this.binanceService.getAvailableBalance();
+      // 미실현 손익 포함한 총 자본 계산
+      const totalUnrealizedPnl = binancePositions.reduce((sum, p) => {
+        return sum + parseFloat(p.unRealizedProfit || '0');
+      }, 0);
+      totalCapital = availableBalance + totalUnrealizedPnl;
+    } catch (error: any) {
+      this.logger.warn(`[OVERSIZED] Failed to get balance: ${error.message}, using fallback`);
+      totalCapital = 500;  // fallback: $500
+    }
+
+    const maxPositionValue = totalCapital * this.MAX_POSITION_VALUE_PERCENT;
+
+    for (const binancePos of binancePositions) {
+      const symbol = binancePos.symbol;
+      const positionAmt = parseFloat(binancePos.positionAmt);
+      const entryPrice = parseFloat(binancePos.entryPrice);
+      const markPrice = parseFloat(binancePos.markPrice);
+      const currentQty = Math.abs(positionAmt);
+
+      // 포지션 가치 계산 (마크 가격 기준)
+      const positionValue = markPrice * currentQty;
+
+      // ✅ 임계값 초과 체크 (총 자본의 10%)
+      if (positionValue > maxPositionValue) {
+        this.logger.error(
+          `\n🚨🚨🚨 [CRITICAL] OVERSIZED POSITION DETECTED! 🚨🚨🚨\n` +
+          `  Symbol:         ${symbol}\n` +
+          `  Side:           ${positionAmt > 0 ? 'LONG' : 'SHORT'}\n` +
+          `  Quantity:       ${currentQty}\n` +
+          `  Position Value: $${positionValue.toFixed(2)}\n` +
+          `  Total Capital:  $${totalCapital.toFixed(2)}\n` +
+          `  Max Allowed:    $${maxPositionValue.toFixed(2)} (${(this.MAX_POSITION_VALUE_PERCENT * 100).toFixed(0)}% of capital)\n` +
+          `  → CLOSING IMMEDIATELY!`
+        );
+
+        try {
+          // 1. 모든 관련 주문 취소
+          await this.binanceService.cancelAllAlgoOrders(symbol);
+
+          // 2. 시장가로 즉시 청산
+          const closeSide = positionAmt > 0 ? 'SELL' : 'BUY';
+          const closeOrder = await this.binanceService.createOrder({
+            symbol,
+            side: closeSide,
+            type: 'MARKET',
+            quantity: currentQty,
+            reduceOnly: true,
+          });
+
+          this.logger.log(
+            `  ✅ Oversized position CLOSED: ${closeOrder.orderId}\n` +
+            `  ════════════════════════════════════════════════════`
+          );
+
+          // DB에 포지션이 있으면 상태 업데이트
+          const dbPos = await this.positionRepo.findOne({
+            where: { symbol, status: 'OPEN' },
+          });
+          if (dbPos) {
+            dbPos.metadata = {
+              ...dbPos.metadata,
+              forceClose: true,
+              forceCloseReason: 'OVERSIZED_POSITION',
+              forceCloseTime: new Date().toISOString(),
+              positionValue: positionValue,
+              maxAllowedValue: maxPositionValue,
+              totalCapital: totalCapital,
+            };
+            await this.positionRepo.save(dbPos);
+          }
+
+        } catch (error: any) {
+          this.logger.error(`  ❌ Failed to close oversized position: ${error.message}`);
+        }
       }
     }
   }

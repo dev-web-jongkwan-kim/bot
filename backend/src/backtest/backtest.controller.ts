@@ -74,4 +74,33 @@ export class BacktestController {
   async getStrategyStatus() {
     return this.simpleTrueOBStrategy.getStatus();
   }
+
+  /**
+   * 리스크 캡 로직 A/B 테스트
+   */
+  @Post('risk-cap-comparison')
+  async runRiskCapComparison(@Body() config: {
+    symbols: string[];
+    startDate: string;
+    endDate: string;
+    initialBalance?: number;
+    maxRiskAtr?: number;
+  }) {
+    return this.backtestService.runRiskCapComparison(config);
+  }
+
+  /**
+   * maxAtrMult A/B 테스트 (OB 크기 필터링)
+   */
+  @Post('max-atr-mult-comparison')
+  async runMaxAtrMultComparison(@Body() config: {
+    symbols: string[];
+    startDate: string;
+    endDate: string;
+    initialBalance?: number;
+    maxAtrMultA?: number;
+    maxAtrMultB?: number;
+  }) {
+    return this.backtestService.runMaxAtrMultComparison(config);
+  }
 }

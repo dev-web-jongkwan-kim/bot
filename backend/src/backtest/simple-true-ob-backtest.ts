@@ -79,6 +79,9 @@ export class SimpleTrueOBBacktest {
       tp1Percent: 1.0,              // v4 최적화: 0.9 → 1.0 (100% 청산)
       // OB 교체 설정
       enableOBReplacement: true,    // 기본값: 강한 OB가 나오면 교체
+      // 리스크 캡 설정 (v16 테스트)
+      enableRiskCap: false,         // 기본값: false (기존 로직)
+      maxRiskAtr: 2.0,              // 최대 리스크 = 2 ATR
     };
   }
 
@@ -665,17 +668,48 @@ export class SimpleTrueOBBacktest {
             let sl: number;
             let tp1: number;
             let tp2: number;
+            let riskWasCapped = false;
 
             const slBuffer = 0.01;  // Phase 2 optimized: 0.01
 
             if (limitOrder.type === 'LONG') {
-              sl = limitOrder.ob.bottom * (1 - slBuffer);
-              const risk = entry - sl;
+              const obBasedSL = limitOrder.ob.bottom * (1 - slBuffer);
+              let risk = entry - obBasedSL;
+
+              // ✅ 리스크 캡 적용 (v16 테스트)
+              if (this.config.enableRiskCap) {
+                const maxRisk = atr * this.config.maxRiskAtr;
+                if (risk > maxRisk) {
+                  risk = maxRisk;
+                  sl = entry - maxRisk;
+                  riskWasCapped = true;
+                } else {
+                  sl = obBasedSL;
+                }
+              } else {
+                sl = obBasedSL;
+              }
+
               tp1 = entry + (risk * this.config.tp1Ratio);  // Phase 2 최적화
               tp2 = entry + (risk * this.config.rrRatio);  // Phase 1 optimized: 2.5 → 3.0
             } else {
-              sl = limitOrder.ob.top * (1 + slBuffer);
-              const risk = sl - entry;
+              const obBasedSL = limitOrder.ob.top * (1 + slBuffer);
+              let risk = obBasedSL - entry;
+
+              // ✅ 리스크 캡 적용 (v16 테스트)
+              if (this.config.enableRiskCap) {
+                const maxRisk = atr * this.config.maxRiskAtr;
+                if (risk > maxRisk) {
+                  risk = maxRisk;
+                  sl = entry + maxRisk;
+                  riskWasCapped = true;
+                } else {
+                  sl = obBasedSL;
+                }
+              } else {
+                sl = obBasedSL;
+              }
+
               tp1 = entry - (risk * this.config.tp1Ratio);  // Phase 2 최적화
               tp2 = entry - (risk * this.config.rrRatio);  // Phase 1 optimized: 2.5 → 3.0
             }

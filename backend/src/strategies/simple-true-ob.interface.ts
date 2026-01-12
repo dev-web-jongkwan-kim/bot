@@ -49,6 +49,9 @@ export interface PineConfig {
   tp1Percent: number;            // 0.9 (90% 청산)
   // OB 교체 설정 (비교 테스트용)
   enableOBReplacement?: boolean; // true: 강한 OB 교체, false: 기존 OB 유지
+  // 리스크 캡 설정 (v16 테스트)
+  enableRiskCap?: boolean;       // true: 리스크 캡 적용, false: 기존 OB 기반
+  maxRiskAtr?: number;           // 최대 리스크 ATR 배수 (기본 2.0)
 }
 
 // Order Block 인터페이스

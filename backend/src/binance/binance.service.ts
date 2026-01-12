@@ -673,6 +673,19 @@ export class BinanceService {
   }
 
   /**
+   * ✅ 모든 심볼의 열린 주문 조회 (symbol 파라미터 없음)
+   */
+  async getAllOpenOrders(): Promise<any[]> {
+    return this.retryOperation(
+      async () => {
+        const orders = await this.client.futuresOpenOrders({});
+        return orders;
+      },
+      `getAllOpenOrders()`,
+    );
+  }
+
+  /**
    * 손절가 수정 (SL 본전 이동용)
    * 기존 SL 주문을 취소하고 새로운 SL 주문 생성
    * ✅ 2025-12-09: Algo Order API 사용으로 변경

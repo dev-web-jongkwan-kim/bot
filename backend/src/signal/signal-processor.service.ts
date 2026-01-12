@@ -195,6 +195,14 @@ export class SignalProcessorService {
         }
         this.logger.log(`[FLOW-5] ✅ PASS | Correlation check`);
 
+        // ✅ 캔들 기반 동시 진입 제한 체크 (상관관계 필터링)
+        this.logger.log(`[FLOW-5] RiskCheck → CandleEntry | Checking ${signal.symbol}...`);
+        if (!this.riskService.checkCandleEntryLimit(signal)) {
+          this.logger.warn(`[FLOW-5] ❌ REJECT | ${signal.symbol} - candle entry limit reached`);
+          continue;
+        }
+        this.logger.log(`[FLOW-5] ✅ PASS | Candle entry limit check`);
+
         // 포지션 크기 계산
         this.logger.log(`[FLOW-5] RiskCheck → PositionSize | Calculating...`);
         const positionSize = await this.riskService.calculatePositionSize(signal);
@@ -203,15 +211,17 @@ export class SignalProcessorService {
           `Margin: $${positionSize.marginRequired.toFixed(2)} | Leverage: ${positionSize.leverage}x`
         );
 
-        // [FLOW-6] 주문 실행 (Rate Limit 재시도 포함)
-        this.logger.log(`[FLOW-6] OrderService → Execute | ${signal.symbol} ${signal.side}...`);
+        // [FLOW-6] 주문 실행 (비동기 모드 - blocking 없음)
+        this.logger.log(`[FLOW-6] OrderService → ExecuteAsync | ${signal.symbol} ${signal.side}...`);
         let orderResult: any;
         let retryCount = 0;
         const maxRetries = 2;
 
         while (retryCount <= maxRetries) {
           try {
-            orderResult = await this.orderService.executeOrder(signal, positionSize);
+            // ✅ 비동기 주문: LIMIT 주문 생성 후 즉시 반환
+            // OrderMonitorService가 체결 감지 및 SL/TP 생성 담당
+            orderResult = await this.orderService.executeOrderAsync(signal, positionSize);
             break; // 성공 시 루프 탈출
           } catch (execError: any) {
             // Rate Limit 에러인 경우 재시도
@@ -225,77 +235,45 @@ export class SignalProcessorService {
           }
         }
 
-        // ✅ 시그널 상태 업데이트
-        const signalStatus = orderResult.status === 'FILLED' ? 'FILLED'
-          : orderResult.status === 'SKIPPED' ? 'SKIPPED'
-          : orderResult.status === 'CANCELED' ? 'CANCELED'
-          : 'FAILED';
-
-        if (signal.dbId) {
-          await this.signalRepo.update(signal.dbId, { status: signalStatus });
-          // 상태 변경 브로드캐스트
-          this.wsGateway.broadcastSignalUpdate({
-            id: signal.dbId,
-            symbol: signal.symbol,
-            status: signalStatus,
-            error: orderResult.error,
-          });
-        }
-
-        if (orderResult.status === 'FILLED') {
+        // ✅ 비동기 모드: PENDING은 나중에 OrderMonitorService가 업데이트
+        if (orderResult.status === 'PENDING') {
           this.logger.log(
             `\n[FLOW-6] ═══════════════════════════════════════════════════════════\n` +
-            `[FLOW-6] ✅ ORDER FILLED | ${signal.symbol} ${signal.side}\n` +
-            `[FLOW-6]   Entry:    ${orderResult.entryPrice?.toFixed(4)}\n` +
-            `[FLOW-6]   Quantity: ${orderResult.quantity}\n` +
-            `[FLOW-6]   Order ID: ${orderResult.mainOrder?.orderId}\n` +
+            `[FLOW-6] 📝 ORDER PENDING | ${signal.symbol} ${signal.side}\n` +
+            `[FLOW-6]   Order ID: ${orderResult.orderId}\n` +
+            `[FLOW-6]   → Monitoring for fill asynchronously\n` +
             `[FLOW-6] ═══════════════════════════════════════════════════════════\n`
           );
 
-          // 포지션 업데이트 브로드캐스트
-          const position = await this.positionRepo.findOne({
-            where: { symbol: signal.symbol, status: 'OPEN' },
-            order: { openedAt: 'DESC' },
-          });
+          // ✅ 캔들 진입 카운터 증가 (주문 생성 시점에 카운트)
+          const timeframe = signal.timeframe || signal.metadata?.timeframe || '5m';
+          this.riskService.recordCandleEntry(timeframe, signal.side);
 
-          if (position) {
-            this.wsGateway.broadcastPosition(position);
-
-            // ✅ OB History 저장 (분석용)
-            if (signal.metadata?.obBottom && signal.metadata?.obTop) {
-              try {
-                await this.obHistoryService.recordOBDetected({
-                  symbol: signal.symbol,
-                  timeframe: signal.timeframe || '5m',
-                  type: signal.side as 'LONG' | 'SHORT',
-                  method: signal.metadata?.method || 'ORB',
-                  top: signal.metadata.obTop,
-                  bottom: signal.metadata.obBottom,
-                  atr: signal.metadata?.atrPercent ? (signal.metadata.atrPercent / 100) * orderResult.entryPrice : 0,
-                  atrPercent: signal.metadata?.atrPercent || 0,
-                  volRatio: 0,  // 신호에서 전달되지 않음
-                  bodyRatio: 0, // 신호에서 전달되지 않음
-                  barIndex: 0,  // 라이브에서는 추적 어려움
-                }).then(async (obRecord) => {
-                  // FILLED 상태로 업데이트
-                  await this.obHistoryService.updateFilled(
-                    obRecord.id,
-                    position.id,
-                    orderResult.entryPrice
-                  );
-                  this.logger.debug(`[OB HISTORY] Recorded and filled: ${signal.symbol} ${signal.side}`);
-                });
-              } catch (obError) {
-                this.logger.warn(`[OB HISTORY] Failed to record: ${obError.message}`);
-              }
-            }
-          }
+          // PENDING 상태는 OrderMonitorService가 체결 시 업데이트
         } else if (orderResult.status === 'SKIPPED') {
           this.logger.warn(`[FLOW-6] ⏭️  SKIPPED | ${signal.symbol} - ${orderResult.error}`);
-        } else if (orderResult.status === 'CANCELED') {
-          this.logger.warn(`[FLOW-6] ⏭️  CANCELED | ${signal.symbol} - ${orderResult.error}`);
+
+          if (signal.dbId) {
+            await this.signalRepo.update(signal.dbId, { status: 'SKIPPED' });
+            this.wsGateway.broadcastSignalUpdate({
+              id: signal.dbId,
+              symbol: signal.symbol,
+              status: 'SKIPPED',
+              error: orderResult.error,
+            });
+          }
         } else {
           this.logger.error(`[FLOW-6] ❌ FAILED | ${signal.symbol} - ${orderResult.error}`);
+
+          if (signal.dbId) {
+            await this.signalRepo.update(signal.dbId, { status: 'FAILED' });
+            this.wsGateway.broadcastSignalUpdate({
+              id: signal.dbId,
+              symbol: signal.symbol,
+              status: 'FAILED',
+              error: orderResult.error,
+            });
+          }
         }
       } catch (error) {
         this.logger.error(`[FLOW-6] ❌ ERROR | ${signal.symbol}: ${error.message}`);
