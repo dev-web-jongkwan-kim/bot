@@ -153,12 +153,12 @@ export class SimpleTrueOBStrategy implements IStrategy {
   }
 
   /**
-   * ATR% 기반 동적 레버리지 계산 (v11 최적화: 15/10/5 → 20/15/10)
+   * ATR% 기반 동적 레버리지 계산 (롤백: 20/15/10 → 15/10/5)
    */
   private getDynamicLeverage(atrPercent: number): number {
-    if (atrPercent < 1.5) return 20;      // 낮은 변동성 → 공격적 (v11: 15→20)
-    if (atrPercent <= 3.0) return 15;     // 보통 변동성 → 중립 (v11: 10→15)
-    return 10;                             // 높은 변동성 → 방어적 (v11: 5→10)
+    if (atrPercent < 1.5) return 15;      // 낮은 변동성 → 롤백: 20→15
+    if (atrPercent <= 3.0) return 10;     // 보통 변동성 → 롤백: 15→10
+    return 5;                              // 높은 변동성 → 롤백: 10→5
   }
 
   /**
@@ -852,7 +852,7 @@ export class SimpleTrueOBStrategy implements IStrategy {
     }
 
     // 진입 시그널 생성 (OB 중간가 사용)
-    const slBuffer = 0.005;  // v11 최적화: 1.0% → 0.5%
+    const slBuffer = 0.01;  // 롤백: 0.5% → 1.0% (0.5%는 너무 타이트함)
 
     // 슬리피지 적용 (백테스트와 동일)
     const slippageFactor = activeOB.type === 'LONG'
@@ -867,12 +867,12 @@ export class SimpleTrueOBStrategy implements IStrategy {
     if (activeOB.type === 'LONG') {
       stopLoss = activeOB.bottom * (1 - slBuffer);
       const risk = entry - stopLoss;
-      takeProfit1 = entry + (risk * 0.8);  // v11 최적화: TP1=1.2R → 0.8R
+      takeProfit1 = entry + (risk * 1.2);  // 롤백: 0.8R → 1.2R
       takeProfit2 = entry + (risk * this.config.rrRatio);  // rrRatio = 4.0
     } else {
       stopLoss = activeOB.top * (1 + slBuffer);
       const risk = stopLoss - entry;
-      takeProfit1 = entry - (risk * 0.8);  // v11 최적화: TP1=1.2R → 0.8R
+      takeProfit1 = entry - (risk * 1.2);  // 롤백: 0.8R → 1.2R
       takeProfit2 = entry - (risk * this.config.rrRatio);  // rrRatio = 4.0
     }
 
