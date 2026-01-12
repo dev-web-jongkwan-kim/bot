@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { SimpleTrueOBStrategy } from '../strategies/simple-true-ob.strategy';
 import { CandleAggregatorService, CandleData } from '../websocket/candle-aggregator.service';
 import { SignalProcessorService } from './signal-processor.service';
@@ -12,15 +12,13 @@ import { SymbolSelectionService } from '../symbol-selection/symbol-selection.ser
  * - 캔들 종료 이벤트를 수신하여 SimpleTrueOB 전략 실행
  * - 생성된 시그널을 SignalProcessorService로 전달
  *
- * SimpleTrueOB Strategy (tb1에서 가져옴):
- * - ORB (Opening Range Breakout) 메서드
- * - 동적 minAwayMult 설정 (변동성 기반)
- * - Partial TP: TP1=1.5x (75%), TP2=2.5x (25%)
- * - SMA 50 (1시간봉 기준) 필터
+ * ✅ TradingControlService에서 start/stop 호출
  */
 @Injectable()
-export class StrategyRunnerService implements OnModuleInit {
+export class StrategyRunnerService {
   private readonly logger = new Logger(StrategyRunnerService.name);
+  private isRunning = false;
+  private isStrategyRegistered = false;
 
   constructor(
     private readonly simpleTrueOBStrategy: SimpleTrueOBStrategy,
@@ -30,23 +28,64 @@ export class StrategyRunnerService implements OnModuleInit {
     private readonly symbolSelection: SymbolSelectionService,
   ) {}
 
-  async onModuleInit() {
-    this.logger.log('🚀 StrategyRunnerService initializing...');
+  /**
+   * ✅ 전략 실행 시작 (TradingControlService에서 호출)
+   */
+  async startTrading(): Promise<void> {
+    if (this.isRunning) {
+      this.logger.warn('StrategyRunnerService is already running');
+      return;
+    }
+
+    this.logger.log('🚀 StrategyRunnerService starting...');
 
     // 전략 초기화 (실시간 모드)
     this.simpleTrueOBStrategy.reset();
 
-    // 캔들 집계 서비스에 콜백 등록
-    this.candleAggregator.registerStrategy('SIMPLE_TRUE_OB', this.onCandleClose.bind(this));
+    // 캔들 집계 서비스에 콜백 등록 (한 번만)
+    if (!this.isStrategyRegistered) {
+      this.candleAggregator.registerStrategy('SIMPLE_TRUE_OB', this.onCandleClose.bind(this));
+      this.isStrategyRegistered = true;
+    }
 
+    this.isRunning = true;
     this.logger.log('✅ StrategyRunnerService initialized with SimpleTrueOB strategy');
 
-    // 심볼 선택이 완료될 때까지 대기 후 과거 캔들 로드
+    // 과거 캔들 로드 (3초 대기 후)
     setTimeout(() => {
-      this.loadHistoricalCandles().catch(err => {
-        this.logger.error('Failed to load historical candles:', err);
-      });
-    }, 3000); // 3초 후 실행 (SymbolSelectionService 초기화 대기)
+      if (this.isRunning) {
+        this.loadHistoricalCandles().catch(err => {
+          this.logger.error('Failed to load historical candles:', err);
+        });
+      }
+    }, 3000);
+  }
+
+  /**
+   * ✅ 전략 실행 종료 (TradingControlService에서 호출)
+   */
+  async stopTrading(): Promise<void> {
+    if (!this.isRunning) {
+      this.logger.warn('StrategyRunnerService is already stopped');
+      return;
+    }
+
+    this.logger.log('🛑 StrategyRunnerService stopping...');
+
+    this.isRunning = false;
+
+    // 전략 상태 초기화
+    this.simpleTrueOBStrategy.reset();
+    this.simpleTrueOBStrategy.disableLiveMode();
+
+    this.logger.log('✅ StrategyRunnerService stopped');
+  }
+
+  /**
+   * ✅ 실행 상태 확인
+   */
+  getIsRunning(): boolean {
+    return this.isRunning;
   }
 
   /**
@@ -61,6 +100,11 @@ export class StrategyRunnerService implements OnModuleInit {
    * - 예상 초기화 시간: 170/5 = 34 배치 × 5초 = ~3분
    */
   private async loadHistoricalCandles() {
+    if (!this.isRunning) {
+      this.logger.warn('Trading stopped, skipping historical candle loading');
+      return;
+    }
+
     this.logger.log('📥 Loading historical candles for immediate signal detection...');
     this.logger.log('📊 Required: 700 candles (600 for SMA50 + 100 buffer)');
 
@@ -77,6 +121,12 @@ export class StrategyRunnerService implements OnModuleInit {
 
     // ✅ 심볼을 배치로 나누어 병렬 처리
     for (let i = 0; i < symbols.length; i += BATCH_SIZE) {
+      // 중간에 중지되면 종료
+      if (!this.isRunning) {
+        this.logger.warn('Trading stopped during historical candle loading');
+        return;
+      }
+
       const batch = symbols.slice(i, i + BATCH_SIZE);
       const batchNum = Math.floor(i / BATCH_SIZE) + 1;
 
@@ -121,6 +171,12 @@ export class StrategyRunnerService implements OnModuleInit {
       }
     }
 
+    // 중간에 중지된 경우
+    if (!this.isRunning) {
+      this.logger.warn('Trading stopped before historical candle loading completed');
+      return;
+    }
+
     const elapsedTime = ((Date.now() - startTime) / 1000).toFixed(1);
     this.logger.log(`✅ Historical candles loaded in ${elapsedTime}s: ${loadedCount['5m']} symbols (5m), ${loadedCount['15m']} symbols (15m)`);
     this.logger.log('🎯 SimpleTrueOB Strategy is now ready for real-time signal detection!');
@@ -134,6 +190,11 @@ export class StrategyRunnerService implements OnModuleInit {
    * 캔들 종료 이벤트 핸들러
    */
   private async onCandleClose(symbol: string, timeframe: string, candle: CandleData): Promise<void> {
+    // ✅ 실행 중이 아니면 무시
+    if (!this.isRunning) {
+      return;
+    }
+
     try {
       if (timeframe === '5m') {
         await this.on5minCandleClose(symbol, candle);

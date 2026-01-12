@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 
 export type TradingStatus = 'STOPPED' | 'STARTING' | 'RUNNING' | 'STOPPING';
 
@@ -16,6 +17,14 @@ export interface TradingState {
  * 1. 매매 상태 관리 (STOPPED, STARTING, RUNNING, STOPPING)
  * 2. 시작/종료 명령 처리
  * 3. 다른 서비스들이 상태 확인 가능하도록 제공
+ *
+ * Start Flow:
+ * 1. AppService.startTrading() - 심볼 선택 + WebSocket 연결
+ * 2. StrategyRunnerService.startTrading() - 전략 초기화 + 히스토리 로딩
+ *
+ * Stop Flow:
+ * 1. StrategyRunnerService.stopTrading() - 전략 중지
+ * 2. AppService.stopTrading() - WebSocket 연결 해제
  */
 @Injectable()
 export class TradingControlService {
@@ -26,6 +35,8 @@ export class TradingControlService {
     startedAt: null,
     stoppedAt: null,
   };
+
+  constructor(private moduleRef: ModuleRef) {}
 
   /**
    * ✅ 현재 매매 상태 반환
@@ -71,6 +82,16 @@ export class TradingControlService {
     this.state.status = 'STARTING';
 
     try {
+      // 1. AppService - 심볼 선택 + WebSocket 연결
+      const { AppService } = await import('../app.service');
+      const appService = this.moduleRef.get(AppService, { strict: false });
+      await appService.startTrading();
+
+      // 2. StrategyRunnerService - 전략 초기화 + 히스토리 로딩
+      const { StrategyRunnerService } = await import('../signal/strategy-runner.service');
+      const strategyRunner = this.moduleRef.get(StrategyRunnerService, { strict: false });
+      await strategyRunner.startTrading();
+
       // 시작 완료
       this.state.status = 'RUNNING';
       this.state.startedAt = new Date();
@@ -104,6 +125,16 @@ export class TradingControlService {
     this.state.status = 'STOPPING';
 
     try {
+      // 1. StrategyRunnerService - 전략 중지
+      const { StrategyRunnerService } = await import('../signal/strategy-runner.service');
+      const strategyRunner = this.moduleRef.get(StrategyRunnerService, { strict: false });
+      await strategyRunner.stopTrading();
+
+      // 2. AppService - WebSocket 연결 해제
+      const { AppService } = await import('../app.service');
+      const appService = this.moduleRef.get(AppService, { strict: false });
+      await appService.stopTrading();
+
       // 종료 완료
       this.state.status = 'STOPPED';
       this.state.stoppedAt = new Date();

@@ -939,6 +939,14 @@ export class SimpleTrueOBStrategy implements IStrategy {
   }
 
   /**
+   * ✅ 실시간 모드 비활성화 (Stop 시 호출)
+   */
+  disableLiveMode(): void {
+    this.isLiveMode = false;
+    this.logger.log('🔴 Live mode DISABLED - signals will not be generated');
+  }
+
+  /**
    * ✅ 실시간 모드 확인
    */
   isInLiveMode(): boolean {

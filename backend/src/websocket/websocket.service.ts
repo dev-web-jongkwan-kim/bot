@@ -297,6 +297,37 @@ export class WebSocketService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
+   * ✅ 모든 WebSocket 연결 해제 (Stop 시 호출)
+   */
+  async disconnectAll(): Promise<void> {
+    this.logger.log('\n' + '='.repeat(80));
+    this.logger.log('WEBSOCKET DISCONNECTION');
+    this.logger.log('='.repeat(80));
+    this.logger.log(`Closing ${this.connections.size} connections...`);
+
+    // 모든 연결 종료
+    for (const [connId, ws] of this.connections.entries()) {
+      try {
+        ws.close();
+        this.logger.log(`Connection ${connId}: Closed`);
+      } catch (error) {
+        this.logger.error(`Connection ${connId}: Error closing:`, error);
+      }
+    }
+
+    // 상태 초기화
+    this.connections.clear();
+    this.streamMap.clear();
+    this.reconnectAttempts.clear();
+    this.currentCandles.clear();
+    this.currentMarkPrices.clear();
+    this.streams = [];
+
+    this.logger.log('All WebSocket connections closed');
+    this.logger.log('='.repeat(80) + '\n');
+  }
+
+  /**
    * 특정 심볼의 현재 MarkPrice 정보 조회
    */
   getCurrentMarkPrice(symbol: string): any | null {
