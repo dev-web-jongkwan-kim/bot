@@ -1,0 +1,558 @@
+{
+  "timestamp": "2026-01-12T07:00:43.542Z",
+  "baseline": {
+    "config": {
+      "lookback": 2,
+      "minBodyRatio": 0.5,
+      "orbAtr": 1.5,
+      "orbVol": 2,
+      "useBodyOnly": true,
+      "obMaxBars": 60,
+      "minAwayMultRangebound": 0.2,
+      "minAwayMultNormal": 0.8,
+      "minAwayMultTrending": 2,
+      "requireReversal": true,
+      "orderValidityBars": 3,
+      "maxPriceDeviation": 0.02,
+      "slBuffer": 0.01,
+      "tp1Ratio": 1.2,
+      "rrRatio": 4,
+      "tp1Percent": 1,
+      "leverage": 15,
+      "maxHoldingBars": 48,
+      "retryCooldown": 12,
+      "useATRCVDFilter": true,
+      "atrFilterMin": 0.5,
+      "atrFilterMax": 3,
+      "cvdLookback": 20,
+      "makerFee": 0.0004,
+      "takerFee": 0.00075,
+      "slippage": 0.0002
+    },
+    "result": {
+      "totalTrades": 9803,
+      "wins": 5976,
+      "losses": 3827,
+      "winRate": 60.96093032745078,
+      "totalPnl": 5546.131112872541,
+      "avgPnl": 0.565758554817152,
+      "maxDrawdown": 26.391459935661977,
+      "profitFactor": 0
+    }
+  },
+  "phase1": {
+    "description": "개별 파라미터 최적화 결과",
+    "results": [
+      {
+        "paramName": "atrFilterMin",
+        "baselineValue": 0.5,
+        "optimizedValue": 0.3,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.4099255624955315,
+        "improvement": -0.15583299232162046,
+        "fullResult": {
+          "totalTrades": 22628,
+          "wins": 13064,
+          "losses": 9564,
+          "winRate": 57.733781156089805,
+          "totalPnl": 9275.795628148888,
+          "avgPnl": 0.4099255624955315,
+          "maxDrawdown": 31.48633873942727,
+          "profitFactor": 0
+        }
+      },
+      {
+        "paramName": "orbVol",
+        "baselineValue": 2,
+        "optimizedValue": 1.5,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.5267357176580715,
+        "improvement": -0.0390228371590805,
+        "fullResult": {
+          "totalTrades": 11461,
+          "wins": 6898,
+          "losses": 4563,
+          "winRate": 60.18672018148503,
+          "totalPnl": 6036.918060079158,
+          "avgPnl": 0.5267357176580715,
+          "maxDrawdown": 25.968339128336947,
+          "profitFactor": 0
+        }
+      },
+      {
+        "paramName": "retryCooldown",
+        "baselineValue": 12,
+        "optimizedValue": 6,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.563466652025229,
+        "improvement": -0.0022919027919229285,
+        "fullResult": {
+          "totalTrades": 10344,
+          "wins": 6298,
+          "losses": 4046,
+          "winRate": 60.885537509667444,
+          "totalPnl": 5828.49904854897,
+          "avgPnl": 0.563466652025229,
+          "maxDrawdown": 27.045028541890453,
+          "profitFactor": 0
+        }
+      },
+      {
+        "paramName": "slBuffer",
+        "baselineValue": 0.01,
+        "optimizedValue": 0.0075,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.5694230075027176,
+        "improvement": 0.003664452685565589,
+        "fullResult": {
+          "totalTrades": 10129,
+          "wins": 6454,
+          "losses": 3675,
+          "winRate": 63.718037318590184,
+          "totalPnl": 5767.685642995027,
+          "avgPnl": 0.5694230075027176,
+          "maxDrawdown": 20.478094793766818,
+          "profitFactor": 0
+        }
+      },
+      {
+        "paramName": "orbAtr",
+        "baselineValue": 1.5,
+        "optimizedValue": 1.2,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.5159631516671885,
+        "improvement": -0.049795403149963446,
+        "fullResult": {
+          "totalTrades": 11129,
+          "wins": 6667,
+          "losses": 4462,
+          "winRate": 59.906550453769434,
+          "totalPnl": 5742.153914904141,
+          "avgPnl": 0.5159631516671885,
+          "maxDrawdown": 29.265601249914795,
+          "profitFactor": 0
+        }
+      },
+      {
+        "paramName": "tp1Ratio",
+        "baselineValue": 1.2,
+        "optimizedValue": 1,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.5688731007040227,
+        "improvement": 0.0031145458868707676,
+        "fullResult": {
+          "totalTrades": 10005,
+          "wins": 6656,
+          "losses": 3349,
+          "winRate": 66.52673663168416,
+          "totalPnl": 5691.575372543747,
+          "avgPnl": 0.5688731007040227,
+          "maxDrawdown": 23.960572000005936,
+          "profitFactor": 0
+        }
+      },
+      {
+        "paramName": "minBodyRatio",
+        "baselineValue": 0.5,
+        "optimizedValue": 0.4,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.5340067909021273,
+        "improvement": -0.031751763915024656,
+        "fullResult": {
+          "totalTrades": 10529,
+          "wins": 6348,
+          "losses": 4181,
+          "winRate": 60.290625890397955,
+          "totalPnl": 5622.557501408499,
+          "avgPnl": 0.5340067909021273,
+          "maxDrawdown": 25.480286009385832,
+          "profitFactor": 0
+        }
+      },
+      {
+        "paramName": "minAwayMultNormal",
+        "baselineValue": 0.8,
+        "optimizedValue": 0.6,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.5672498204989607,
+        "improvement": 0.0014912656818086845,
+        "fullResult": {
+          "totalTrades": 9829,
+          "wins": 5994,
+          "losses": 3835,
+          "winRate": 60.982805982297286,
+          "totalPnl": 5575.498485684284,
+          "avgPnl": 0.5672498204989607,
+          "maxDrawdown": 26.391459935661988,
+          "profitFactor": 0
+        }
+      },
+      {
+        "paramName": "orderValidityBars",
+        "baselineValue": 3,
+        "optimizedValue": 2,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.5624016311316892,
+        "improvement": -0.0033569236854628093,
+        "fullResult": {
+          "totalTrades": 9879,
+          "wins": 6012,
+          "losses": 3867,
+          "winRate": 60.856361979957484,
+          "totalPnl": 5555.965713949957,
+          "avgPnl": 0.5624016311316892,
+          "maxDrawdown": 29.74203920083525,
+          "profitFactor": 0
+        }
+      },
+      {
+        "paramName": "minAwayMultRangebound",
+        "baselineValue": 0.2,
+        "optimizedValue": 0.4,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.5664214784249518,
+        "improvement": 0.0006629236077998479,
+        "fullResult": {
+          "totalTrades": 9800,
+          "wins": 5976,
+          "losses": 3824,
+          "winRate": 60.97959183673469,
+          "totalPnl": 5550.930488564528,
+          "avgPnl": 0.5664214784249518,
+          "maxDrawdown": 26.391459935661977,
+          "profitFactor": 0
+        }
+      },
+      {
+        "paramName": "atrFilterMax",
+        "baselineValue": 3,
+        "optimizedValue": 3.5,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.5660196771219356,
+        "improvement": 0.0002611223047835898,
+        "fullResult": {
+          "totalTrades": 9804,
+          "wins": 5977,
+          "losses": 3827,
+          "winRate": 60.96491228070175,
+          "totalPnl": 5549.256914503456,
+          "avgPnl": 0.5660196771219356,
+          "maxDrawdown": 26.391459935661977,
+          "profitFactor": 0
+        }
+      },
+      {
+        "paramName": "minAwayMultTrending",
+        "baselineValue": 2,
+        "optimizedValue": 1.5,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.5656954993272263,
+        "improvement": -0.00006305548992568966,
+        "fullResult": {
+          "totalTrades": 9805,
+          "wins": 5977,
+          "losses": 3828,
+          "winRate": 60.9586945436002,
+          "totalPnl": 5546.644370903454,
+          "avgPnl": 0.5656954993272263,
+          "maxDrawdown": 26.391459935661977,
+          "profitFactor": 0
+        }
+      },
+      {
+        "paramName": "cvdLookback",
+        "baselineValue": 20,
+        "optimizedValue": 10,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.565758554817152,
+        "improvement": 0,
+        "fullResult": {
+          "totalTrades": 9803,
+          "wins": 5976,
+          "losses": 3827,
+          "winRate": 60.96093032745078,
+          "totalPnl": 5546.131112872541,
+          "avgPnl": 0.565758554817152,
+          "maxDrawdown": 26.391459935661977,
+          "profitFactor": 0
+        }
+      },
+      {
+        "paramName": "rrRatio",
+        "baselineValue": 4,
+        "optimizedValue": 2,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.565758554817152,
+        "improvement": 0,
+        "fullResult": {
+          "totalTrades": 9803,
+          "wins": 5976,
+          "losses": 3827,
+          "winRate": 60.96093032745078,
+          "totalPnl": 5546.131112872541,
+          "avgPnl": 0.565758554817152,
+          "maxDrawdown": 26.391459935661977,
+          "profitFactor": 0
+        }
+      },
+      {
+        "paramName": "tp1Percent",
+        "baselineValue": 1,
+        "optimizedValue": 0.5,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.565758554817152,
+        "improvement": 0,
+        "fullResult": {
+          "totalTrades": 9803,
+          "wins": 5976,
+          "losses": 3827,
+          "winRate": 60.96093032745078,
+          "totalPnl": 5546.131112872541,
+          "avgPnl": 0.565758554817152,
+          "maxDrawdown": 26.391459935661977,
+          "profitFactor": 0
+        }
+      },
+      {
+        "paramName": "leverage",
+        "baselineValue": 15,
+        "optimizedValue": 10,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.565758554817152,
+        "improvement": 0,
+        "fullResult": {
+          "totalTrades": 9803,
+          "wins": 5976,
+          "losses": 3827,
+          "winRate": 60.96093032745078,
+          "totalPnl": 5546.131112872541,
+          "avgPnl": 0.565758554817152,
+          "maxDrawdown": 18.14139447074301,
+          "profitFactor": 0
+        }
+      },
+      {
+        "paramName": "maxHoldingBars",
+        "baselineValue": 48,
+        "optimizedValue": 48,
+        "baselineAvgPnl": 0.565758554817152,
+        "optimizedAvgPnl": 0.565758554817152,
+        "improvement": 0,
+        "fullResult": {
+          "totalTrades": 9803,
+          "wins": 5976,
+          "losses": 3827,
+          "winRate": 60.96093032745078,
+          "totalPnl": 5546.131112872541,
+          "avgPnl": 0.565758554817152,
+          "maxDrawdown": 26.391459935661977,
+          "profitFactor": 0
+        }
+      }
+    ]
+  },
+  "phase2": {
+    "description": "조합 최적화 결과",
+    "combinations": [
+      {
+        "params": [
+          "atrFilterMin"
+        ],
+        "result": {
+          "totalTrades": 22628,
+          "wins": 13064,
+          "losses": 0,
+          "winRate": 57.733781156089805,
+          "totalPnl": 9275.795628148888,
+          "avgPnl": 0.4099255624955315,
+          "maxDrawdown": 31.48633873942727,
+          "profitFactor": 0
+        }
+      },
+      {
+        "params": [
+          "atrFilterMin",
+          "orbVol"
+        ],
+        "result": {
+          "totalTrades": 26736,
+          "wins": 15140,
+          "losses": 0,
+          "winRate": 56.62776780371035,
+          "totalPnl": 9857.228221370862,
+          "avgPnl": 0.3686874708771268,
+          "maxDrawdown": 37.011785520438885,
+          "profitFactor": 0
+        }
+      },
+      {
+        "params": [
+          "atrFilterMin",
+          "orbVol",
+          "retryCooldown"
+        ],
+        "result": {
+          "totalTrades": 28843,
+          "wins": 16388,
+          "losses": 0,
+          "winRate": 56.8179454287002,
+          "totalPnl": 10831.881655022753,
+          "avgPnl": 0.3755462904352097,
+          "maxDrawdown": 35.07662455856753,
+          "profitFactor": 0
+        }
+      },
+      {
+        "params": [
+          "atrFilterMin",
+          "orbVol",
+          "retryCooldown",
+          "slBuffer"
+        ],
+        "result": {
+          "totalTrades": 30881,
+          "wins": 18303,
+          "losses": 0,
+          "winRate": 59.2694537094006,
+          "totalPnl": 11686.483752697148,
+          "avgPnl": 0.37843605300013433,
+          "maxDrawdown": 23.73857297950315,
+          "profitFactor": 0
+        }
+      },
+      {
+        "params": [
+          "atrFilterMin",
+          "orbVol",
+          "retryCooldown",
+          "slBuffer",
+          "orbAtr"
+        ],
+        "result": {
+          "totalTrades": 38170,
+          "wins": 22266,
+          "losses": 0,
+          "winRate": 58.333769976421266,
+          "totalPnl": 12984.290417827166,
+          "avgPnl": 0.34017003976492444,
+          "maxDrawdown": 29.837551542809216,
+          "profitFactor": 0
+        }
+      },
+      {
+        "params": [
+          "atrFilterMin",
+          "orbVol",
+          "retryCooldown",
+          "slBuffer",
+          "orbAtr",
+          "tp1Ratio"
+        ],
+        "result": {
+          "totalTrades": 40011,
+          "wins": 25433,
+          "losses": 0,
+          "winRate": 63.56501961960461,
+          "totalPnl": 13290.182390128957,
+          "avgPnl": 0.3321632148691349,
+          "maxDrawdown": 30.455852717931464,
+          "profitFactor": 0
+        }
+      },
+      {
+        "params": [
+          "atrFilterMin",
+          "orbVol",
+          "retryCooldown",
+          "slBuffer",
+          "orbAtr",
+          "tp1Ratio",
+          "minBodyRatio"
+        ],
+        "result": {
+          "totalTrades": 43107,
+          "wins": 27200,
+          "losses": 0,
+          "winRate": 63.098800658825716,
+          "totalPnl": 13618.202926686785,
+          "avgPnl": 0.3159162763979582,
+          "maxDrawdown": 32.32629599996255,
+          "profitFactor": 0
+        }
+      },
+      {
+        "params": [
+          "atrFilterMin",
+          "orbVol",
+          "retryCooldown",
+          "slBuffer",
+          "orbAtr",
+          "tp1Ratio",
+          "minBodyRatio",
+          "minAwayMultNormal"
+        ],
+        "result": {
+          "totalTrades": 43167,
+          "wins": 27240,
+          "losses": 0,
+          "winRate": 63.10375981652652,
+          "totalPnl": 13652.038142804606,
+          "avgPnl": 0.3162609897098387,
+          "maxDrawdown": 32.326295999962525,
+          "profitFactor": 0
+        }
+      }
+    ],
+    "bestCombination": {
+      "params": [
+        "atrFilterMin",
+        "orbVol",
+        "retryCooldown",
+        "slBuffer",
+        "orbAtr",
+        "tp1Ratio",
+        "minBodyRatio",
+        "minAwayMultNormal"
+      ],
+      "result": {
+        "totalTrades": 43167,
+        "wins": 27240,
+        "losses": 0,
+        "winRate": 63.10375981652652,
+        "totalPnl": 13652.038142804606,
+        "avgPnl": 0.3162609897098387,
+        "maxDrawdown": 32.326295999962525,
+        "profitFactor": 0
+      },
+      "improvement": -0.2494975651073133
+    }
+  },
+  "recommendedConfig": {
+    "lookback": 2,
+    "minBodyRatio": 0.4,
+    "orbAtr": 1.2,
+    "orbVol": 1.5,
+    "useBodyOnly": true,
+    "obMaxBars": 60,
+    "minAwayMultRangebound": 0.2,
+    "minAwayMultNormal": 0.6,
+    "minAwayMultTrending": 2,
+    "requireReversal": true,
+    "orderValidityBars": 3,
+    "maxPriceDeviation": 0.02,
+    "slBuffer": 0.0075,
+    "tp1Ratio": 1,
+    "rrRatio": 4,
+    "tp1Percent": 1,
+    "leverage": 15,
+    "maxHoldingBars": 48,
+    "retryCooldown": 6,
+    "useATRCVDFilter": true,
+    "atrFilterMin": 0.3,
+    "atrFilterMax": 3,
+    "cvdLookback": 20,
+    "makerFee": 0.0004,
+    "takerFee": 0.00075,
+    "slippage": 0.0002
+  }
+}

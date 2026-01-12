@@ -68,6 +68,7 @@ export interface OrderBlock {
   barIndex: number;
   age: number;
   pricedMovedAway: boolean;
+  mitigated?: boolean;  // v17: OB 영역이 이미 터치되었는지 (미티게이션)
 }
 
 // 리밋 오더 인터페이스 (OB 중간가 진입용)

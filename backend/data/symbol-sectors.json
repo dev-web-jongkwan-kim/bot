@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-01-12T00:45:38.157Z",
+  "updatedAt": "2026-01-12T15:35:37.027Z",
   "totalSymbols": 539,
   "sectorCounts": {
     "PoW": 17,
@@ -22,3235 +22,3235 @@
       "symbol": "BTCUSDT",
       "sector": "PoW",
       "baseAsset": "BTC",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ETHUSDT",
       "sector": "Layer-1",
       "baseAsset": "ETH",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BCHUSDT",
       "sector": "Payment",
       "baseAsset": "BCH",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "XRPUSDT",
       "sector": "Payment",
       "baseAsset": "XRP",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LTCUSDT",
       "sector": "Payment",
       "baseAsset": "LTC",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TRXUSDT",
       "sector": "Layer-1",
       "baseAsset": "TRX",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ETCUSDT",
       "sector": "PoW",
       "baseAsset": "ETC",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LINKUSDT",
       "sector": "Infrastructure",
       "baseAsset": "LINK",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "XLMUSDT",
       "sector": "Layer-2",
       "baseAsset": "XLM",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ADAUSDT",
       "sector": "Layer-1",
       "baseAsset": "ADA",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "XMRUSDT",
       "sector": "PoW",
       "baseAsset": "XMR",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DASHUSDT",
       "sector": "PoW",
       "baseAsset": "DASH",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ZECUSDT",
       "sector": "PoW",
       "baseAsset": "ZEC",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "XTZUSDT",
       "sector": "Layer-1",
       "baseAsset": "XTZ",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BNBUSDT",
       "sector": "Layer-1",
       "baseAsset": "BNB",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ATOMUSDT",
       "sector": "Layer-1",
       "baseAsset": "ATOM",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ONTUSDT",
       "sector": "PoW",
       "baseAsset": "ONT",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "IOTAUSDT",
       "sector": "PoW",
       "baseAsset": "IOTA",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BATUSDT",
       "sector": "Infrastructure",
       "baseAsset": "BAT",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "VETUSDT",
       "sector": "Layer-1",
       "baseAsset": "VET",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "NEOUSDT",
       "sector": "Layer-1",
       "baseAsset": "NEO",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "QTUMUSDT",
       "sector": "Layer-1",
       "baseAsset": "QTUM",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "IOSTUSDT",
       "sector": "Layer-1",
       "baseAsset": "IOST",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "THETAUSDT",
       "sector": "AI",
       "baseAsset": "THETA",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ALGOUSDT",
       "sector": "Layer-1",
       "baseAsset": "ALGO",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ZILUSDT",
       "sector": "PoW",
       "baseAsset": "ZIL",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "KNCUSDT",
       "sector": "DeFi",
       "baseAsset": "KNC",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ZRXUSDT",
       "sector": "DeFi",
       "baseAsset": "ZRX",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "COMPUSDT",
       "sector": "DeFi",
       "baseAsset": "COMP",
-      "updatedAt": "2026-01-12T00:45:38.156Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DOGEUSDT",
       "sector": "Meme",
       "baseAsset": "DOGE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "KAVAUSDT",
       "sector": "DeFi",
       "baseAsset": "KAVA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BANDUSDT",
       "sector": "DeFi",
       "baseAsset": "BAND",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RLCUSDT",
       "sector": "AI",
       "baseAsset": "RLC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SNXUSDT",
       "sector": "DeFi",
       "baseAsset": "SNX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DOTUSDT",
       "sector": "Layer-1",
       "baseAsset": "DOT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "YFIUSDT",
       "sector": "DeFi",
       "baseAsset": "YFI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CRVUSDT",
       "sector": "DeFi",
       "baseAsset": "CRV",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TRBUSDT",
       "sector": "Infrastructure",
       "baseAsset": "TRB",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RUNEUSDT",
       "sector": "DeFi",
       "baseAsset": "RUNE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SUSHIUSDT",
       "sector": "DeFi",
       "baseAsset": "SUSHI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "EGLDUSDT",
       "sector": "Layer-1",
       "baseAsset": "EGLD",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SOLUSDT",
       "sector": "Layer-1",
       "baseAsset": "SOL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ICXUSDT",
       "sector": "Layer-1",
       "baseAsset": "ICX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "STORJUSDT",
       "sector": "Storage",
       "baseAsset": "STORJ",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "UNIUSDT",
       "sector": "DeFi",
       "baseAsset": "UNI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AVAXUSDT",
       "sector": "Layer-1",
       "baseAsset": "AVAX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ENJUSDT",
       "sector": "Gaming",
       "baseAsset": "ENJ",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "KSMUSDT",
       "sector": "Layer-1",
       "baseAsset": "KSM",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "NEARUSDT",
       "sector": "Layer-1",
       "baseAsset": "NEAR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AAVEUSDT",
       "sector": "DeFi",
       "baseAsset": "AAVE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FILUSDT",
       "sector": "Storage",
       "baseAsset": "FIL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RSRUSDT",
       "sector": "DeFi",
       "baseAsset": "RSR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LRCUSDT",
       "sector": "DeFi",
       "baseAsset": "LRC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BELUSDT",
       "sector": "DeFi",
       "baseAsset": "BEL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AXSUSDT",
       "sector": "Metaverse",
       "baseAsset": "AXS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ZENUSDT",
       "sector": "PoW",
       "baseAsset": "ZEN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SKLUSDT",
       "sector": "Layer-2",
       "baseAsset": "SKL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "GRTUSDT",
       "sector": "AI",
       "baseAsset": "GRT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "1INCHUSDT",
       "sector": "DeFi",
       "baseAsset": "1INCH",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CHZUSDT",
       "sector": "NFT",
       "baseAsset": "CHZ",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SANDUSDT",
       "sector": "Metaverse",
       "baseAsset": "SAND",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ANKRUSDT",
       "sector": "DeFi",
       "baseAsset": "ANKR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RVNUSDT",
       "sector": "PoW",
       "baseAsset": "RVN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SFPUSDT",
       "sector": "Infrastructure",
       "baseAsset": "SFP",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "COTIUSDT",
       "sector": "Payment",
       "baseAsset": "COTI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CHRUSDT",
       "sector": "AI",
       "baseAsset": "CHR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MANAUSDT",
       "sector": "Metaverse",
       "baseAsset": "MANA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ALICEUSDT",
       "sector": "Metaverse",
       "baseAsset": "ALICE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HBARUSDT",
       "sector": "Layer-1",
       "baseAsset": "HBAR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ONEUSDT",
       "sector": "Layer-2",
       "baseAsset": "ONE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DENTUSDT",
       "sector": "Infrastructure",
       "baseAsset": "DENT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CELRUSDT",
       "sector": "Layer-2",
       "baseAsset": "CELR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HOTUSDT",
       "sector": "Storage",
       "baseAsset": "HOT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MTLUSDT",
       "sector": "Infrastructure",
       "baseAsset": "MTL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "OGNUSDT",
       "sector": "DeFi",
       "baseAsset": "OGN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "NKNUSDT",
       "sector": "PoW",
       "baseAsset": "NKN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "1000SHIBUSDT",
       "sector": "Meme",
       "baseAsset": "1000SHIB",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "GTCUSDT",
       "sector": "Infrastructure",
       "baseAsset": "GTC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BTCDOMUSDT",
       "sector": "Unknown",
       "baseAsset": "BTCDOM",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "IOTXUSDT",
       "sector": "Infrastructure",
       "baseAsset": "IOTX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "C98USDT",
       "sector": "DeFi",
       "baseAsset": "C98",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MASKUSDT",
       "sector": "Infrastructure",
       "baseAsset": "MASK",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ATAUSDT",
       "sector": "Infrastructure",
       "baseAsset": "ATA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DYDXUSDT",
       "sector": "DeFi",
       "baseAsset": "DYDX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "1000XECUSDT",
       "sector": "Payment",
       "baseAsset": "1000XEC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "GALAUSDT",
       "sector": "Gaming",
       "baseAsset": "GALA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CELOUSDT",
       "sector": "Layer-1",
       "baseAsset": "CELO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ARUSDT",
       "sector": "Storage",
       "baseAsset": "AR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ARPAUSDT",
       "sector": "Infrastructure",
       "baseAsset": "ARPA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CTSIUSDT",
       "sector": "Layer-2",
       "baseAsset": "CTSI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LPTUSDT",
       "sector": "AI",
       "baseAsset": "LPT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ENSUSDT",
       "sector": "Infrastructure",
       "baseAsset": "ENS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PEOPLEUSDT",
       "sector": "Meme",
       "baseAsset": "PEOPLE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ROSEUSDT",
       "sector": "Layer-1",
       "baseAsset": "ROSE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DUSKUSDT",
       "sector": "Layer-1",
       "baseAsset": "DUSK",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FLOWUSDT",
       "sector": "Layer-1",
       "baseAsset": "FLOW",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "IMXUSDT",
       "sector": "NFT",
       "baseAsset": "IMX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "API3USDT",
       "sector": "Infrastructure",
       "baseAsset": "API3",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "GMTUSDT",
       "sector": "NFT",
       "baseAsset": "GMT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "APEUSDT",
       "sector": "NFT",
       "baseAsset": "APE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "WOOUSDT",
       "sector": "DeFi",
       "baseAsset": "WOO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "JASMYUSDT",
       "sector": "Infrastructure",
       "baseAsset": "JASMY",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "OPUSDT",
       "sector": "Layer-2",
       "baseAsset": "OP",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "INJUSDT",
       "sector": "DeFi",
       "baseAsset": "INJ",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "STGUSDT",
       "sector": "DeFi",
       "baseAsset": "STG",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SPELLUSDT",
       "sector": "DeFi",
       "baseAsset": "SPELL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "1000LUNCUSDT",
       "sector": "DeFi",
       "baseAsset": "1000LUNC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LUNA2USDT",
       "sector": "Layer-1",
       "baseAsset": "LUNA2",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LDOUSDT",
       "sector": "DeFi",
       "baseAsset": "LDO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ICPUSDT",
       "sector": "Layer-1",
       "baseAsset": "ICP",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "APTUSDT",
       "sector": "Layer-1",
       "baseAsset": "APT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "QNTUSDT",
       "sector": "Infrastructure",
       "baseAsset": "QNT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FETUSDT",
       "sector": "AI",
       "baseAsset": "FET",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HOOKUSDT",
       "sector": "Infrastructure",
       "baseAsset": "HOOK",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MAGICUSDT",
       "sector": "Metaverse",
       "baseAsset": "MAGIC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TUSDT",
       "sector": "Infrastructure",
       "baseAsset": "T",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HIGHUSDT",
       "sector": "Metaverse",
       "baseAsset": "HIGH",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MINAUSDT",
       "sector": "Layer-1",
       "baseAsset": "MINA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ASTRUSDT",
       "sector": "Layer-1",
       "baseAsset": "ASTR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PHBUSDT",
       "sector": "AI",
       "baseAsset": "PHB",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "GMXUSDT",
       "sector": "DeFi",
       "baseAsset": "GMX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CFXUSDT",
       "sector": "PoW",
       "baseAsset": "CFX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "STXUSDT",
       "sector": "Storage",
       "baseAsset": "STX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ACHUSDT",
       "sector": "Payment",
       "baseAsset": "ACH",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SSVUSDT",
       "sector": "Infrastructure",
       "baseAsset": "SSV",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CKBUSDT",
       "sector": "PoW",
       "baseAsset": "CKB",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TRUUSDT",
       "sector": "DeFi",
       "baseAsset": "TRU",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LQTYUSDT",
       "sector": "DeFi",
       "baseAsset": "LQTY",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "USDCUSDT",
       "sector": "Unknown",
       "baseAsset": "USDC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "IDUSDT",
       "sector": "Infrastructure",
       "baseAsset": "ID",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ARBUSDT",
       "sector": "Layer-2",
       "baseAsset": "ARB",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "JOEUSDT",
       "sector": "DeFi",
       "baseAsset": "JOE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TLMUSDT",
       "sector": "Metaverse",
       "baseAsset": "TLM",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RDNTUSDT",
       "sector": "DeFi",
       "baseAsset": "RDNT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HFTUSDT",
       "sector": "DeFi",
       "baseAsset": "HFT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "XVSUSDT",
       "sector": "DeFi",
       "baseAsset": "XVS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BLURUSDT",
       "sector": "NFT",
       "baseAsset": "BLUR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "EDUUSDT",
       "sector": "Metaverse",
       "baseAsset": "EDU",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SUIUSDT",
       "sector": "Layer-1",
       "baseAsset": "SUI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "1000PEPEUSDT",
       "sector": "Meme",
       "baseAsset": "1000PEPE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "1000FLOKIUSDT",
       "sector": "Meme",
       "baseAsset": "1000FLOKI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "UMAUSDT",
       "sector": "DeFi",
       "baseAsset": "UMA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "NMRUSDT",
       "sector": "AI",
       "baseAsset": "NMR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MAVUSDT",
       "sector": "Infrastructure",
       "baseAsset": "MAV",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "XVGUSDT",
       "sector": "PoW",
       "baseAsset": "XVG",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "WLDUSDT",
       "sector": "AI",
       "baseAsset": "WLD",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PENDLEUSDT",
       "sector": "DeFi",
       "baseAsset": "PENDLE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ARKMUSDT",
       "sector": "Infrastructure",
       "baseAsset": "ARKM",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AGLDUSDT",
       "sector": "Gaming",
       "baseAsset": "AGLD",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "YGGUSDT",
       "sector": "Gaming",
       "baseAsset": "YGG",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DODOXUSDT",
       "sector": "DeFi",
       "baseAsset": "DODOX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BNTUSDT",
       "sector": "DeFi",
       "baseAsset": "BNT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "OXTUSDT",
       "sector": "Infrastructure",
       "baseAsset": "OXT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SEIUSDT",
       "sector": "Layer-1",
       "baseAsset": "SEI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CYBERUSDT",
       "sector": "Infrastructure",
       "baseAsset": "CYBER",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ARKUSDT",
       "sector": "Layer-1",
       "baseAsset": "ARK",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BICOUSDT",
       "sector": "Infrastructure",
       "baseAsset": "BICO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BIGTIMEUSDT",
       "sector": "Gaming",
       "baseAsset": "BIGTIME",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "WAXPUSDT",
       "sector": "Gaming",
       "baseAsset": "WAXP",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BSVUSDT",
       "sector": "PoW",
       "baseAsset": "BSV",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RIFUSDT",
       "sector": "Storage",
       "baseAsset": "RIF",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "POLYXUSDT",
       "sector": "Infrastructure",
       "baseAsset": "POLYX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "GASUSDT",
       "sector": "Infrastructure",
       "baseAsset": "GAS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "POWRUSDT",
       "sector": "Layer-2",
       "baseAsset": "POWR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TIAUSDT",
       "sector": "Infrastructure",
       "baseAsset": "TIA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CAKEUSDT",
       "sector": "DeFi",
       "baseAsset": "CAKE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MEMEUSDT",
       "sector": "Meme",
       "baseAsset": "MEME",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TWTUSDT",
       "sector": "Infrastructure",
       "baseAsset": "TWT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ORDIUSDT",
       "sector": "Meme",
       "baseAsset": "ORDI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "STEEMUSDT",
       "sector": "DeFi",
       "baseAsset": "STEEM",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ILVUSDT",
       "sector": "Metaverse",
       "baseAsset": "ILV",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "NTRNUSDT",
       "sector": "Layer-1",
       "baseAsset": "NTRN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "KASUSDT",
       "sector": "Layer-1",
       "baseAsset": "KAS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BEAMXUSDT",
       "sector": "Gaming",
       "baseAsset": "BEAMX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "1000BONKUSDT",
       "sector": "Meme",
       "baseAsset": "1000BONK",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PYTHUSDT",
       "sector": "Infrastructure",
       "baseAsset": "PYTH",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SUPERUSDT",
       "sector": "Storage",
       "baseAsset": "SUPER",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "USTCUSDT",
       "sector": "DeFi",
       "baseAsset": "USTC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ONGUSDT",
       "sector": "Layer-1",
       "baseAsset": "ONG",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ETHWUSDT",
       "sector": "PoW",
       "baseAsset": "ETHW",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "JTOUSDT",
       "sector": "DeFi",
       "baseAsset": "JTO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "1000SATSUSDT",
       "sector": "Meme",
       "baseAsset": "1000SATS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AUCTIONUSDT",
       "sector": "DeFi",
       "baseAsset": "AUCTION",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "1000RATSUSDT",
       "sector": "Meme",
       "baseAsset": "1000RATS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ACEUSDT",
       "sector": "Gaming",
       "baseAsset": "ACE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MOVRUSDT",
       "sector": "Layer-1",
       "baseAsset": "MOVR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "NFPUSDT",
       "sector": "AI",
       "baseAsset": "NFP",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AIUSDT",
       "sector": "AI",
       "baseAsset": "AI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "XAIUSDT",
       "sector": "Gaming",
       "baseAsset": "XAI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "WIFUSDT",
       "sector": "Meme",
       "baseAsset": "WIF",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MANTAUSDT",
       "sector": "Layer-2",
       "baseAsset": "MANTA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ONDOUSDT",
       "sector": "DeFi",
       "baseAsset": "ONDO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LSKUSDT",
       "sector": "Layer-2",
       "baseAsset": "LSK",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ALTUSDT",
       "sector": "Infrastructure",
       "baseAsset": "ALT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "JUPUSDT",
       "sector": "DeFi",
       "baseAsset": "JUP",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ZETAUSDT",
       "sector": "Layer-1",
       "baseAsset": "ZETA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RONINUSDT",
       "sector": "Gaming",
       "baseAsset": "RONIN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DYMUSDT",
       "sector": "Infrastructure",
       "baseAsset": "DYM",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "OMUSDT",
       "sector": "DeFi",
       "baseAsset": "OM",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PIXELUSDT",
       "sector": "Gaming",
       "baseAsset": "PIXEL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "STRKUSDT",
       "sector": "Layer-1",
       "baseAsset": "STRK",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "GLMUSDT",
       "sector": "Infrastructure",
       "baseAsset": "GLM",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PORTALUSDT",
       "sector": "Gaming",
       "baseAsset": "PORTAL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TONUSDT",
       "sector": "Layer-1",
       "baseAsset": "TON",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AXLUSDT",
       "sector": "Infrastructure",
       "baseAsset": "AXL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "METISUSDT",
       "sector": "Layer-2",
       "baseAsset": "METIS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AEVOUSDT",
       "sector": "DeFi",
       "baseAsset": "AEVO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "VANRYUSDT",
       "sector": "Metaverse",
       "baseAsset": "VANRY",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BOMEUSDT",
       "sector": "Meme",
       "baseAsset": "BOME",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ETHFIUSDT",
       "sector": "DeFi",
       "baseAsset": "ETHFI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ENAUSDT",
       "sector": "DeFi",
       "baseAsset": "ENA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "WUSDT",
       "sector": "Infrastructure",
       "baseAsset": "W",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TNSRUSDT",
       "sector": "Storage",
       "baseAsset": "TNSR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SAGAUSDT",
       "sector": "Layer-1",
       "baseAsset": "SAGA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TAOUSDT",
       "sector": "AI",
       "baseAsset": "TAO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "REZUSDT",
       "sector": "DeFi",
       "baseAsset": "REZ",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BBUSDT",
       "sector": "Layer-1",
       "baseAsset": "BB",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "NOTUSDT",
       "sector": "Gaming",
       "baseAsset": "NOT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TURBOUSDT",
       "sector": "AI",
       "baseAsset": "TURBO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "IOUSDT",
       "sector": "AI",
       "baseAsset": "IO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ZKUSDT",
       "sector": "Layer-2",
       "baseAsset": "ZK",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MEWUSDT",
       "sector": "Meme",
       "baseAsset": "MEW",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LISTAUSDT",
       "sector": "DeFi",
       "baseAsset": "LISTA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ZROUSDT",
       "sector": "Infrastructure",
       "baseAsset": "ZRO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RENDERUSDT",
       "sector": "Infrastructure",
       "baseAsset": "RENDER",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BANANAUSDT",
       "sector": "DeFi",
       "baseAsset": "BANANA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RAREUSDT",
       "sector": "Storage",
       "baseAsset": "RARE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "GUSDT",
       "sector": "Infrastructure",
       "baseAsset": "G",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SYNUSDT",
       "sector": "DeFi",
       "baseAsset": "SYN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SYSUSDT",
       "sector": "PoW",
       "baseAsset": "SYS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BRETTUSDT",
       "sector": "Meme",
       "baseAsset": "BRETT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "POPCATUSDT",
       "sector": "Meme",
       "baseAsset": "POPCAT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SUNUSDT",
       "sector": "DeFi",
       "baseAsset": "SUN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DOGSUSDT",
       "sector": "Meme",
       "baseAsset": "DOGS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MBOXUSDT",
       "sector": "Metaverse",
       "baseAsset": "MBOX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CHESSUSDT",
       "sector": "DeFi",
       "baseAsset": "CHESS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FLUXUSDT",
       "sector": "AI",
       "baseAsset": "FLUX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RPLUSDT",
       "sector": "DeFi",
       "baseAsset": "RPL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "POLUSDT",
       "sector": "Layer-2",
       "baseAsset": "POL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "1MBABYDOGEUSDT",
       "sector": "Meme",
       "baseAsset": "1MBABYDOGE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "NEIROUSDT",
       "sector": "Meme",
       "baseAsset": "NEIRO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FIDAUSDT",
       "sector": "Infrastructure",
       "baseAsset": "FIDA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FIOUSDT",
       "sector": "NFT",
       "baseAsset": "FIO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CATIUSDT",
       "sector": "Gaming",
       "baseAsset": "CATI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "GHSTUSDT",
       "sector": "Metaverse",
       "baseAsset": "GHST",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HMSTRUSDT",
       "sector": "Gaming",
       "baseAsset": "HMSTR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "COSUSDT",
       "sector": "Unknown",
       "baseAsset": "COS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "EIGENUSDT",
       "sector": "Infrastructure",
       "baseAsset": "EIGEN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DIAUSDT",
       "sector": "Infrastructure",
       "baseAsset": "DIA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "1000CATUSDT",
       "sector": "Meme",
       "baseAsset": "1000CAT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SCRUSDT",
       "sector": "Layer-1",
       "baseAsset": "SCR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "GOATUSDT",
       "sector": "AI",
       "baseAsset": "GOAT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MOODENGUSDT",
       "sector": "Meme",
       "baseAsset": "MOODENG",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SAFEUSDT",
       "sector": "Infrastructure",
       "baseAsset": "SAFE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SANTOSUSDT",
       "sector": "Unknown",
       "baseAsset": "SANTOS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "COWUSDT",
       "sector": "DeFi",
       "baseAsset": "COW",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CETUSUSDT",
       "sector": "DeFi",
       "baseAsset": "CETUS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "1000000MOGUSDT",
       "sector": "Meme",
       "baseAsset": "1000000MOG",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "GRASSUSDT",
       "sector": "AI",
       "baseAsset": "GRASS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DRIFTUSDT",
       "sector": "DeFi",
       "baseAsset": "DRIFT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ACTUSDT",
       "sector": "AI",
       "baseAsset": "ACT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PNUTUSDT",
       "sector": "Meme",
       "baseAsset": "PNUT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HIPPOUSDT",
       "sector": "Meme",
       "baseAsset": "HIPPO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DEGENUSDT",
       "sector": "Meme",
       "baseAsset": "DEGEN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BANUSDT",
       "sector": "Meme",
       "baseAsset": "BAN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AKTUSDT",
       "sector": "AI",
       "baseAsset": "AKT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SCRTUSDT",
       "sector": "Layer-1",
       "baseAsset": "SCRT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "1000CHEEMSUSDT",
       "sector": "Meme",
       "baseAsset": "1000CHEEMS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "1000WHYUSDT",
       "sector": "Meme",
       "baseAsset": "1000WHY",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "THEUSDT",
       "sector": "DeFi",
       "baseAsset": "THE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MORPHOUSDT",
       "sector": "DeFi",
       "baseAsset": "MORPHO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CHILLGUYUSDT",
       "sector": "Meme",
       "baseAsset": "CHILLGUY",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "KAIAUSDT",
       "sector": "DeFi",
       "baseAsset": "KAIA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AEROUSDT",
       "sector": "DeFi",
       "baseAsset": "AERO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ACXUSDT",
       "sector": "DeFi",
       "baseAsset": "ACX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ORCAUSDT",
       "sector": "DeFi",
       "baseAsset": "ORCA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MOVEUSDT",
       "sector": "Layer-1",
       "baseAsset": "MOVE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RAYSOLUSDT",
       "sector": "Unknown",
       "baseAsset": "RAYSOL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "KOMAUSDT",
       "sector": "Meme",
       "baseAsset": "KOMA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "VIRTUALUSDT",
       "sector": "AI",
       "baseAsset": "VIRTUAL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SPXUSDT",
       "sector": "Meme",
       "baseAsset": "SPX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MEUSDT",
       "sector": "NFT",
       "baseAsset": "ME",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AVAUSDT",
       "sector": "Unknown",
       "baseAsset": "AVA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DEGOUSDT",
       "sector": "NFT",
       "baseAsset": "DEGO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "VELODROMEUSDT",
       "sector": "DeFi",
       "baseAsset": "VELODROME",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MOCAUSDT",
       "sector": "Metaverse",
       "baseAsset": "MOCA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "VANAUSDT",
       "sector": "AI",
       "baseAsset": "VANA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PENGUUSDT",
       "sector": "Meme",
       "baseAsset": "PENGU",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LUMIAUSDT",
       "sector": "DeFi",
       "baseAsset": "LUMIA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "USUALUSDT",
       "sector": "DeFi",
       "baseAsset": "USUAL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AIXBTUSDT",
       "sector": "AI",
       "baseAsset": "AIXBT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FARTCOINUSDT",
       "sector": "Meme",
       "baseAsset": "FARTCOIN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "KMNOUSDT",
       "sector": "DeFi",
       "baseAsset": "KMNO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CGPTUSDT",
       "sector": "AI",
       "baseAsset": "CGPT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HIVEUSDT",
       "sector": "Layer-1",
       "baseAsset": "HIVE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DEXEUSDT",
       "sector": "DeFi",
       "baseAsset": "DEXE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PHAUSDT",
       "sector": "AI",
       "baseAsset": "PHA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DFUSDT",
       "sector": "DeFi",
       "baseAsset": "DF",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "GRIFFAINUSDT",
       "sector": "AI",
       "baseAsset": "GRIFFAIN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ZEREBROUSDT",
       "sector": "AI",
       "baseAsset": "ZEREBRO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BIOUSDT",
       "sector": "Unknown",
       "baseAsset": "BIO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "COOKIEUSDT",
       "sector": "AI",
       "baseAsset": "COOKIE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ALCHUSDT",
       "sector": "AI",
       "baseAsset": "ALCH",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SWARMSUSDT",
       "sector": "AI",
       "baseAsset": "SWARMS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SONICUSDT",
       "sector": "Gaming",
       "baseAsset": "SONIC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DUSDT",
       "sector": "Metaverse",
       "baseAsset": "D",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PROMUSDT",
       "sector": "NFT",
       "baseAsset": "PROM",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SUSDT",
       "sector": "Layer-1",
       "baseAsset": "S",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SOLVUSDT",
       "sector": "DeFi",
       "baseAsset": "SOLV",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ARCUSDT",
       "sector": "AI",
       "baseAsset": "ARC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AVAAIUSDT",
       "sector": "AI",
       "baseAsset": "AVAAI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TRUMPUSDT",
       "sector": "Meme",
       "baseAsset": "TRUMP",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MELANIAUSDT",
       "sector": "Meme",
       "baseAsset": "MELANIA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "VTHOUSDT",
       "sector": "Layer-1",
       "baseAsset": "VTHO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ANIMEUSDT",
       "sector": "NFT",
       "baseAsset": "ANIME",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "VINEUSDT",
       "sector": "Meme",
       "baseAsset": "VINE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PIPPINUSDT",
       "sector": "Meme",
       "baseAsset": "PIPPIN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "VVVUSDT",
       "sector": "AI",
       "baseAsset": "VVV",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BERAUSDT",
       "sector": "Layer-1",
       "baseAsset": "BERA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TSTUSDT",
       "sector": "Meme",
       "baseAsset": "TST",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LAYERUSDT",
       "sector": "Infrastructure",
       "baseAsset": "LAYER",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HEIUSDT",
       "sector": "Infrastructure",
       "baseAsset": "HEI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "B3USDT",
       "sector": "Alpha",
       "baseAsset": "B3",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "IPUSDT",
       "sector": "AI",
       "baseAsset": "IP",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "GPSUSDT",
       "sector": "Infrastructure",
       "baseAsset": "GPS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SHELLUSDT",
       "sector": "AI",
       "baseAsset": "SHELL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "KAITOUSDT",
       "sector": "Infrastructure",
       "baseAsset": "KAITO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "REDUSDT",
       "sector": "Infrastructure",
       "baseAsset": "RED",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "VICUSDT",
       "sector": "Layer-1",
       "baseAsset": "VIC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "EPICUSDT",
       "sector": "NFT",
       "baseAsset": "EPIC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BMTUSDT",
       "sector": "Infrastructure",
       "baseAsset": "BMT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MUBARAKUSDT",
       "sector": "Meme",
       "baseAsset": "MUBARAK",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FORMUSDT",
       "sector": "Gaming",
       "baseAsset": "FORM",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BIDUSDT",
       "sector": "AI",
       "baseAsset": "BID",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TUTUSDT",
       "sector": "Meme",
       "baseAsset": "TUT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BROCCOLI714USDT",
       "sector": "Meme",
       "baseAsset": "BROCCOLI714",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BROCCOLIF3BUSDT",
       "sector": "Meme",
       "baseAsset": "BROCCOLIF3B",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SIRENUSDT",
       "sector": "Meme",
       "baseAsset": "SIREN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BANANAS31USDT",
       "sector": "Meme",
       "baseAsset": "BANANAS31",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BRUSDT",
       "sector": "DeFi",
       "baseAsset": "BR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PLUMEUSDT",
       "sector": "Layer-1",
       "baseAsset": "PLUME",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "NILUSDT",
       "sector": "AI",
       "baseAsset": "NIL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PARTIUSDT",
       "sector": "Layer-1",
       "baseAsset": "PARTI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "JELLYJELLYUSDT",
       "sector": "Meme",
       "baseAsset": "JELLYJELLY",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MAVIAUSDT",
       "sector": "Gaming",
       "baseAsset": "MAVIA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PAXGUSDT",
       "sector": "Unknown",
       "baseAsset": "PAXG",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "WALUSDT",
       "sector": "Storage",
       "baseAsset": "WAL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FUNUSDT",
       "sector": "DeFi",
       "baseAsset": "FUN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MLNUSDT",
       "sector": "DeFi",
       "baseAsset": "MLN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "GUNUSDT",
       "sector": "Gaming",
       "baseAsset": "GUN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ATHUSDT",
       "sector": "AI",
       "baseAsset": "ATH",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BABYUSDT",
       "sector": "DeFi",
       "baseAsset": "BABY",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FORTHUSDT",
       "sector": "DeFi",
       "baseAsset": "FORTH",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PROMPTUSDT",
       "sector": "AI",
       "baseAsset": "PROMPT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "STOUSDT",
       "sector": "DeFi",
       "baseAsset": "STO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FHEUSDT",
       "sector": "AI",
       "baseAsset": "FHE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "KERNELUSDT",
       "sector": "DeFi",
       "baseAsset": "KERNEL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "WCTUSDT",
       "sector": "Infrastructure",
       "baseAsset": "WCT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "INITUSDT",
       "sector": "Layer-1",
       "baseAsset": "INIT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AERGOUSDT",
       "sector": "Infrastructure",
       "baseAsset": "AERGO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BANKUSDT",
       "sector": "Meme",
       "baseAsset": "BANK",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "EPTUSDT",
       "sector": "AI",
       "baseAsset": "EPT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DEEPUSDT",
       "sector": "DeFi",
       "baseAsset": "DEEP",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HYPERUSDT",
       "sector": "DeFi",
       "baseAsset": "HYPER",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "JSTUSDT",
       "sector": "DeFi",
       "baseAsset": "JST",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SIGNUSDT",
       "sector": "Infrastructure",
       "baseAsset": "SIGN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PUNDIXUSDT",
       "sector": "DeFi",
       "baseAsset": "PUNDIX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CTKUSDT",
       "sector": "Infrastructure",
       "baseAsset": "CTK",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AIOTUSDT",
       "sector": "AI",
       "baseAsset": "AIOT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DOLOUSDT",
       "sector": "DeFi",
       "baseAsset": "DOLO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HAEDALUSDT",
       "sector": "DeFi",
       "baseAsset": "HAEDAL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SXTUSDT",
       "sector": "AI",
       "baseAsset": "SXT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ASRUSDT",
       "sector": "Unknown",
       "baseAsset": "ASR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ALPINEUSDT",
       "sector": "Unknown",
       "baseAsset": "ALPINE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "B2USDT",
       "sector": "DeFi",
       "baseAsset": "B2",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SYRUPUSDT",
       "sector": "DeFi",
       "baseAsset": "SYRUP",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DOODUSDT",
       "sector": "Alpha",
       "baseAsset": "DOOD",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "OGUSDT",
       "sector": "Unknown",
       "baseAsset": "OG",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ZKJUSDT",
       "sector": "Layer-2",
       "baseAsset": "ZKJ",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SKYAIUSDT",
       "sector": "AI",
       "baseAsset": "SKYAI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "NXPCUSDT",
       "sector": "Gaming",
       "baseAsset": "NXPC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CVCUSDT",
       "sector": "Infrastructure",
       "baseAsset": "CVC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AGTUSDT",
       "sector": "AI",
       "baseAsset": "AGT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AWEUSDT",
       "sector": "AI",
       "baseAsset": "AWE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BUSDT",
       "sector": "Meme",
       "baseAsset": "B",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SOONUSDT",
       "sector": "Infrastructure",
       "baseAsset": "SOON",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HUMAUSDT",
       "sector": "Payment",
       "baseAsset": "HUMA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AUSDT",
       "sector": "Layer-2",
       "baseAsset": "A",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SOPHUSDT",
       "sector": "Layer-2",
       "baseAsset": "SOPH",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MERLUSDT",
       "sector": "Layer-2",
       "baseAsset": "MERL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HYPEUSDT",
       "sector": "DeFi",
       "baseAsset": "HYPE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BDXNUSDT",
       "sector": "AI",
       "baseAsset": "BDXN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PUFFERUSDT",
       "sector": "Layer-2",
       "baseAsset": "PUFFER",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "1000000BOBUSDT",
       "sector": "Meme",
       "baseAsset": "1000000BOB",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LAUSDT",
       "sector": "AI",
       "baseAsset": "LA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HOMEUSDT",
       "sector": "DeFi",
       "baseAsset": "HOME",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RESOLVUSDT",
       "sector": "DeFi",
       "baseAsset": "RESOLV",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TAIKOUSDT",
       "sector": "Layer-2",
       "baseAsset": "TAIKO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SQDUSDT",
       "sector": "DeFi",
       "baseAsset": "SQD",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PUMPBTCUSDT",
       "sector": "DeFi",
       "baseAsset": "PUMPBTC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SPKUSDT",
       "sector": "DeFi",
       "baseAsset": "SPK",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MYXUSDT",
       "sector": "DeFi",
       "baseAsset": "MYX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FUSDT",
       "sector": "DeFi",
       "baseAsset": "F",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "NEWTUSDT",
       "sector": "Meme",
       "baseAsset": "NEWT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DMCUSDT",
       "sector": "Gaming",
       "baseAsset": "DMC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HUSDT",
       "sector": "Infrastructure",
       "baseAsset": "H",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "OLUSDT",
       "sector": "Gaming",
       "baseAsset": "OL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SAHARAUSDT",
       "sector": "AI",
       "baseAsset": "SAHARA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ICNTUSDT",
       "sector": "Unknown",
       "baseAsset": "ICNT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BULLAUSDT",
       "sector": "Meme",
       "baseAsset": "BULLA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "IDOLUSDT",
       "sector": "AI",
       "baseAsset": "IDOL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MUSDT",
       "sector": "Meme",
       "baseAsset": "M",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TANSSIUSDT",
       "sector": "Infrastructure",
       "baseAsset": "TANSSI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PUMPUSDT",
       "sector": "Meme",
       "baseAsset": "PUMP",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CROSSUSDT",
       "sector": "Gaming",
       "baseAsset": "CROSS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AINUSDT",
       "sector": "AI",
       "baseAsset": "AIN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CUSDT",
       "sector": "AI",
       "baseAsset": "C",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "VELVETUSDT",
       "sector": "DeFi",
       "baseAsset": "VELVET",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TACUSDT",
       "sector": "Gaming",
       "baseAsset": "TAC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ERAUSDT",
       "sector": "DeFi",
       "baseAsset": "ERA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TAUSDT",
       "sector": "AI",
       "baseAsset": "TA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CVXUSDT",
       "sector": "DeFi",
       "baseAsset": "CVX",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SLPUSDT",
       "sector": "Gaming",
       "baseAsset": "SLP",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ZORAUSDT",
       "sector": "Layer-2",
       "baseAsset": "ZORA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TAGUSDT",
       "sector": "AI",
       "baseAsset": "TAG",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ZRCUSDT",
       "sector": "DeFi",
       "baseAsset": "ZRC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ESPORTSUSDT",
       "sector": "Gaming",
       "baseAsset": "ESPORTS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TREEUSDT",
       "sector": "DeFi",
       "baseAsset": "TREE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "A2ZUSDT",
       "sector": "Gaming",
       "baseAsset": "A2Z",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PLAYUSDT",
       "sector": "Gaming",
       "baseAsset": "PLAY",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "NAORISUSDT",
       "sector": "Infrastructure",
       "baseAsset": "NAORIS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TOWNSUSDT",
       "sector": "Unknown",
       "baseAsset": "TOWNS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PROVEUSDT",
       "sector": "Infrastructure",
       "baseAsset": "PROVE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ALLUSDT",
       "sector": "Unknown",
       "baseAsset": "ALL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "INUSDT",
       "sector": "Alpha",
       "baseAsset": "IN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "YALAUSDT",
       "sector": "DeFi",
       "baseAsset": "YALA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CARVUSDT",
       "sector": "Alpha",
       "baseAsset": "CARV",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AIOUSDT",
       "sector": "Alpha",
       "baseAsset": "AIO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "XNYUSDT",
       "sector": "Alpha",
       "baseAsset": "XNY",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "USELESSUSDT",
       "sector": "Meme",
       "baseAsset": "USELESS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "DAMUSDT",
       "sector": "DeFi",
       "baseAsset": "DAM",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CUDISUSDT",
       "sector": "Alpha",
       "baseAsset": "CUDIS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SAPIENUSDT",
       "sector": "Alpha",
       "baseAsset": "SAPIEN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "XPLUSDT",
       "sector": "Layer-1",
       "baseAsset": "XPL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "WLFIUSDT",
       "sector": "DeFi",
       "baseAsset": "WLFI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SOMIUSDT",
       "sector": "DeFi",
       "baseAsset": "SOMI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BASUSDT",
       "sector": "Alpha",
       "baseAsset": "BAS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BTRUSDT",
       "sector": "Layer-2",
       "baseAsset": "BTR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MITOUSDT",
       "sector": "DeFi",
       "baseAsset": "MITO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HEMIUSDT",
       "sector": "DeFi",
       "baseAsset": "HEMI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LINEAUSDT",
       "sector": "Layer-2",
       "baseAsset": "LINEA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "QUSDT",
       "sector": "Alpha",
       "baseAsset": "Q",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ARIAUSDT",
       "sector": "Alpha",
       "baseAsset": "ARIA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TAKEUSDT",
       "sector": "Gaming",
       "baseAsset": "TAKE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PTBUSDT",
       "sector": "Alpha",
       "baseAsset": "PTB",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "OPENUSDT",
       "sector": "AI",
       "baseAsset": "OPEN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FLOCKUSDT",
       "sector": "AI",
       "baseAsset": "FLOCK",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SKYUSDT",
       "sector": "DeFi",
       "baseAsset": "SKY",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AVNTUSDT",
       "sector": "DeFi",
       "baseAsset": "AVNT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HOLOUSDT",
       "sector": "AI",
       "baseAsset": "HOLO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "XPINUSDT",
       "sector": "Alpha",
       "baseAsset": "XPIN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "UBUSDT",
       "sector": "Alpha",
       "baseAsset": "UB",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ZKCUSDT",
       "sector": "Unknown",
       "baseAsset": "ZKC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TOSHIUSDT",
       "sector": "Meme",
       "baseAsset": "TOSHI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "STBLUSDT",
       "sector": "DeFi",
       "baseAsset": "STBL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "0GUSDT",
       "sector": "Layer-1",
       "baseAsset": "0G",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BARDUSDT",
       "sector": "DeFi",
       "baseAsset": "BARD",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ASTERUSDT",
       "sector": "DeFi",
       "baseAsset": "ASTER",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TRADOORUSDT",
       "sector": "Alpha",
       "baseAsset": "TRADOOR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BLESSUSDT",
       "sector": "Alpha",
       "baseAsset": "BLESS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FLUIDUSDT",
       "sector": "DeFi",
       "baseAsset": "FLUID",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "COAIUSDT",
       "sector": "Alpha",
       "baseAsset": "COAI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "HANAUSDT",
       "sector": "Alpha",
       "baseAsset": "HANA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MIRAUSDT",
       "sector": "AI",
       "baseAsset": "MIRA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "AKEUSDT",
       "sector": "Alpha",
       "baseAsset": "AKE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ORDERUSDT",
       "sector": "DeFi",
       "baseAsset": "ORDER",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LIGHTUSDT",
       "sector": "Infrastructure",
       "baseAsset": "LIGHT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "XANUSDT",
       "sector": "DeFi",
       "baseAsset": "XAN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FFUSDT",
       "sector": "Unknown",
       "baseAsset": "FF",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "VFYUSDT",
       "sector": "Unknown",
       "baseAsset": "VFY",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "EDENUSDT",
       "sector": "DeFi",
       "baseAsset": "EDEN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "NOMUSDT",
       "sector": "DeFi",
       "baseAsset": "NOM",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TRUTHUSDT",
       "sector": "Alpha",
       "baseAsset": "TRUTH",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "2ZUSDT",
       "sector": "Infrastructure",
       "baseAsset": "2Z",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "EVAAUSDT",
       "sector": "DeFi",
       "baseAsset": "EVAA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LYNUSDT",
       "sector": "Alpha",
       "baseAsset": "LYN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "KGENUSDT",
       "sector": "Alpha",
       "baseAsset": "KGEN",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "4USDT",
       "sector": "Alpha",
       "baseAsset": "4",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "GIGGLEUSDT",
       "sector": "Meme",
       "baseAsset": "GIGGLE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MONUSDT",
       "sector": "DeFi",
       "baseAsset": "MON",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "YBUSDT",
       "sector": "DeFi",
       "baseAsset": "YB",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "METUSDT",
       "sector": "DeFi",
       "baseAsset": "MET",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "EULUSDT",
       "sector": "Unknown",
       "baseAsset": "EUL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ENSOUSDT",
       "sector": "Infrastructure",
       "baseAsset": "ENSO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CLOUSDT",
       "sector": "Alpha",
       "baseAsset": "CLO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RECALLUSDT",
       "sector": "AI",
       "baseAsset": "RECALL",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ZBTUSDT",
       "sector": "DeFi",
       "baseAsset": "ZBT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LABUSDT",
       "sector": "Alpha",
       "baseAsset": "LAB",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RIVERUSDT",
       "sector": "Alpha",
       "baseAsset": "RIVER",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RVVUSDT",
       "sector": "Alpha",
       "baseAsset": "RVV",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "币安人生USDT",
       "sector": "Unknown",
       "baseAsset": "币安人生",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BLUAIUSDT",
       "sector": "Alpha",
       "baseAsset": "BLUAI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TURTLEUSDT",
       "sector": "DeFi",
       "baseAsset": "TURTLE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "APRUSDT",
       "sector": "Alpha",
       "baseAsset": "APR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ONUSDT",
       "sector": "Alpha",
       "baseAsset": "ON",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "42USDT",
       "sector": "Alpha",
       "baseAsset": "42",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "COMMONUSDT",
       "sector": "Alpha",
       "baseAsset": "COMMON",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "KITEUSDT",
       "sector": "AI",
       "baseAsset": "KITE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ATUSDT",
       "sector": "Alpha",
       "baseAsset": "AT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CCUSDT",
       "sector": "Layer-1",
       "baseAsset": "CC",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MMTUSDT",
       "sector": "DeFi",
       "baseAsset": "MMT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "TRUSTUSDT",
       "sector": "AI",
       "baseAsset": "TRUST",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "UAIUSDT",
       "sector": "Alpha",
       "baseAsset": "UAI",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FOLKSUSDT",
       "sector": "Alpha",
       "baseAsset": "FOLKS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "STABLEUSDT",
       "sector": "Alpha",
       "baseAsset": "STABLE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "JCTUSDT",
       "sector": "Alpha",
       "baseAsset": "JCT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ALLOUSDT",
       "sector": "AI",
       "baseAsset": "ALLO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CLANKERUSDT",
       "sector": "Alpha",
       "baseAsset": "CLANKER",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BEATUSDT",
       "sector": "Alpha",
       "baseAsset": "BEAT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "PIEVERSEUSDT",
       "sector": "Alpha",
       "baseAsset": "PIEVERSE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "SENTUSDT",
       "sector": "Alpha",
       "baseAsset": "SENT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BOBUSDT",
       "sector": "Alpha",
       "baseAsset": "BOB",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "IRYSUSDT",
       "sector": "Alpha",
       "baseAsset": "IRYS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RLSUSDT",
       "sector": "Alpha",
       "baseAsset": "RLS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "POWERUSDT",
       "sector": "Alpha",
       "baseAsset": "POWER",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "WETUSDT",
       "sector": "Alpha",
       "baseAsset": "WET",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "NIGHTUSDT",
       "sector": "Alpha",
       "baseAsset": "NIGHT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "USUSDT",
       "sector": "Alpha",
       "baseAsset": "US",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "CYSUSDT",
       "sector": "Alpha",
       "baseAsset": "CYS",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "RAVEUSDT",
       "sector": "Alpha",
       "baseAsset": "RAVE",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ZKPUSDT",
       "sector": "Alpha",
       "baseAsset": "ZKP",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "GUAUSDT",
       "sector": "Alpha",
       "baseAsset": "GUA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "IRUSDT",
       "sector": "Alpha",
       "baseAsset": "IR",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "LITUSDT",
       "sector": "Alpha",
       "baseAsset": "LIT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "BREVUSDT",
       "sector": "Infrastructure",
       "baseAsset": "BREV",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "COLLECTUSDT",
       "sector": "Alpha",
       "baseAsset": "COLLECT",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "MAGMAUSDT",
       "sector": "Alpha",
       "baseAsset": "MAGMA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "ZAMAUSDT",
       "sector": "Alpha",
       "baseAsset": "ZAMA",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     },
     {
       "symbol": "FOGOUSDT",
       "sector": "Alpha",
       "baseAsset": "FOGO",
-      "updatedAt": "2026-01-12T00:45:38.157Z"
+      "updatedAt": "2026-01-12T15:35:37.027Z"
     }
   ]
 }

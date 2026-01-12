@@ -20,8 +20,13 @@
  *   - 레버리지: 20/15/10 → 15/10/5
  *   - orbAtr: 1.0 → 1.5, orbVol: 1.5 → 2.0
  *   - retryCooldown: 6 → 12, atrFilterMin: 0.4 → 0.5
+ * - v17 (2026-01-13): 실전 데이터 분석 기반 필터 강화
+ *   - ATR 구간 제한: 0.5~3.0% → 0.5~0.8% (최적 구간)
+ *   - OB 크기 필터 추가: 0.5% 초과 OB 제외 (작은 OB가 승률 높음)
+ *   - 타임프레임별 OB 수명: 5분봉 12캔들(1시간), 15분봉 8캔들(2시간)
+ *   - 미티게이션 체크: OB 영역 이미 터치된 경우 진입 거부
  *
- * 현재 버전: v10 (안정화)
+ * 현재 버전: v17 (실전 데이터 기반 최적화)
  * 최종 성능 (백테스트 2025-10-05 ~ 2026-01-05, 고정마진 $15):
  * - ROI: +1207%, Win Rate: 57.0%, MDD: 22.5%
  */
@@ -54,7 +59,9 @@ interface Config {
   londonHour: number;
   nyHour: number;
   rrRatio: number;
-  obMaxBars: number;
+  obMaxBars: number;           // deprecated: 타임프레임별 설정 사용
+  obMaxBars5m: number;         // v17: 5분봉 OB 최대 수명 (캔들)
+  obMaxBars15m: number;        // v17: 15분봉 OB 최대 수명 (캔들)
   makerFee: number;
   takerFee: number;
   leverage: number;
@@ -75,8 +82,9 @@ interface Config {
   // v10: ATR + CVD 방향 필터
   useATRCVDFilter: boolean;       // ATR + CVD 필터 사용 여부
   atrFilterMin: number;           // ATR% 최소값 (0.5%)
-  atrFilterMax: number;           // ATR% 최대값 (3.0%)
+  atrFilterMax: number;           // ATR% 최대값 (0.8%)
   cvdLookback: number;            // CVD 계산 기간 (20캔들)
+  maxOBSizePercent: number;       // v17: OB 최대 크기 (0.5%)
 }
 
 @Injectable()
@@ -128,7 +136,9 @@ export class SimpleTrueOBStrategy implements IStrategy {
       londonHour: 7,
       nyHour: 14,
       rrRatio: 4.0,             // v4 최적화: 3.0 → 4.0
-      obMaxBars: 60,            // 원복: 60봉 유지 (OB 교체는 활성화)
+      obMaxBars: 60,            // deprecated: 타임프레임별 설정 사용
+      obMaxBars5m: 12,          // v17: 5분봉 OB 최대 수명 12캔들 (1시간)
+      obMaxBars15m: 8,          // v17: 15분봉 OB 최대 수명 8캔들 (2시간)
       makerFee: 0.0004,         // 0.04%
       takerFee: 0.00075,        // 0.075%
       leverage: 15,             // v5 최적화: 10 → 15
@@ -149,8 +159,9 @@ export class SimpleTrueOBStrategy implements IStrategy {
       // v10: ATR + CVD 방향 필터
       useATRCVDFilter: true,        // 활성화
       atrFilterMin: 0.5,            // v10 원복 (0.4 → 0.5)
-      atrFilterMax: 3.0,            // ATR% 최대 3.0%
+      atrFilterMax: 0.8,            // v17: ATR% 최대 0.8% (실전 분석: 0.5~0.8% 최고 승률)
       cvdLookback: 20,              // CVD 20캔들 기준
+      maxOBSizePercent: 0.5,        // v17: OB 최대 크기 0.5% (작은 OB가 승률 높음)
     };
   }
 
@@ -536,11 +547,16 @@ export class SimpleTrueOBStrategy implements IStrategy {
     let activeOB = this.getActiveOB(stateKey);
 
     // OB 에이징 및 무효화 체크 (먼저)
+    // v17: 타임프레임별 OB 수명 적용
+    const obMaxBars = timeframe === '5m'
+      ? this.config.obMaxBars5m   // 12캔들 (1시간)
+      : this.config.obMaxBars15m; // 8캔들 (2시간)
+
     if (activeOB) {
       activeOB.age = i - activeOB.barIndex;
 
-      if (activeOB.age > this.config.obMaxBars) {
-        this.logger.debug(`[${symbol}/${timeframe}] OB expired (age: ${activeOB.age})`);
+      if (activeOB.age > obMaxBars) {
+        this.logger.debug(`[${symbol}/${timeframe}] OB expired (age: ${activeOB.age} > ${obMaxBars})`);
         activeOB = null;
       }
       else if (activeOB.type === 'LONG' && currentCandle.low < activeOB.bottom) {
@@ -550,6 +566,32 @@ export class SimpleTrueOBStrategy implements IStrategy {
       else if (activeOB.type === 'SHORT' && currentCandle.high > activeOB.top) {
         this.logger.debug(`[${symbol}/${timeframe}] SHORT OB invalidated (price broke top)`);
         activeOB = null;
+      }
+      // v17: 미티게이션 체크 - 가격이 이미 OB 영역에 진입했는지 확인
+      // OB 형성 후 가격이 OB 영역에 이미 닿았으면 미티게이션됨 (무효)
+      else if (!activeOB.mitigated && activeOB.pricedMovedAway) {
+        // 가격이 충분히 벗어난 후에만 미티게이션 체크 (첫 번째 터치는 허용)
+        let wasMitigated = false;
+
+        if (activeOB.type === 'LONG') {
+          // LONG OB: 가격이 OB 영역으로 내려왔는지 (현재 캔들에서 터치)
+          // low <= top 이면 OB 영역에 진입
+          if (currentCandle.low <= activeOB.top) {
+            wasMitigated = true;
+          }
+        } else {
+          // SHORT OB: 가격이 OB 영역으로 올라왔는지 (현재 캔들에서 터치)
+          // high >= bottom 이면 OB 영역에 진입
+          if (currentCandle.high >= activeOB.bottom) {
+            wasMitigated = true;
+          }
+        }
+
+        if (wasMitigated) {
+          activeOB.mitigated = true;
+          this.setActiveOB(stateKey, activeOB);
+          // 미티게이션되면 다음 진입에서 체크됨
+        }
       }
     }
 
@@ -767,6 +809,19 @@ export class SimpleTrueOBStrategy implements IStrategy {
       return null;
     }
 
+    // v17: 미티게이션 체크 - 이미 터치된 OB는 진입 불가
+    // 첫 번째 터치가 현재 캔들이어야 함 (이미 mitigated면 두 번째 터치)
+    if (activeOB.mitigated) {
+      if (this.isLiveMode) {
+        this.logger.log(
+          `[${symbol}/${timeframe}] ❌ OB mitigated - already touched before, rejecting`
+        );
+      }
+      // OB 무효화 - 이미 사용됨
+      this.setActiveOB(stateKey, null);
+      return null;
+    }
+
     // requireReversal 체크 (백테스트와 동일하게 추가)
     if (this.config.requireReversal) {
       if (activeOB.type === 'LONG') {
@@ -851,6 +906,24 @@ export class SimpleTrueOBStrategy implements IStrategy {
       if (this.isLiveMode) {
         this.logger.log(`[${symbol}/${timeframe}] ✅ ATR+CVD filter passed`);
       }
+    }
+
+    // v17: OB 크기 필터 (작은 OB가 승률 높음)
+    // obMidpoint는 이미 Retest 체크에서 계산됨
+    const obSizePercent = ((activeOB.top - activeOB.bottom) / obMidpoint) * 100;
+    if (obSizePercent > this.config.maxOBSizePercent) {
+      if (this.isLiveMode) {
+        this.logger.log(
+          `[${symbol}/${timeframe}] ❌ OB size filter rejected: ${obSizePercent.toFixed(3)}% > ${this.config.maxOBSizePercent}%`
+        );
+      }
+      // OB 무효화 - 너무 큰 OB는 신뢰도 낮음
+      this.setActiveOB(stateKey, null);
+      return null;
+    }
+
+    if (this.isLiveMode) {
+      this.logger.log(`[${symbol}/${timeframe}] ✅ OB size OK: ${obSizePercent.toFixed(3)}%`);
     }
 
     // 진입 시그널 생성 (OB 중간가 사용)

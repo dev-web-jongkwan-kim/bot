@@ -1,0 +1,1031 @@
+{
+  "timestamp": "2026-01-12T06:14:40.955Z",
+  "config": {
+    "lookback": 2,
+    "minBodyRatio": 0.5,
+    "orbAtr": 1.5,
+    "orbVol": 2,
+    "useBodyOnly": true,
+    "obMaxBars": 60,
+    "minAwayMultRangebound": 0.2,
+    "minAwayMultNormal": 0.8,
+    "minAwayMultTrending": 2,
+    "requireReversal": true,
+    "orderValidityBars": 3,
+    "slBuffer": 0.01,
+    "tp1Ratio": 1.2,
+    "rrRatio": 4,
+    "leverage": 15,
+    "makerFee": 0.0004,
+    "takerFee": 0.00075
+  },
+  "summary": [
+    {
+      "filter": "Baseline (No Filter)",
+      "trades": 21168,
+      "wins": 12296,
+      "losses": 8872,
+      "winRate": 58.087679516250944,
+      "totalPnl": 7279.148150181673,
+      "avgPnl": 0.3438751015769876
+    },
+    {
+      "filter": "ATR Volatility",
+      "trades": 5929,
+      "wins": 3643,
+      "losses": 2286,
+      "winRate": 61.44375105414066,
+      "totalPnl": 3265.2604211921725,
+      "avgPnl": 0.5507270064415876
+    },
+    {
+      "filter": "ATR + CVD",
+      "trades": 5334,
+      "wins": 3282,
+      "losses": 2052,
+      "winRate": 61.52980877390326,
+      "totalPnl": 2974.0914994048867,
+      "avgPnl": 0.5575724595809687
+    },
+    {
+      "filter": "ATR + Structure",
+      "trades": 2525,
+      "wins": 1544,
+      "losses": 981,
+      "winRate": 61.148514851485146,
+      "totalPnl": 1343.4461060505112,
+      "avgPnl": 0.5320578637823806
+    },
+    {
+      "filter": "ATR + CVD + Structure",
+      "trades": 2253,
+      "wins": 1386,
+      "losses": 867,
+      "winRate": 61.51797603195739,
+      "totalPnl": 1238.7226824962252,
+      "avgPnl": 0.5498103339974368
+    }
+  ],
+  "detailedResults": {
+    "none": [
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1078,
+        "wins": 576,
+        "losses": 502,
+        "winRate": 53.432282003710576,
+        "totalPnl": 135.90683040285177,
+        "avgPnl": 0.12607312653325767,
+        "maxDrawdown": 15.847039301006532
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1244,
+        "wins": 701,
+        "losses": 543,
+        "winRate": 56.35048231511254,
+        "totalPnl": 357.66020190824185,
+        "avgPnl": 0.28750820089086965,
+        "maxDrawdown": 10.08599578768468
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1087,
+        "wins": 607,
+        "losses": 480,
+        "winRate": 55.84176632934683,
+        "totalPnl": 228.3263726525416,
+        "avgPnl": 0.21005186076590765,
+        "maxDrawdown": 10.045748031222558
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1145,
+        "wins": 681,
+        "losses": 464,
+        "winRate": 59.47598253275109,
+        "totalPnl": 427.4619005636584,
+        "avgPnl": 0.3733291707979549,
+        "maxDrawdown": 10.391612206827858
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1155,
+        "wins": 652,
+        "losses": 503,
+        "winRate": 56.45021645021645,
+        "totalPnl": 376.27063868839383,
+        "avgPnl": 0.32577544475185616,
+        "maxDrawdown": 9.96003429984637
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1212,
+        "wins": 721,
+        "losses": 491,
+        "winRate": 59.48844884488449,
+        "totalPnl": 481.7892545171865,
+        "avgPnl": 0.39751588656533543,
+        "maxDrawdown": 13.210119800557777
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1120,
+        "wins": 648,
+        "losses": 472,
+        "winRate": 57.85714285714286,
+        "totalPnl": 381.09536697299035,
+        "avgPnl": 0.34026372051159853,
+        "maxDrawdown": 13.798480857811413
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1112,
+        "wins": 679,
+        "losses": 433,
+        "winRate": 61.061151079136685,
+        "totalPnl": 499.9592261251245,
+        "avgPnl": 0.44960362061611914,
+        "maxDrawdown": 10.980720501710238
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1076,
+        "wins": 643,
+        "losses": 433,
+        "winRate": 59.75836431226765,
+        "totalPnl": 398.65519274740353,
+        "avgPnl": 0.37049739102918544,
+        "maxDrawdown": 12.111163670384485
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1067,
+        "wins": 623,
+        "losses": 444,
+        "winRate": 58.38800374882849,
+        "totalPnl": 399.46529597949853,
+        "avgPnl": 0.3743817206930633,
+        "maxDrawdown": 9.721415276618927
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1093,
+        "wins": 654,
+        "losses": 439,
+        "winRate": 59.83531564501372,
+        "totalPnl": 456.7883218659251,
+        "avgPnl": 0.41792161195418587,
+        "maxDrawdown": 16.454783273971543
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1141,
+        "wins": 651,
+        "losses": 490,
+        "winRate": 57.05521472392638,
+        "totalPnl": 348.5345354287111,
+        "avgPnl": 0.30546409765881777,
+        "maxDrawdown": 13.398744212033932
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1044,
+        "wins": 594,
+        "losses": 450,
+        "winRate": 56.896551724137936,
+        "totalPnl": 307.09966069513854,
+        "avgPnl": 0.2941567631179488,
+        "maxDrawdown": 11.192171022732921
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1082,
+        "wins": 624,
+        "losses": 458,
+        "winRate": 57.67097966728281,
+        "totalPnl": 330.1254596301344,
+        "avgPnl": 0.3051067094548377,
+        "maxDrawdown": 10.62835066048418
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1060,
+        "wins": 605,
+        "losses": 455,
+        "winRate": 57.07547169811321,
+        "totalPnl": 362.036662376079,
+        "avgPnl": 0.3415440211095085,
+        "maxDrawdown": 10.146578929726445
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1123,
+        "wins": 648,
+        "losses": 475,
+        "winRate": 57.702582368655385,
+        "totalPnl": 373.2949639035663,
+        "avgPnl": 0.33240869448224963,
+        "maxDrawdown": 13.564973351466278
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1125,
+        "wins": 681,
+        "losses": 444,
+        "winRate": 60.53333333333333,
+        "totalPnl": 484.0493463793141,
+        "avgPnl": 0.4302660856705014,
+        "maxDrawdown": 12.150665717517768
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1129,
+        "wins": 661,
+        "losses": 468,
+        "winRate": 58.54738706820195,
+        "totalPnl": 449.9055982355836,
+        "avgPnl": 0.39849920127155325,
+        "maxDrawdown": 13.396719510868195
+      },
+      {
+        "filterName": "Baseline (No Filter)",
+        "totalTrades": 1075,
+        "wins": 647,
+        "losses": 428,
+        "winRate": 60.18604651162791,
+        "totalPnl": 480.7233211093308,
+        "avgPnl": 0.4471844847528659,
+        "maxDrawdown": 9.326954372693478
+      }
+    ],
+    "atr": [
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 41,
+        "wins": 22,
+        "losses": 19,
+        "winRate": 53.65853658536586,
+        "totalPnl": 18.820823386836338,
+        "avgPnl": 0.45904447284966676,
+        "maxDrawdown": 4.747084162489944
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 209,
+        "wins": 133,
+        "losses": 76,
+        "winRate": 63.63636363636363,
+        "totalPnl": 127.36587430151317,
+        "avgPnl": 0.6094060971364267,
+        "maxDrawdown": 11.547786808472306
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 72,
+        "wins": 46,
+        "losses": 26,
+        "winRate": 63.888888888888886,
+        "totalPnl": 49.50185570281296,
+        "avgPnl": 0.68752577365018,
+        "maxDrawdown": 6.7512798818278625
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 271,
+        "wins": 173,
+        "losses": 98,
+        "winRate": 63.837638376383765,
+        "totalPnl": 152.14946879201028,
+        "avgPnl": 0.56143715421406,
+        "maxDrawdown": 10.327606495227286
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 251,
+        "wins": 150,
+        "losses": 101,
+        "winRate": 59.76095617529881,
+        "totalPnl": 130.64978686318713,
+        "avgPnl": 0.5205170791362037,
+        "maxDrawdown": 9.41469709699281
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 403,
+        "wins": 241,
+        "losses": 162,
+        "winRate": 59.801488833746895,
+        "totalPnl": 203.05587840373755,
+        "avgPnl": 0.5038607404559244,
+        "maxDrawdown": 13.105056664847382
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 354,
+        "wins": 202,
+        "losses": 152,
+        "winRate": 57.06214689265536,
+        "totalPnl": 149.50372090504302,
+        "avgPnl": 0.42232689521198596,
+        "maxDrawdown": 10.76419500969152
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 318,
+        "wins": 198,
+        "losses": 120,
+        "winRate": 62.264150943396224,
+        "totalPnl": 171.43501593946206,
+        "avgPnl": 0.5391038237090002,
+        "maxDrawdown": 11.08298409116297
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 307,
+        "wins": 192,
+        "losses": 115,
+        "winRate": 62.54071661237784,
+        "totalPnl": 177.96054509264016,
+        "avgPnl": 0.5796760426470363,
+        "maxDrawdown": 10.738435404081372
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 363,
+        "wins": 216,
+        "losses": 147,
+        "winRate": 59.50413223140496,
+        "totalPnl": 178.28643726946478,
+        "avgPnl": 0.4911472101087184,
+        "maxDrawdown": 9.061954152883175
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 428,
+        "wins": 282,
+        "losses": 146,
+        "winRate": 65.88785046728972,
+        "totalPnl": 306.40864064408856,
+        "avgPnl": 0.7159080388880574,
+        "maxDrawdown": 14.84362220038876
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 332,
+        "wins": 198,
+        "losses": 134,
+        "winRate": 59.63855421686747,
+        "totalPnl": 153.0710220654118,
+        "avgPnl": 0.46105729537774637,
+        "maxDrawdown": 7.052019381552952
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 216,
+        "wins": 133,
+        "losses": 83,
+        "winRate": 61.57407407407407,
+        "totalPnl": 118.79475758970874,
+        "avgPnl": 0.5499757295819849,
+        "maxDrawdown": 9.835943776510533
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 224,
+        "wins": 134,
+        "losses": 90,
+        "winRate": 59.82142857142857,
+        "totalPnl": 121.08488530367094,
+        "avgPnl": 0.5405575236771024,
+        "maxDrawdown": 7.187950276302381
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 341,
+        "wins": 200,
+        "losses": 141,
+        "winRate": 58.65102639296188,
+        "totalPnl": 168.2725853126479,
+        "avgPnl": 0.493467992119202,
+        "maxDrawdown": 16.19610363674768
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 371,
+        "wins": 221,
+        "losses": 150,
+        "winRate": 59.56873315363881,
+        "totalPnl": 174.38366927494266,
+        "avgPnl": 0.47003684440685356,
+        "maxDrawdown": 14.528131205624021
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 472,
+        "wins": 291,
+        "losses": 181,
+        "winRate": 61.652542372881356,
+        "totalPnl": 272.31789328550275,
+        "avgPnl": 0.5769446891642007,
+        "maxDrawdown": 10.66109898396445
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 461,
+        "wins": 305,
+        "losses": 156,
+        "winRate": 66.16052060737528,
+        "totalPnl": 322.75189634814495,
+        "avgPnl": 0.7001125734233079,
+        "maxDrawdown": 10.25480377307207
+      },
+      {
+        "filterName": "ATR Volatility",
+        "totalTrades": 495,
+        "wins": 306,
+        "losses": 189,
+        "winRate": 61.81818181818181,
+        "totalPnl": 269.44566471134635,
+        "avgPnl": 0.5443346761845381,
+        "maxDrawdown": 8.253403257748175
+      }
+    ],
+    "atr_cvd": [
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 36,
+        "wins": 21,
+        "losses": 15,
+        "winRate": 58.333333333333336,
+        "totalPnl": 22.30699771097459,
+        "avgPnl": 0.6196388253048497,
+        "maxDrawdown": 4.747084162489944
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 186,
+        "wins": 119,
+        "losses": 67,
+        "winRate": 63.97849462365591,
+        "totalPnl": 115.55309225294144,
+        "avgPnl": 0.6212531841555992,
+        "maxDrawdown": 12.054632989451559
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 67,
+        "wins": 45,
+        "losses": 22,
+        "winRate": 67.16417910447761,
+        "totalPnl": 51.47346527330925,
+        "avgPnl": 0.7682606757210336,
+        "maxDrawdown": 6.7512798818278625
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 252,
+        "wins": 158,
+        "losses": 94,
+        "winRate": 62.698412698412696,
+        "totalPnl": 135.9140783490818,
+        "avgPnl": 0.5393415807503246,
+        "maxDrawdown": 10.959922417928766
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 226,
+        "wins": 135,
+        "losses": 91,
+        "winRate": 59.73451327433629,
+        "totalPnl": 117.4989135057592,
+        "avgPnl": 0.5199066969281381,
+        "maxDrawdown": 9.414697096992825
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 366,
+        "wins": 217,
+        "losses": 149,
+        "winRate": 59.2896174863388,
+        "totalPnl": 177.74035779616213,
+        "avgPnl": 0.4856293928856889,
+        "maxDrawdown": 15.496964400196163
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 322,
+        "wins": 184,
+        "losses": 138,
+        "winRate": 57.14285714285714,
+        "totalPnl": 142.52992721119017,
+        "avgPnl": 0.4426395255005906,
+        "maxDrawdown": 11.047315443754655
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 281,
+        "wins": 174,
+        "losses": 107,
+        "winRate": 61.92170818505338,
+        "totalPnl": 148.061879786853,
+        "avgPnl": 0.5269106042236762,
+        "maxDrawdown": 11.08298409116297
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 272,
+        "wins": 175,
+        "losses": 97,
+        "winRate": 64.33823529411765,
+        "totalPnl": 174.44742604238874,
+        "avgPnl": 0.6413508310381939,
+        "maxDrawdown": 9.367793202246531
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 314,
+        "wins": 186,
+        "losses": 128,
+        "winRate": 59.23566878980891,
+        "totalPnl": 155.035187526346,
+        "avgPnl": 0.4937426354342229,
+        "maxDrawdown": 9.181948331557834
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 379,
+        "wins": 252,
+        "losses": 127,
+        "winRate": 66.49076517150397,
+        "totalPnl": 280.92870832126135,
+        "avgPnl": 0.7412366974175761,
+        "maxDrawdown": 16.51815661964487
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 296,
+        "wins": 173,
+        "losses": 123,
+        "winRate": 58.445945945945944,
+        "totalPnl": 125.91103371413479,
+        "avgPnl": 0.42537511389910404,
+        "maxDrawdown": 7.85389024862738
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 193,
+        "wins": 123,
+        "losses": 70,
+        "winRate": 63.730569948186535,
+        "totalPnl": 120.21451208874957,
+        "avgPnl": 0.6228731196308268,
+        "maxDrawdown": 8.987542954973847
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 201,
+        "wins": 119,
+        "losses": 82,
+        "winRate": 59.20398009950249,
+        "totalPnl": 106.16094808683934,
+        "avgPnl": 0.5281639208300465,
+        "maxDrawdown": 7.052848213738983
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 314,
+        "wins": 183,
+        "losses": 131,
+        "winRate": 58.28025477707006,
+        "totalPnl": 152.80142141287925,
+        "avgPnl": 0.48662873061426515,
+        "maxDrawdown": 15.638062629163727
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 339,
+        "wins": 201,
+        "losses": 138,
+        "winRate": 59.29203539823009,
+        "totalPnl": 158.63446596110987,
+        "avgPnl": 0.4679482771714155,
+        "maxDrawdown": 14.100484027407987
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 429,
+        "wins": 270,
+        "losses": 159,
+        "winRate": 62.93706293706294,
+        "totalPnl": 266.11626341217743,
+        "avgPnl": 0.620317630331416,
+        "maxDrawdown": 11.995979686619023
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 420,
+        "wins": 277,
+        "losses": 143,
+        "winRate": 65.95238095238095,
+        "totalPnl": 291.1332146886129,
+        "avgPnl": 0.6931743206871736,
+        "maxDrawdown": 7.100170041392147
+      },
+      {
+        "filterName": "ATR + CVD",
+        "totalTrades": 441,
+        "wins": 270,
+        "losses": 171,
+        "winRate": 61.224489795918366,
+        "totalPnl": 231.62960626411547,
+        "avgPnl": 0.5252372024129602,
+        "maxDrawdown": 8.253403257748161
+      }
+    ],
+    "atr_structure": [
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 19,
+        "wins": 8,
+        "losses": 11,
+        "winRate": 42.10526315789473,
+        "totalPnl": 0.6019042003107113,
+        "avgPnl": 0.03167916843740586,
+        "maxDrawdown": 6.729550397366658
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 84,
+        "wins": 55,
+        "losses": 29,
+        "winRate": 65.47619047619048,
+        "totalPnl": 52.78568261472354,
+        "avgPnl": 0.6284009835086136,
+        "maxDrawdown": 7.9873719695271
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 30,
+        "wins": 15,
+        "losses": 15,
+        "winRate": 50,
+        "totalPnl": 9.792138064400964,
+        "avgPnl": 0.3264046021466988,
+        "maxDrawdown": 6.181925857417767
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 110,
+        "wins": 70,
+        "losses": 40,
+        "winRate": 63.63636363636363,
+        "totalPnl": 60.9449635198855,
+        "avgPnl": 0.55404512290805,
+        "maxDrawdown": 5.08402572797641
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 118,
+        "wins": 70,
+        "losses": 48,
+        "winRate": 59.32203389830508,
+        "totalPnl": 66.24025882544595,
+        "avgPnl": 0.5613581256393725,
+        "maxDrawdown": 4.252257033113095
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 172,
+        "wins": 104,
+        "losses": 68,
+        "winRate": 60.46511627906976,
+        "totalPnl": 86.40689831678712,
+        "avgPnl": 0.5023656878882972,
+        "maxDrawdown": 4.726769751392197
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 149,
+        "wins": 90,
+        "losses": 59,
+        "winRate": 60.40268456375839,
+        "totalPnl": 80.8427554362566,
+        "avgPnl": 0.5425688284312523,
+        "maxDrawdown": 10.017220189735212
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 130,
+        "wins": 77,
+        "losses": 53,
+        "winRate": 59.23076923076923,
+        "totalPnl": 55.94398088041868,
+        "avgPnl": 0.43033831446475906,
+        "maxDrawdown": 6.089511473443579
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 123,
+        "wins": 75,
+        "losses": 48,
+        "winRate": 60.97560975609756,
+        "totalPnl": 63.914916583436074,
+        "avgPnl": 0.5196334681580169,
+        "maxDrawdown": 8.256107684534854
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 154,
+        "wins": 97,
+        "losses": 57,
+        "winRate": 62.98701298701299,
+        "totalPnl": 91.85695883746428,
+        "avgPnl": 0.596473758684833,
+        "maxDrawdown": 7.069081373776108
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 191,
+        "wins": 120,
+        "losses": 71,
+        "winRate": 62.82722513089005,
+        "totalPnl": 115.33911145291762,
+        "avgPnl": 0.6038696934707729,
+        "maxDrawdown": 6.586051862744747
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 145,
+        "wins": 81,
+        "losses": 64,
+        "winRate": 55.86206896551724,
+        "totalPnl": 49.49527045923217,
+        "avgPnl": 0.3413466928222908,
+        "maxDrawdown": 7.866373223244423
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 98,
+        "wins": 66,
+        "losses": 32,
+        "winRate": 67.3469387755102,
+        "totalPnl": 70.48162808867777,
+        "avgPnl": 0.7192002866191609,
+        "maxDrawdown": 6.565442023374018
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 87,
+        "wins": 54,
+        "losses": 33,
+        "winRate": 62.06896551724138,
+        "totalPnl": 48.58258935255676,
+        "avgPnl": 0.5584205672707674,
+        "maxDrawdown": 4.958908398073387
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 140,
+        "wins": 83,
+        "losses": 57,
+        "winRate": 59.285714285714285,
+        "totalPnl": 71.23653103982527,
+        "avgPnl": 0.5088323645701804,
+        "maxDrawdown": 6.908685493696003
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 171,
+        "wins": 106,
+        "losses": 65,
+        "winRate": 61.98830409356725,
+        "totalPnl": 90.86303781760982,
+        "avgPnl": 0.5313627942550282,
+        "maxDrawdown": 6.900570324775664
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 208,
+        "wins": 122,
+        "losses": 86,
+        "winRate": 58.65384615384615,
+        "totalPnl": 95.58687344941579,
+        "avgPnl": 0.4595522761991144,
+        "maxDrawdown": 10.682778116362158
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 188,
+        "wins": 123,
+        "losses": 65,
+        "winRate": 65.42553191489363,
+        "totalPnl": 124.42488035385301,
+        "avgPnl": 0.6618344699673032,
+        "maxDrawdown": 10.27767829697251
+      },
+      {
+        "filterName": "ATR + Structure",
+        "totalTrades": 208,
+        "wins": 128,
+        "losses": 80,
+        "winRate": 61.53846153846154,
+        "totalPnl": 108.10572675729358,
+        "avgPnl": 0.5197390709485268,
+        "maxDrawdown": 7.334399855972521
+      }
+    ],
+    "atr_cvd_structure": [
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 14,
+        "wins": 6,
+        "losses": 8,
+        "winRate": 42.857142857142854,
+        "totalPnl": 1.218448910486111,
+        "avgPnl": 0.0870320650347222,
+        "maxDrawdown": 6.729550397366658
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 76,
+        "wins": 50,
+        "losses": 26,
+        "winRate": 65.78947368421053,
+        "totalPnl": 47.674347114282824,
+        "avgPnl": 0.6272940409774056,
+        "maxDrawdown": 7.9873719695271
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 26,
+        "wins": 14,
+        "losses": 12,
+        "winRate": 53.84615384615385,
+        "totalPnl": 10.388735302999415,
+        "avgPnl": 0.3995667424230544,
+        "maxDrawdown": 6.181925857417767
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 107,
+        "wins": 67,
+        "losses": 40,
+        "winRate": 62.616822429906534,
+        "totalPnl": 57.50004528669236,
+        "avgPnl": 0.537383600810209,
+        "maxDrawdown": 5.08402572797641
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 108,
+        "wins": 63,
+        "losses": 45,
+        "winRate": 58.333333333333336,
+        "totalPnl": 57.863810019228424,
+        "avgPnl": 0.5357760186965594,
+        "maxDrawdown": 4.396455305324636
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 154,
+        "wins": 94,
+        "losses": 60,
+        "winRate": 61.038961038961034,
+        "totalPnl": 79.99804327234617,
+        "avgPnl": 0.5194678134567933,
+        "maxDrawdown": 5.592347605941875
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 133,
+        "wins": 81,
+        "losses": 52,
+        "winRate": 60.902255639097746,
+        "totalPnl": 77.161144326958,
+        "avgPnl": 0.5801589799019398,
+        "maxDrawdown": 12.027247867108045
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 114,
+        "wins": 66,
+        "losses": 48,
+        "winRate": 57.89473684210527,
+        "totalPnl": 44.833477270414846,
+        "avgPnl": 0.39327611640714777,
+        "maxDrawdown": 6.089511473443579
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 111,
+        "wins": 70,
+        "losses": 41,
+        "winRate": 63.06306306306306,
+        "totalPnl": 67.06588317472051,
+        "avgPnl": 0.6041971457182028,
+        "maxDrawdown": 8.256107684534854
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 135,
+        "wins": 83,
+        "losses": 52,
+        "winRate": 61.48148148148148,
+        "totalPnl": 77.13038857965002,
+        "avgPnl": 0.5713362117011113,
+        "maxDrawdown": 7.069081373776115
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 171,
+        "wins": 108,
+        "losses": 63,
+        "winRate": 63.1578947368421,
+        "totalPnl": 103.8793327128388,
+        "avgPnl": 0.6074814778528584,
+        "maxDrawdown": 7.934897575112586
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 120,
+        "wins": 66,
+        "losses": 54,
+        "winRate": 55.00000000000001,
+        "totalPnl": 38.86175750220772,
+        "avgPnl": 0.32384797918506436,
+        "maxDrawdown": 6.482419202404273
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 89,
+        "wins": 61,
+        "losses": 28,
+        "winRate": 68.53932584269663,
+        "totalPnl": 68.92505380288414,
+        "avgPnl": 0.774438806773979,
+        "maxDrawdown": 6.565442023374018
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 79,
+        "wins": 49,
+        "losses": 30,
+        "winRate": 62.0253164556962,
+        "totalPnl": 43.588164831399936,
+        "avgPnl": 0.5517489219164549,
+        "maxDrawdown": 4.905710086785051
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 128,
+        "wins": 74,
+        "losses": 54,
+        "winRate": 57.8125,
+        "totalPnl": 61.13954246775725,
+        "avgPnl": 0.47765267552935353,
+        "maxDrawdown": 6.858009657030088
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 154,
+        "wins": 95,
+        "losses": 59,
+        "winRate": 61.68831168831169,
+        "totalPnl": 81.52616297710891,
+        "avgPnl": 0.5293906686825254,
+        "maxDrawdown": 9.135550001046688
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 183,
+        "wins": 111,
+        "losses": 72,
+        "winRate": 60.65573770491803,
+        "totalPnl": 96.76174153800545,
+        "avgPnl": 0.5287526860000298,
+        "maxDrawdown": 11.9074247182648
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 169,
+        "wins": 112,
+        "losses": 57,
+        "winRate": 66.27218934911244,
+        "totalPnl": 118.83233605276615,
+        "avgPnl": 0.7031499174719891,
+        "maxDrawdown": 10.212414263596742
+      },
+      {
+        "filterName": "ATR + CVD + Structure",
+        "totalTrades": 182,
+        "wins": 116,
+        "losses": 66,
+        "winRate": 63.73626373626373,
+        "totalPnl": 104.37426735347807,
+        "avgPnl": 0.5734849854586708,
+        "maxDrawdown": 6.035877688484831
+      }
+    ]
+  }
+}

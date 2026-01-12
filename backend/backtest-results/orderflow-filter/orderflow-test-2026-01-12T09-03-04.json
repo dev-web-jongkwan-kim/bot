@@ -1,0 +1,498 @@
+{
+  "timestamp": "2026-01-12T09:03:04.209Z",
+  "symbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "BNBUSDT",
+    "SOLUSDT",
+    "XRPUSDT",
+    "DOGEUSDT",
+    "ADAUSDT",
+    "AVAXUSDT",
+    "DOTUSDT",
+    "LINKUSDT",
+    "MATICUSDT",
+    "ATOMUSDT",
+    "UNIUSDT",
+    "LTCUSDT",
+    "ETCUSDT",
+    "XLMUSDT",
+    "NEARUSDT",
+    "APTUSDT",
+    "ARBUSDT",
+    "OPUSDT"
+  ],
+  "summary": {
+    "totalOB": 19,
+    "oiPassed": 16,
+    "obPassed": 9,
+    "takerPassed": 7,
+    "lsPassed": 16,
+    "allPassed": 1,
+    "passRates": {
+      "oi": "84.2",
+      "ob": "47.4",
+      "taker": "36.8",
+      "ls": "84.2",
+      "all": "5.3"
+    }
+  },
+  "results": [
+    {
+      "symbol": "BTCUSDT",
+      "obType": "SHORT",
+      "oiFilter": {
+        "passed": true,
+        "reason": "OI stable",
+        "oiChange": 0.49631033349188164
+      },
+      "obFilter": {
+        "passed": false,
+        "reason": "Bid wall dominant, unfavorable for SHORT",
+        "imbalance": 0.543159600901162
+      },
+      "takerFilter": {
+        "passed": false,
+        "reason": "Taker buy dominant, unfavorable for SHORT",
+        "ratio": 1.8158
+      },
+      "lsFilter": {
+        "passed": true,
+        "reason": "Long crowded (2.27), good for SHORT",
+        "ratio": 2.2691
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "obType": "SHORT",
+      "oiFilter": {
+        "passed": true,
+        "reason": "OI stable",
+        "oiChange": 0.40668260485779834
+      },
+      "obFilter": {
+        "passed": false,
+        "reason": "Bid wall dominant, unfavorable for SHORT",
+        "imbalance": 0.12871499760266975
+      },
+      "takerFilter": {
+        "passed": false,
+        "reason": "Taker buy dominant, unfavorable for SHORT",
+        "ratio": 1.6808
+      },
+      "lsFilter": {
+        "passed": true,
+        "reason": "Long crowded (2.61), good for SHORT",
+        "ratio": 2.6089
+      }
+    },
+    {
+      "symbol": "BNBUSDT",
+      "obType": "LONG",
+      "oiFilter": {
+        "passed": true,
+        "reason": "OI stable",
+        "oiChange": 0.8077979424023141
+      },
+      "obFilter": {
+        "passed": false,
+        "reason": "Ask wall dominant, unfavorable for LONG",
+        "imbalance": -0.4115270907100822
+      },
+      "takerFilter": {
+        "passed": true,
+        "reason": "Taker ratio balanced",
+        "ratio": 0.9131
+      },
+      "lsFilter": {
+        "passed": true,
+        "reason": "Position ratio neutral",
+        "ratio": 1.2065
+      }
+    },
+    {
+      "symbol": "SOLUSDT",
+      "obType": "SHORT",
+      "oiFilter": {
+        "passed": false,
+        "reason": "OI decreasing = Weak trend",
+        "oiChange": -1.2947684944441236
+      },
+      "obFilter": {
+        "passed": true,
+        "reason": "Order book balanced",
+        "imbalance": 0.018424614859056204
+      },
+      "takerFilter": {
+        "passed": false,
+        "reason": "Taker buy dominant, unfavorable for SHORT",
+        "ratio": 1.5802
+      },
+      "lsFilter": {
+        "passed": true,
+        "reason": "Long crowded (2.82), good for SHORT",
+        "ratio": 2.8188
+      }
+    },
+    {
+      "symbol": "XRPUSDT",
+      "obType": "SHORT",
+      "oiFilter": {
+        "passed": true,
+        "reason": "OI up + Price down = Strong SHORT",
+        "oiChange": 1.2417472992684215
+      },
+      "obFilter": {
+        "passed": true,
+        "reason": "Order book balanced",
+        "imbalance": -0.05758411935239665
+      },
+      "takerFilter": {
+        "passed": true,
+        "reason": "Taker ratio balanced",
+        "ratio": 1.0439
+      },
+      "lsFilter": {
+        "passed": true,
+        "reason": "Position ratio neutral",
+        "ratio": 1.6561
+      }
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "obType": "SHORT",
+      "oiFilter": {
+        "passed": true,
+        "reason": "OI up + Price down = Strong SHORT",
+        "oiChange": 1.073468066164795
+      },
+      "obFilter": {
+        "passed": true,
+        "reason": "Order book balanced",
+        "imbalance": 0.0352296534341655
+      },
+      "takerFilter": {
+        "passed": false,
+        "reason": "Taker buy dominant, unfavorable for SHORT",
+        "ratio": 1.1461
+      },
+      "lsFilter": {
+        "passed": true,
+        "reason": "Long crowded (2.28), good for SHORT",
+        "ratio": 2.2838
+      }
+    },
+    {
+      "symbol": "ADAUSDT",
+      "obType": "SHORT",
+      "oiFilter": {
+        "passed": true,
+        "reason": "OI stable",
+        "oiChange": 0.7112351342942206
+      },
+      "obFilter": {
+        "passed": false,
+        "reason": "Bid wall dominant, unfavorable for SHORT",
+        "imbalance": 0.1328489654185781
+      },
+      "takerFilter": {
+        "passed": false,
+        "reason": "Taker buy dominant, unfavorable for SHORT",
+        "ratio": 1.1355
+      },
+      "lsFilter": {
+        "passed": true,
+        "reason": "Position ratio neutral",
+        "ratio": 1.6177
+      }
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "obType": "SHORT",
+      "oiFilter": {
+        "passed": true,
+        "reason": "OI stable",
+        "oiChange": 0.7478897898679301
+      },
+      "obFilter": {
+        "passed": true,
+        "reason": "Order book balanced",
+        "imbalance": -0.001806052011994512
+      },
+      "takerFilter": {
+        "passed": false,
+        "reason": "Taker buy dominant, unfavorable for SHORT",
+        "ratio": 2.14
+      },
+      "lsFilter": {
+        "passed": true,
+        "reason": "Position ratio neutral",
+        "ratio": 1.4752
+      }
+    },
+    {
+      "symbol": "DOTUSDT",
+      "obType": "SHORT",
+      "oiFilter": {
+        "passed": true,
+        "reason": "OI up + Price down = Strong SHORT",
+        "oiChange": 1.1057953097102997
+      },
+      "obFilter": {
+        "passed": false,
+        "reason": "Bid wall dominant, unfavorable for SHORT",
+        "imbalance": 0.2639360907347709
+      },
+      "takerFilter": {
+        "passed": false,
+        "reason": "Taker buy dominant, unfavorable for SHORT",
+        "ratio": 1.3807
+      },
+      "lsFilter": {
+        "passed": true,
+        "reason": "Position ratio neutral",
+        "ratio": 1.8836
+      }
+    },
+    {
+      "symbol": "LINKUSDT",
+      "obType": "LONG",
+      "oiFilter": {
+        "passed": true,
+        "reason": "OI stable",
+        "oiChange": 0.1261489087284971
+      },
+      "obFilter": {
+        "passed": true,
+        "reason": "Order book balanced",
+        "imbalance": 0.07885519039375699
+      },
+      "takerFilter": {
+        "passed": true,
+        "reason": "Taker ratio balanced",
+        "ratio": 0.9042
+      },
+      "lsFilter": {
+        "passed": false,
+        "reason": "Long crowded, risky for LONG",
+        "ratio": 2.2088
+      }
+    },
+    {
+      "symbol": "ATOMUSDT",
+      "obType": "SHORT",
+      "oiFilter": {
+        "passed": true,
+        "reason": "OI stable",
+        "oiChange": 0.0014327334385875771
+      },
+      "obFilter": {
+        "passed": false,
+        "reason": "Bid wall dominant, unfavorable for SHORT",
+        "imbalance": 0.4428970250950944
+      },
+      "takerFilter": {
+        "passed": true,
+        "reason": "Taker sell dominant (0.86)",
+        "ratio": 0.8551
+      },
+      "lsFilter": {
+        "passed": true,
+        "reason": "Position ratio neutral",
+        "ratio": 1.2121
+      }
+    },
+    {
+      "symbol": "UNIUSDT",
+      "obType": "SHORT",
+      "oiFilter": {
+        "passed": true,
+        "reason": "OI stable",
+        "oiChange": 0.3211206583164972
+      },
+      "obFilter": {
+        "passed": true,
+        "reason": "Order book balanced",
+        "imbalance": 0.00046858540894126766
+      },
+      "takerFilter": {
+        "passed": false,
+        "reason": "Taker buy dominant, unfavorable for SHORT",
+        "ratio": 1.3752
+      },
+      "lsFilter": {
+        "passed": true,
+        "reason": "Long crowded (3.59), good for SHORT",
+        "ratio": 3.5939
+      }
+    },
+    {
+      "symbol": "LTCUSDT",
+      "obType": "SHORT",
+      "oiFilter": {
+        "passed": true,
+        "reason": "OI up + Price down = Strong SHORT",
+        "oiChange": 1.4552873375453392
+      },
+      "obFilter": {
+        "passed": false,
+        "reason": "Bid wall dominant, unfavorable for SHORT",
+        "imbalance": 0.11654512895905479
+      },
+      "takerFilter": {
+        "passed": false,
+        "reason": "Taker buy dominant, unfavorable for SHORT",
+        "ratio": 2.001
+      },
+      "lsFilter": {
+        "passed": true,
+        "reason": "Long crowded (3.18), good for SHORT",
+        "ratio": 3.1837
+      }
+    },
+    {
+      "symbol": "ETCUSDT",
+      "obType": "LONG",
+      "oiFilter": {
+        "passed": true,
+        "reason": "OI stable",
+        "oiChange": 0.20876268468317036
+      },
+      "obFilter": {
+        "passed": true,
+        "reason": "Order book balanced",
+        "imbalance": 0.04028148218141496
+      },
+      "takerFilter": {
+        "passed": true,
+        "reason": "Taker ratio balanced",
+        "ratio": 0.9757
+      },
+      "lsFilter": {
+        "passed": false,
+        "reason": "Long crowded, risky for LONG",
+        "ratio": 2.2954
+      }
+    },
+    {
+      "symbol": "XLMUSDT",
+      "obType": "SHORT",
+      "oiFilter": {
+        "passed": false,
+        "reason": "OI decreasing = Weak trend",
+        "oiChange": -1.2053106606816015
+      },
+      "obFilter": {
+        "passed": false,
+        "reason": "Bid wall dominant, unfavorable for SHORT",
+        "imbalance": 0.11158007366773108
+      },
+      "takerFilter": {
+        "passed": false,
+        "reason": "Taker buy dominant, unfavorable for SHORT",
+        "ratio": 1.4744
+      },
+      "lsFilter": {
+        "passed": true,
+        "reason": "Position ratio neutral",
+        "ratio": 1.0208
+      }
+    },
+    {
+      "symbol": "NEARUSDT",
+      "obType": "LONG",
+      "oiFilter": {
+        "passed": false,
+        "reason": "OI up but price direction mismatch",
+        "oiChange": 1.0840528552449258
+      },
+      "obFilter": {
+        "passed": true,
+        "reason": "Bid wall dominant (18.0%)",
+        "imbalance": 0.1804845335444461
+      },
+      "takerFilter": {
+        "passed": true,
+        "reason": "Taker buy dominant (1.42)",
+        "ratio": 1.4156
+      },
+      "lsFilter": {
+        "passed": false,
+        "reason": "Long crowded, risky for LONG",
+        "ratio": 2.4255
+      }
+    },
+    {
+      "symbol": "APTUSDT",
+      "obType": "SHORT",
+      "oiFilter": {
+        "passed": true,
+        "reason": "OI stable",
+        "oiChange": 0.48672213244346524
+      },
+      "obFilter": {
+        "passed": true,
+        "reason": "Ask wall dominant (-11.8%)",
+        "imbalance": -0.11800639621183598
+      },
+      "takerFilter": {
+        "passed": false,
+        "reason": "Taker buy dominant, unfavorable for SHORT",
+        "ratio": 2.4985
+      },
+      "lsFilter": {
+        "passed": true,
+        "reason": "Long crowded (2.59), good for SHORT",
+        "ratio": 2.5892
+      }
+    },
+    {
+      "symbol": "ARBUSDT",
+      "obType": "SHORT",
+      "oiFilter": {
+        "passed": true,
+        "reason": "OI stable",
+        "oiChange": 0.941971599353776
+      },
+      "obFilter": {
+        "passed": false,
+        "reason": "Bid wall dominant, unfavorable for SHORT",
+        "imbalance": 0.1733138210416801
+      },
+      "takerFilter": {
+        "passed": true,
+        "reason": "Taker sell dominant (0.74)",
+        "ratio": 0.7375
+      },
+      "lsFilter": {
+        "passed": true,
+        "reason": "Position ratio neutral",
+        "ratio": 1.7199
+      }
+    },
+    {
+      "symbol": "OPUSDT",
+      "obType": "SHORT",
+      "oiFilter": {
+        "passed": true,
+        "reason": "OI stable",
+        "oiChange": 0.03273988439928386
+      },
+      "obFilter": {
+        "passed": false,
+        "reason": "Bid wall dominant, unfavorable for SHORT",
+        "imbalance": 0.261433992033056
+      },
+      "takerFilter": {
+        "passed": false,
+        "reason": "Taker buy dominant, unfavorable for SHORT",
+        "ratio": 1.9103
+      },
+      "lsFilter": {
+        "passed": true,
+        "reason": "Position ratio neutral",
+        "ratio": 1.6623
+      }
+    }
+  ]
+}

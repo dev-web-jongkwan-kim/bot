@@ -1,0 +1,455 @@
+{
+  "timestamp": "2026-01-12T07:05:32.781Z",
+  "baseline": {
+    "config": {
+      "lookback": 2,
+      "minBodyRatio": 0.5,
+      "orbAtr": 1.5,
+      "orbVol": 2,
+      "useBodyOnly": true,
+      "obMaxBars": 60,
+      "minAwayMultRangebound": 0.2,
+      "minAwayMultNormal": 0.8,
+      "minAwayMultTrending": 2,
+      "requireReversal": true,
+      "orderValidityBars": 3,
+      "slBuffer": 0.01,
+      "tp1Ratio": 1.2,
+      "leverage": 15,
+      "maxHoldingBars": 48,
+      "retryCooldown": 12,
+      "useATRCVDFilter": true,
+      "atrFilterMin": 0.5,
+      "atrFilterMax": 3,
+      "cvdLookback": 20,
+      "initialCapital": 500,
+      "marginPercent": 0.1,
+      "minMargin": 15,
+      "makerFee": 0.0004,
+      "takerFee": 0.00075,
+      "slippage": 0.0002
+    },
+    "result": {
+      "totalTrades": 5527,
+      "wins": 3345,
+      "losses": 2182,
+      "winRate": 60.52107834268138,
+      "initialCapital": 500,
+      "finalCapital": 117960315193191.95,
+      "totalReturn": 23592063038538.39,
+      "maxDrawdown": 79.78332742948895
+    }
+  },
+  "phase1": [
+    {
+      "paramName": "atrFilterMin",
+      "baselineValue": 0.5,
+      "optimizedValue": 0.3,
+      "improvement": 3566251762.069846,
+      "result": {
+        "totalTrades": 13598,
+        "wins": 7853,
+        "losses": 5745,
+        "winRate": 57.751139873510816,
+        "initialCapital": 500,
+        "finalCapital": 4.206761937080668e+21,
+        "totalReturn": 841352387416133500000,
+        "maxDrawdown": 85.51260831982593
+      }
+    },
+    {
+      "paramName": "orbVol",
+      "baselineValue": 2,
+      "optimizedValue": 1.5,
+      "improvement": 53236.12431314119,
+      "result": {
+        "totalTrades": 6596,
+        "wins": 4027,
+        "losses": 2569,
+        "winRate": 61.05215281989085,
+        "initialCapital": 500,
+        "finalCapital": 62915460351614030,
+        "totalReturn": 12583092070322708,
+        "maxDrawdown": 63.388905084087185
+      }
+    },
+    {
+      "paramName": "tp1Ratio",
+      "baselineValue": 1.2,
+      "optimizedValue": 0.8,
+      "improvement": 10704.462766205412,
+      "result": {
+        "totalTrades": 5574,
+        "wins": 4113,
+        "losses": 1461,
+        "winRate": 73.78902045209902,
+        "initialCapital": 500,
+        "finalCapital": 12744978333946970,
+        "totalReturn": 2548995666789294,
+        "maxDrawdown": 66.78853212102551
+      }
+    },
+    {
+      "paramName": "slBuffer",
+      "baselineValue": 0.01,
+      "optimizedValue": 0.005,
+      "improvement": 6872.912007098256,
+      "result": {
+        "totalTrades": 5586,
+        "wins": 3778,
+        "losses": 1808,
+        "winRate": 67.63336913712854,
+        "initialCapital": 500,
+        "finalCapital": 8225268981717030,
+        "totalReturn": 1645053796343306,
+        "maxDrawdown": 46.02261992859504
+      }
+    },
+    {
+      "paramName": "orbAtr",
+      "baselineValue": 1.5,
+      "optimizedValue": 1.2,
+      "improvement": 3649.5767762287605,
+      "result": {
+        "totalTrades": 6386,
+        "wins": 3836,
+        "losses": 2550,
+        "winRate": 60.068900720325715,
+        "initialCapital": 500,
+        "finalCapital": 4423012583650171.5,
+        "totalReturn": 884602516729934.4,
+        "maxDrawdown": 78.92259536567073
+      }
+    },
+    {
+      "paramName": "retryCooldown",
+      "baselineValue": 12,
+      "optimizedValue": 6,
+      "improvement": 3471.325302905215,
+      "result": {
+        "totalTrades": 5945,
+        "wins": 3613,
+        "losses": 2332,
+        "winRate": 60.773759461732546,
+        "initialCapital": 500,
+        "finalCapital": 4212746583881209,
+        "totalReturn": 842549316776141.8,
+        "maxDrawdown": 83.79580567819706
+      }
+    },
+    {
+      "paramName": "leverage",
+      "baselineValue": 15,
+      "optimizedValue": 20,
+      "improvement": 2494.2346435365735,
+      "result": {
+        "totalTrades": 5527,
+        "wins": 3345,
+        "losses": 2182,
+        "winRate": 60.52107834268138,
+        "initialCapital": 500,
+        "finalCapital": 3060167362366722,
+        "totalReturn": 612033472473244.4,
+        "maxDrawdown": 99.21689892424455
+      }
+    },
+    {
+      "paramName": "minAwayMultNormal",
+      "baselineValue": 0.8,
+      "optimizedValue": 0.5,
+      "improvement": 1042.8671941377027,
+      "result": {
+        "totalTrades": 5586,
+        "wins": 3406,
+        "losses": 2180,
+        "winRate": 60.97386322950232,
+        "initialCapital": 500,
+        "finalCapital": 1348129744444423,
+        "totalReturn": 269625948888784.62,
+        "maxDrawdown": 80.83402900963368
+      }
+    },
+    {
+      "paramName": "orderValidityBars",
+      "baselineValue": 3,
+      "optimizedValue": 5,
+      "improvement": 539.7910342671956,
+      "result": {
+        "totalTrades": 5469,
+        "wins": 3329,
+        "losses": 2140,
+        "winRate": 60.87036021210459,
+        "initialCapital": 500,
+        "finalCapital": 754699520599366.8,
+        "totalReturn": 150939904119773.34,
+        "maxDrawdown": 79.11788701179209
+      }
+    },
+    {
+      "paramName": "minBodyRatio",
+      "baselineValue": 0.5,
+      "optimizedValue": 0.4,
+      "improvement": 136.72126966475452,
+      "result": {
+        "totalTrades": 5982,
+        "wins": 3586,
+        "losses": 2396,
+        "winRate": 59.94650618522234,
+        "initialCapital": 500,
+        "finalCapital": 279237155825870.34,
+        "totalReturn": 55847431165074.07,
+        "maxDrawdown": 78.03271061314007
+      }
+    },
+    {
+      "paramName": "atrFilterMax",
+      "baselineValue": 3,
+      "optimizedValue": 3,
+      "improvement": 0,
+      "result": {
+        "totalTrades": 5527,
+        "wins": 3345,
+        "losses": 2182,
+        "winRate": 60.52107834268138,
+        "initialCapital": 500,
+        "finalCapital": 117960315193191.95,
+        "totalReturn": 23592063038538.39,
+        "maxDrawdown": 79.78332742948895
+      }
+    },
+    {
+      "paramName": "cvdLookback",
+      "baselineValue": 20,
+      "optimizedValue": 20,
+      "improvement": 0,
+      "result": {
+        "totalTrades": 5527,
+        "wins": 3345,
+        "losses": 2182,
+        "winRate": 60.52107834268138,
+        "initialCapital": 500,
+        "finalCapital": 117960315193191.95,
+        "totalReturn": 23592063038538.39,
+        "maxDrawdown": 79.78332742948895
+      }
+    },
+    {
+      "paramName": "maxHoldingBars",
+      "baselineValue": 48,
+      "optimizedValue": 48,
+      "improvement": 0,
+      "result": {
+        "totalTrades": 5527,
+        "wins": 3345,
+        "losses": 2182,
+        "winRate": 60.52107834268138,
+        "initialCapital": 500,
+        "finalCapital": 117960315193191.95,
+        "totalReturn": 23592063038538.39,
+        "maxDrawdown": 79.78332742948895
+      }
+    }
+  ],
+  "phase2": {
+    "combinations": [
+      {
+        "params": [
+          "atrFilterMin"
+        ],
+        "result": {
+          "totalTrades": 13598,
+          "wins": 7853,
+          "losses": 5745,
+          "winRate": 57.751139873510816,
+          "initialCapital": 500,
+          "finalCapital": 4.206761937080668e+21,
+          "totalReturn": 841352387416133500000,
+          "maxDrawdown": 85.51260831982593
+        }
+      },
+      {
+        "params": [
+          "atrFilterMin",
+          "orbVol"
+        ],
+        "result": {
+          "totalTrades": 16585,
+          "wins": 9528,
+          "losses": 7057,
+          "winRate": 57.44950256255653,
+          "initialCapital": 500,
+          "finalCapital": 4.994274077048841e+23,
+          "totalReturn": 9.988548154097682e+22,
+          "maxDrawdown": 82.64868723515416
+        }
+      },
+      {
+        "params": [
+          "atrFilterMin",
+          "orbVol",
+          "tp1Ratio"
+        ],
+        "result": {
+          "totalTrades": 17140,
+          "wins": 11680,
+          "losses": 5460,
+          "winRate": 68.14469078179697,
+          "initialCapital": 500,
+          "finalCapital": 1.1585275707729088e+26,
+          "totalReturn": 2.3170551415458176e+25,
+          "maxDrawdown": 80.12064182616409
+        }
+      },
+      {
+        "params": [
+          "atrFilterMin",
+          "orbVol",
+          "tp1Ratio",
+          "slBuffer"
+        ],
+        "result": {
+          "totalTrades": 17586,
+          "wins": 13224,
+          "losses": 4362,
+          "winRate": 75.19617877857387,
+          "initialCapital": 500,
+          "finalCapital": 4.155244225594781e+25,
+          "totalReturn": 8.310488451189563e+24,
+          "maxDrawdown": 42.77708485242461
+        }
+      },
+      {
+        "params": [
+          "atrFilterMin",
+          "orbVol",
+          "tp1Ratio",
+          "slBuffer",
+          "orbAtr"
+        ],
+        "result": {
+          "totalTrades": 22327,
+          "wins": 16558,
+          "losses": 5769,
+          "winRate": 74.16132933219868,
+          "initialCapital": 500,
+          "finalCapital": 4.561697757697178e+27,
+          "totalReturn": 9.123395515394355e+26,
+          "maxDrawdown": 53.13280891079272
+        }
+      },
+      {
+        "params": [
+          "atrFilterMin",
+          "orbVol",
+          "tp1Ratio",
+          "slBuffer",
+          "orbAtr",
+          "retryCooldown"
+        ],
+        "result": {
+          "totalTrades": 26156,
+          "wins": 19410,
+          "losses": 6746,
+          "winRate": 74.20859458632818,
+          "initialCapital": 500,
+          "finalCapital": 8.313331980411437e+31,
+          "totalReturn": 1.6626663960822873e+31,
+          "maxDrawdown": 59.679072515225926
+        }
+      },
+      {
+        "params": [
+          "atrFilterMin",
+          "orbVol",
+          "tp1Ratio",
+          "slBuffer",
+          "orbAtr",
+          "retryCooldown",
+          "leverage"
+        ],
+        "result": {
+          "totalTrades": 26156,
+          "wins": 19410,
+          "losses": 6746,
+          "winRate": 74.20859458632818,
+          "initialCapital": 500,
+          "finalCapital": 1.6283110782157253e+40,
+          "totalReturn": 3.256622156431451e+39,
+          "maxDrawdown": 72.34668481646993
+        }
+      },
+      {
+        "params": [
+          "atrFilterMin",
+          "orbVol",
+          "tp1Ratio",
+          "slBuffer",
+          "orbAtr",
+          "retryCooldown",
+          "leverage",
+          "minAwayMultNormal"
+        ],
+        "result": {
+          "totalTrades": 26285,
+          "wins": 19505,
+          "losses": 6780,
+          "winRate": 74.20582081034811,
+          "initialCapital": 500,
+          "finalCapital": 4.0691675954366615e+40,
+          "totalReturn": 8.138335190873323e+39,
+          "maxDrawdown": 63.65131455793562
+        }
+      }
+    ],
+    "bestCombination": {
+      "params": [
+        "atrFilterMin",
+        "orbVol",
+        "tp1Ratio",
+        "slBuffer",
+        "orbAtr",
+        "retryCooldown",
+        "leverage",
+        "minAwayMultNormal"
+      ],
+      "result": {
+        "totalTrades": 26285,
+        "wins": 19505,
+        "losses": 6780,
+        "winRate": 74.20582081034811,
+        "initialCapital": 500,
+        "finalCapital": 4.0691675954366615e+40,
+        "totalReturn": 8.138335190873323e+39,
+        "maxDrawdown": 63.65131455793562
+      }
+    }
+  },
+  "recommendedConfig": {
+    "lookback": 2,
+    "minBodyRatio": 0.5,
+    "orbAtr": 1.2,
+    "orbVol": 1.5,
+    "useBodyOnly": true,
+    "obMaxBars": 60,
+    "minAwayMultRangebound": 0.2,
+    "minAwayMultNormal": 0.5,
+    "minAwayMultTrending": 2,
+    "requireReversal": true,
+    "orderValidityBars": 3,
+    "slBuffer": 0.005,
+    "tp1Ratio": 0.8,
+    "leverage": 20,
+    "maxHoldingBars": 48,
+    "retryCooldown": 6,
+    "useATRCVDFilter": true,
+    "atrFilterMin": 0.3,
+    "atrFilterMax": 3,
+    "cvdLookback": 20,
+    "initialCapital": 500,
+    "marginPercent": 0.1,
+    "minMargin": 15,
+    "makerFee": 0.0004,
+    "takerFee": 0.00075,
+    "slippage": 0.0002
+  }
+}

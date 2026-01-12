@@ -1,0 +1,172 @@
+{
+  "timestamp": "2026-01-12T10:15:58.272Z",
+  "period": "30 days",
+  "symbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "BNBUSDT",
+    "SOLUSDT",
+    "XRPUSDT",
+    "DOGEUSDT",
+    "ADAUSDT",
+    "AVAXUSDT",
+    "DOTUSDT",
+    "LINKUSDT",
+    "ATOMUSDT",
+    "UNIUSDT",
+    "LTCUSDT",
+    "ETCUSDT",
+    "NEARUSDT",
+    "APTUSDT",
+    "ARBUSDT",
+    "OPUSDT",
+    "AAVEUSDT",
+    "INJUSDT"
+  ],
+  "summary": {
+    "baseline": {
+      "trades": 775,
+      "wins": 496,
+      "pnl": 298.78066986543695,
+      "winRate": 64
+    },
+    "withOI": {
+      "trades": 775,
+      "wins": 496,
+      "pnl": 298.78066986543695,
+      "winRate": 64,
+      "improvement": 0
+    },
+    "withLS": {
+      "trades": 756,
+      "wins": 485,
+      "pnl": 293.2105437684846,
+      "winRate": 64.15343915343915,
+      "improvement": -1.8642859658427575
+    },
+    "withBoth": {
+      "trades": 756,
+      "wins": 485,
+      "pnl": 293.2105437684846,
+      "winRate": 64.15343915343915,
+      "improvement": -1.8642859658427575
+    }
+  },
+  "results": [
+    {
+      "symbol": "BTCUSDT",
+      "baseline": {
+        "trades": 139,
+        "wins": 79,
+        "pnl": 21.896495750245208
+      },
+      "withOI": {
+        "trades": 139,
+        "wins": 79,
+        "pnl": 21.896495750245208
+      },
+      "withLS": {
+        "trades": 134,
+        "wins": 78,
+        "pnl": 25.151087151050206
+      },
+      "withBoth": {
+        "trades": 134,
+        "wins": 78,
+        "pnl": 25.151087151050206
+      }
+    },
+    {
+      "symbol": "ETHUSDT",
+      "baseline": {
+        "trades": 149,
+        "wins": 96,
+        "pnl": 68.3987819795417
+      },
+      "withOI": {
+        "trades": 149,
+        "wins": 96,
+        "pnl": 68.3987819795417
+      },
+      "withLS": {
+        "trades": 144,
+        "wins": 93,
+        "pnl": 67.92325306768998
+      },
+      "withBoth": {
+        "trades": 144,
+        "wins": 93,
+        "pnl": 67.92325306768998
+      }
+    },
+    {
+      "symbol": "BNBUSDT",
+      "baseline": {
+        "trades": 145,
+        "wins": 98,
+        "pnl": 66.38189142629471
+      },
+      "withOI": {
+        "trades": 145,
+        "wins": 98,
+        "pnl": 66.38189142629471
+      },
+      "withLS": {
+        "trades": 145,
+        "wins": 98,
+        "pnl": 66.38189142629471
+      },
+      "withBoth": {
+        "trades": 145,
+        "wins": 98,
+        "pnl": 66.38189142629471
+      }
+    },
+    {
+      "symbol": "SOLUSDT",
+      "baseline": {
+        "trades": 173,
+        "wins": 112,
+        "pnl": 78.0021971406552
+      },
+      "withOI": {
+        "trades": 173,
+        "wins": 112,
+        "pnl": 78.0021971406552
+      },
+      "withLS": {
+        "trades": 164,
+        "wins": 105,
+        "pnl": 69.65300855474959
+      },
+      "withBoth": {
+        "trades": 164,
+        "wins": 105,
+        "pnl": 69.65300855474959
+      }
+    },
+    {
+      "symbol": "XRPUSDT",
+      "baseline": {
+        "trades": 169,
+        "wins": 111,
+        "pnl": 64.10130356870013
+      },
+      "withOI": {
+        "trades": 169,
+        "wins": 111,
+        "pnl": 64.10130356870013
+      },
+      "withLS": {
+        "trades": 169,
+        "wins": 111,
+        "pnl": 64.10130356870013
+      },
+      "withBoth": {
+        "trades": 169,
+        "wins": 111,
+        "pnl": 64.10130356870013
+      }
+    }
+  ]
+}
