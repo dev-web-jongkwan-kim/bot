@@ -21,8 +21,8 @@ export class PositionSyncService {
   private slTpRetryCount: Map<string, number> = new Map();
   private readonly MAX_SLTP_RETRIES = 3;
 
-  // ✅ 방어 로직: 비정상 포지션 사이즈 임계값 (총 자본의 %)
-  private readonly MAX_POSITION_VALUE_PERCENT = 0.10;  // 총 자본의 10% 초과 시 청산
+  // ✅ 방어 로직: 비정상 마진(원금) 임계값 (총 자본의 %)
+  private readonly MAX_MARGIN_PERCENT = 0.10;  // 마진이 총 자본의 10% 초과 시 청산
 
   // ✅ 방어 로직: SL 없이 오래된 포지션 강제 청산 (분)
   private readonly MAX_TIME_WITHOUT_SL_MINUTES = 5;  // SL 없이 5분 이상 방치 시 청산
@@ -1062,10 +1062,10 @@ export class PositionSyncService {
   }
 
   /**
-   * ✅ [방어 로직 2] 비정상 사이즈 포지션 감지 및 청산
+   * ✅ [방어 로직 2] 비정상 마진 포지션 감지 및 청산
    *
-   * 리스크 관리 기준을 초과하는 큰 포지션을 감지하고 청산합니다.
-   * MAX_POSITION_VALUE_USDT ($500) 초과 시 즉시 청산
+   * 마진(원금)이 총 자본의 10%를 초과하는 포지션을 감지하고 청산합니다.
+   * 마진 = 포지션 가치 / 레버리지
    */
   private async detectAndCloseOversizedPositions(
     binancePositions: any[]
@@ -1084,28 +1084,33 @@ export class PositionSyncService {
       totalCapital = 500;  // fallback: $500
     }
 
-    const maxPositionValue = totalCapital * this.MAX_POSITION_VALUE_PERCENT;
+    const maxMargin = totalCapital * this.MAX_MARGIN_PERCENT;
 
     for (const binancePos of binancePositions) {
       const symbol = binancePos.symbol;
       const positionAmt = parseFloat(binancePos.positionAmt);
-      const entryPrice = parseFloat(binancePos.entryPrice);
       const markPrice = parseFloat(binancePos.markPrice);
+      const leverage = parseInt(binancePos.leverage) || 10;
       const currentQty = Math.abs(positionAmt);
 
       // 포지션 가치 계산 (마크 가격 기준)
       const positionValue = markPrice * currentQty;
 
-      // ✅ 임계값 초과 체크 (총 자본의 10%)
-      if (positionValue > maxPositionValue) {
+      // ✅ 마진(원금) 계산 = 포지션 가치 / 레버리지
+      const margin = positionValue / leverage;
+
+      // ✅ 마진 임계값 초과 체크 (총 자본의 10%)
+      if (margin > maxMargin) {
         this.logger.error(
-          `\n🚨🚨🚨 [CRITICAL] OVERSIZED POSITION DETECTED! 🚨🚨🚨\n` +
+          `\n🚨🚨🚨 [CRITICAL] OVERSIZED MARGIN DETECTED! 🚨🚨🚨\n` +
           `  Symbol:         ${symbol}\n` +
           `  Side:           ${positionAmt > 0 ? 'LONG' : 'SHORT'}\n` +
           `  Quantity:       ${currentQty}\n` +
           `  Position Value: $${positionValue.toFixed(2)}\n` +
+          `  Leverage:       ${leverage}x\n` +
+          `  Margin (원금):  $${margin.toFixed(2)}\n` +
           `  Total Capital:  $${totalCapital.toFixed(2)}\n` +
-          `  Max Allowed:    $${maxPositionValue.toFixed(2)} (${(this.MAX_POSITION_VALUE_PERCENT * 100).toFixed(0)}% of capital)\n` +
+          `  Max Allowed:    $${maxMargin.toFixed(2)} (${(this.MAX_MARGIN_PERCENT * 100).toFixed(0)}% of capital)\n` +
           `  → CLOSING IMMEDIATELY!`
         );
 
@@ -1124,7 +1129,7 @@ export class PositionSyncService {
           });
 
           this.logger.log(
-            `  ✅ Oversized position CLOSED: ${closeOrder.orderId}\n` +
+            `  ✅ Oversized margin position CLOSED: ${closeOrder.orderId}\n` +
             `  ════════════════════════════════════════════════════`
           );
 
@@ -1136,17 +1141,19 @@ export class PositionSyncService {
             dbPos.metadata = {
               ...dbPos.metadata,
               forceClose: true,
-              forceCloseReason: 'OVERSIZED_POSITION',
+              forceCloseReason: 'OVERSIZED_MARGIN',
               forceCloseTime: new Date().toISOString(),
-              positionValue: positionValue,
-              maxAllowedValue: maxPositionValue,
+              margin: margin,
+              maxAllowedMargin: maxMargin,
               totalCapital: totalCapital,
+              positionValue: positionValue,
+              leverage: leverage,
             };
             await this.positionRepo.save(dbPos);
           }
 
         } catch (error: any) {
-          this.logger.error(`  ❌ Failed to close oversized position: ${error.message}`);
+          this.logger.error(`  ❌ Failed to close oversized margin position: ${error.message}`);
         }
       }
     }
