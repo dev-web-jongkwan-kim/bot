@@ -918,7 +918,7 @@ export class SimpleTrueOBStrategy implements IStrategy {
     // v19: 진입점 체크 (MIDPOINT → 0.35 위치로 변경)
     // LONG: OB BOTTOM에서 35% 위 = 더 좋은 가격에 진입
     // SHORT: OB TOP에서 35% 아래 = 더 좋은 가격에 진입
-    const obSize = activeOB.top - activeOB.bottom;
+    // obSize는 위에서 이미 계산됨 (line 905)
     const entryPoint = activeOB.type === 'LONG'
       ? activeOB.bottom + (obSize * this.config.entryPosition)  // LONG: BOTTOM에서 위로
       : activeOB.top - (obSize * this.config.entryPosition);    // SHORT: TOP에서 아래로
