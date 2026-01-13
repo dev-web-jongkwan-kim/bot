@@ -90,16 +90,24 @@ export class SymbolSelectionService {
   }
 
   /**
-   * 모든 영구 USDT 선물 종목 가져오기
+   * 모든 영구 USDT 선물 종목 가져오기 (OKX 형식)
    */
   private async getAllPerpetualSymbols(): Promise<any[]> {
-    const exchangeInfo = await this.okxService.getExchangeInfo();
+    const instruments = await this.okxService.getExchangeInfo();
 
-    return (exchangeInfo.symbols as any[]).filter((s: any) =>
-      s.contractType === 'PERPETUAL' &&
-      s.quoteAsset === 'USDT' &&
-      s.status === 'TRADING'
-    );
+    // OKX returns array of instruments with instId like "BTC-USDT-SWAP"
+    // Map to Binance-compatible format
+    return instruments.map((inst: any) => ({
+      symbol: inst.instId.replace('-USDT-SWAP', 'USDT'),  // BTC-USDT-SWAP -> BTCUSDT
+      contractType: 'PERPETUAL',
+      quoteAsset: 'USDT',
+      status: inst.state === 'live' ? 'TRADING' : inst.state,
+      // Keep original OKX data
+      instId: inst.instId,
+      tickSz: inst.tickSz,
+      lotSz: inst.lotSz,
+      minSz: inst.minSz,
+    }));
   }
 
   /**
