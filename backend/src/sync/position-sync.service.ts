@@ -162,16 +162,34 @@ export class PositionSyncService {
           }
 
           // ✅ PENDING 신호 매칭 시도 (최근 30분 이내 - 타임아웃 3캔들 고려)
+          // ✅ 주문 반전 로직 고려: LONG 신호 → SHORT 포지션, SHORT 신호 → LONG 포지션
           const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-          const pendingSignal = await this.signalRepo.findOne({
+          const actualSide = positionAmt > 0 ? 'LONG' : 'SHORT';
+          const reversedSide = positionAmt > 0 ? 'SHORT' : 'LONG';  // 전략 반전 시 신호 side
+
+          // 먼저 반전된 side로 찾기 (전략 포지션)
+          let pendingSignal = await this.signalRepo.findOne({
             where: {
               symbol,
-              side: positionAmt > 0 ? 'LONG' : 'SHORT',
+              side: reversedSide,  // ✅ 반전된 side 먼저 체크
               status: 'PENDING',
               createdAt: MoreThan(thirtyMinutesAgo),
             },
             order: { createdAt: 'DESC' },
           });
+
+          // 없으면 실제 side로 찾기 (수동 포지션 또는 반전 안 된 경우)
+          if (!pendingSignal) {
+            pendingSignal = await this.signalRepo.findOne({
+              where: {
+                symbol,
+                side: actualSide,
+                status: 'PENDING',
+                createdAt: MoreThan(thirtyMinutesAgo),
+              },
+              order: { createdAt: 'DESC' },
+            });
+          }
 
           let strategy = 'MANUAL';
           let stopLoss = 0;
@@ -182,15 +200,37 @@ export class PositionSyncService {
             this.logger.log(
               `✅ [RECOVERY] Found matching PENDING signal for ${symbol}!\n` +
               `  Signal ID: ${pendingSignal.id}\n` +
-              `  SL: ${pendingSignal.stopLoss}\n` +
-              `  TP1: ${pendingSignal.takeProfit1}\n` +
-              `  TP2: ${pendingSignal.takeProfit2}`
+              `  Signal Side: ${pendingSignal.side}\n` +
+              `  Original SL: ${pendingSignal.stopLoss}\n` +
+              `  Original TP1: ${pendingSignal.takeProfit1}\n` +
+              `  Original TP2: ${pendingSignal.takeProfit2}`
             );
 
             strategy = pendingSignal.strategy || 'SimpleTrueOB';
-            stopLoss = pendingSignal.stopLoss || 0;
-            takeProfit1 = pendingSignal.takeProfit1;
-            takeProfit2 = pendingSignal.takeProfit2;
+            const actualPositionSide = positionAmt > 0 ? 'LONG' : 'SHORT';
+
+            // ✅ 주문 반전 감지: 신호 side와 실제 포지션 side가 반대인 경우
+            // LONG 신호 → SHORT 포지션, SHORT 신호 → LONG 포지션
+            const isReversed = pendingSignal.side !== actualPositionSide;
+
+            if (isReversed) {
+              // ✅ SL/TP 반전: 신호의 SL이 새 TP, 신호의 TP가 새 SL
+              // LONG 신호: SL(아래) → TP(아래), TP(위) → SL(위)
+              // SHORT 신호: SL(위) → TP(위), TP(아래) → SL(아래)
+              stopLoss = pendingSignal.takeProfit1 || 0;  // 원래 TP → 새 SL
+              takeProfit1 = pendingSignal.stopLoss;       // 원래 SL → 새 TP
+              takeProfit2 = null;  // TP2는 사용 안 함
+
+              this.logger.log(
+                `  → Order Reversed: ${pendingSignal.side} signal → ${actualPositionSide} position\n` +
+                `  → Swapped SL: ${stopLoss.toFixed(4)} (was TP1)\n` +
+                `  → Swapped TP: ${takeProfit1?.toFixed(4)} (was SL)`
+              );
+            } else {
+              stopLoss = pendingSignal.stopLoss || 0;
+              takeProfit1 = pendingSignal.takeProfit1;
+              takeProfit2 = pendingSignal.takeProfit2;
+            }
 
             // 신호 상태를 FILLED로 업데이트
             await this.signalRepo.update(pendingSignal.id, {
@@ -250,13 +290,14 @@ export class PositionSyncService {
               const formattedTP1 = parseFloat(this.okxService.formatPrice(symbol, takeProfit1));
               const formattedQty = parseFloat(this.okxService.formatQuantity(symbol, Math.abs(positionAmt)));
 
+              // ✅ positionAmt는 실제 포지션 방향이므로 추가 반전 불필요
               await this.okxService.createAlgoOrder({
                 symbol,
                 side: positionAmt > 0 ? 'SELL' : 'BUY',
                 type: 'TAKE_PROFIT_MARKET',
                 triggerPrice: formattedTP1,
                 quantity: formattedQty,  // 100% 청산
-                isStrategyPosition: strategy !== 'MANUAL',  // 수동 포지션은 반전 없음
+                isStrategyPosition: false,  // ✅ 실제 포지션 방향 - 반전 불필요
               });
               this.logger.log(`[RECOVERY] ✓ TP created at ${formattedTP1} (100% qty: ${formattedQty})`);
             } catch (tpError: any) {
@@ -528,6 +569,68 @@ export class PositionSyncService {
   async forceSync() {
     this.logger.log('Force syncing positions...');
     await this.syncPositions();
+  }
+
+  /**
+   * ✅ 고아 주문 자동 정리 (60초마다)
+   * DB에 없는 포지션의 주문(리밋/알고)을 자동 취소
+   */
+  @Cron('*/60 * * * * *')
+  async cleanupOrphanOrders(): Promise<void> {
+    try {
+      // 1. 활성 포지션 심볼 수집 (OKX + DB)
+      const okxPositions = await this.okxService.getOpenPositions();
+      const activeSymbols = new Set<string>();
+
+      for (const pos of okxPositions) {
+        if (Math.abs(parseFloat(pos.positionAmt)) > 0.000001) {
+          activeSymbols.add(pos.symbol);
+        }
+      }
+
+      const dbPositions = await this.positionRepo.find({
+        where: { status: 'OPEN' },
+      });
+      for (const dbPos of dbPositions) {
+        activeSymbols.add(dbPos.symbol);
+      }
+
+      let totalCanceled = 0;
+
+      // 2. 고아 리밋 주문 취소
+      const limitOrders = await this.okxService.getAllOpenOrders();
+      for (const order of limitOrders) {
+        if (!activeSymbols.has(order.symbol)) {
+          try {
+            await this.okxService.cancelOrder(order.symbol, order.ordId);
+            totalCanceled++;
+            this.logger.log(`[ORPHAN CLEANUP] Canceled limit order: ${order.symbol} ${order.side} @ ${order.px}`);
+          } catch (err: any) {
+            this.logger.warn(`[ORPHAN CLEANUP] Failed to cancel limit: ${err.message}`);
+          }
+        }
+      }
+
+      // 3. 고아 알고 주문 취소
+      const algoOrders = await this.okxService.getOpenAlgoOrders();
+      for (const order of algoOrders) {
+        if (!activeSymbols.has(order.symbol)) {
+          try {
+            await this.okxService.cancelAlgoOrder(order.symbol, order.algoId);
+            totalCanceled++;
+            this.logger.log(`[ORPHAN CLEANUP] Canceled algo order: ${order.symbol} ${order.type}`);
+          } catch (err: any) {
+            this.logger.warn(`[ORPHAN CLEANUP] Failed to cancel algo: ${err.message}`);
+          }
+        }
+      }
+
+      if (totalCanceled > 0) {
+        this.logger.log(`[ORPHAN CLEANUP] ✅ Cleaned up ${totalCanceled} orphan orders`);
+      }
+    } catch (error: any) {
+      this.logger.error(`[ORPHAN CLEANUP] Error: ${error.message}`);
+    }
   }
 
   /**
@@ -867,23 +970,39 @@ export class PositionSyncService {
             ? parseFloat(dbPos.stopLoss) : dbPos.stopLoss;
 
           const EMERGENCY_SL_PERCENT = 0.03;
-          if (!slPrice || slPrice <= 0) {
+
+          // ✅ SL 방향 검증: LONG은 entry 아래, SHORT는 entry 위
+          // 잘못된 방향이면 긴급 SL 사용
+          const isSlInWrongDirection =
+            (dbPos.side === 'LONG' && slPrice && slPrice > entryPrice) ||
+            (dbPos.side === 'SHORT' && slPrice && slPrice < entryPrice);
+
+          if (!slPrice || slPrice <= 0 || isSlInWrongDirection) {
+            const oldSlPrice = slPrice;
             slPrice = dbPos.side === 'LONG'
               ? entryPrice * (1 - EMERGENCY_SL_PERCENT)
               : entryPrice * (1 + EMERGENCY_SL_PERCENT);
-            this.logger.warn(`  ⚠️ No SL price in DB, using 3%: ${slPrice.toFixed(4)}`);
+
+            if (isSlInWrongDirection) {
+              this.logger.warn(
+                `  ⚠️ SL in wrong direction (${oldSlPrice?.toFixed(4)}), using 3%: ${slPrice.toFixed(4)}`
+              );
+            } else {
+              this.logger.warn(`  ⚠️ No SL price in DB, using 3%: ${slPrice.toFixed(4)}`);
+            }
           }
 
           const formattedSL = parseFloat(this.okxService.formatPrice(dbPos.symbol, slPrice));
 
           try {
+            // ✅ DB 포지션의 side는 이미 실제 포지션 방향이므로 추가 반전 불필요
             const slOrder = await this.okxService.createAlgoOrder({
               symbol: dbPos.symbol,
               side: dbPos.side === 'LONG' ? 'SELL' : 'BUY',
               type: 'STOP_MARKET',
               triggerPrice: formattedSL,
               closePosition: true,
-              isStrategyPosition: dbPos.strategy !== 'MANUAL',  // 수동 포지션은 반전 없음
+              isStrategyPosition: false,  // ✅ DB side는 실제 포지션 방향 - 반전 불필요
             });
 
             dbPos.metadata = {
@@ -915,15 +1034,25 @@ export class PositionSyncService {
           let tpPrice = typeof dbPos.takeProfit1 === 'string'
             ? parseFloat(dbPos.takeProfit1) : dbPos.takeProfit1;
 
-          // TP 가격이 없으면 1.2R로 계산 (SL 기준)
-          if (!tpPrice || tpPrice <= 0) {
-            const slPrice = typeof dbPos.stopLoss === 'string'
-              ? parseFloat(dbPos.stopLoss) : dbPos.stopLoss;
-            if (slPrice && slPrice > 0) {
-              const risk = Math.abs(entryPrice - slPrice);
-              tpPrice = dbPos.side === 'LONG'
-                ? entryPrice + (risk * 1.2)
-                : entryPrice - (risk * 1.2);
+          // ✅ TP 방향 검증: LONG은 entry 위, SHORT는 entry 아래
+          // 잘못된 방향이면 긴급 TP 사용
+          const isTpInWrongDirection =
+            (dbPos.side === 'LONG' && tpPrice && tpPrice < entryPrice) ||
+            (dbPos.side === 'SHORT' && tpPrice && tpPrice > entryPrice);
+
+          // TP 가격이 없거나 잘못된 방향이면 1.2R로 계산 (entry 기준)
+          if (!tpPrice || tpPrice <= 0 || isTpInWrongDirection) {
+            const oldTpPrice = tpPrice;
+            // SL 기반이 아닌 entry 기반으로 1.5% TP 계산
+            const EMERGENCY_TP_PERCENT = 0.015;  // 1.5%
+            tpPrice = dbPos.side === 'LONG'
+              ? entryPrice * (1 + EMERGENCY_TP_PERCENT)
+              : entryPrice * (1 - EMERGENCY_TP_PERCENT);
+
+            if (isTpInWrongDirection) {
+              this.logger.warn(
+                `  ⚠️ TP in wrong direction (${oldTpPrice?.toFixed(4)}), using 1.5%: ${tpPrice.toFixed(4)}`
+              );
             }
           }
 
@@ -941,13 +1070,14 @@ export class PositionSyncService {
             const formattedQty = parseFloat(this.okxService.formatQuantity(dbPos.symbol, quantity));
 
             try {
+              // ✅ DB 포지션의 side는 이미 실제 포지션 방향이므로 추가 반전 불필요
               const tpOrder = await this.okxService.createAlgoOrder({
                 symbol: dbPos.symbol,
                 side: dbPos.side === 'LONG' ? 'SELL' : 'BUY',
                 type: 'TAKE_PROFIT_MARKET',
                 triggerPrice: formattedTP,
                 quantity: formattedQty,
-                isStrategyPosition: dbPos.strategy !== 'MANUAL',  // 수동 포지션은 반전 없음
+                isStrategyPosition: false,  // ✅ DB side는 실제 포지션 방향 - 반전 불필요
               });
 
               dbPos.metadata = {
@@ -1012,18 +1142,37 @@ export class PositionSyncService {
       // PENDING 또는 FILLED 신호 확인 (최근 30분 이내)
       // - 주문 체결까지 시간이 걸릴 수 있음 (Limit 주문은 최대 15분)
       // - FILLED 직후 OrderMonitorService와 경쟁 상태 발생 가능
+      // ✅ 주문 반전 로직 고려: LONG 신호 → SHORT 포지션, SHORT 신호 → LONG 포지션
+      // 따라서 양쪽 side 모두 체크해야 함
       const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+      const actualPositionSide = positionAmt > 0 ? 'LONG' : 'SHORT';
+      const reversedSignalSide = positionAmt > 0 ? 'SHORT' : 'LONG';  // 전략 반전 시 신호 side
+
       const recentSignal = await this.signalRepo.findOne({
         where: [
+          // 실제 포지션 side와 일치하는 신호 (수동 포지션/반전 안 된 경우)
           {
             symbol,
-            side: positionAmt > 0 ? 'LONG' : 'SHORT',
+            side: actualPositionSide,
             status: 'PENDING',
             createdAt: MoreThan(thirtyMinutesAgo),
           },
           {
             symbol,
-            side: positionAmt > 0 ? 'LONG' : 'SHORT',
+            side: actualPositionSide,
+            status: 'FILLED',
+            createdAt: MoreThan(thirtyMinutesAgo),
+          },
+          // ✅ 반전된 신호 side (전략 LONG → 실제 SHORT 포지션인 경우)
+          {
+            symbol,
+            side: reversedSignalSide,
+            status: 'PENDING',
+            createdAt: MoreThan(thirtyMinutesAgo),
+          },
+          {
+            symbol,
+            side: reversedSignalSide,
             status: 'FILLED',
             createdAt: MoreThan(thirtyMinutesAgo),
           },

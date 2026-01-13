@@ -438,6 +438,7 @@ export class OkxService {
 
   /**
    * Format quantity to OKX precision
+   * ✅ OKX SWAP: sz는 계약 수 (quantity / ctVal)
    */
   formatQuantity(symbol: string, quantity: number): string {
     const symbolInfo = this.symbolInfoCache.get(symbol);
@@ -446,13 +447,27 @@ export class OkxService {
       return quantity.toFixed(3);
     }
 
-    // OKX uses lotSz for step size
-    const lotSz = parseFloat(symbolInfo.lotSz || '0.001');
-    const precision = Math.abs(Math.log10(lotSz));
+    // OKX SWAP: ctVal = 1 contract의 가치 (base currency 단위)
+    // 예: ctVal = 10 이면 1계약 = 10 ZAMA
+    const ctVal = parseFloat(symbolInfo.ctVal || '1');
 
-    // Round to lot size
-    const rounded = Math.floor(quantity / lotSz) * lotSz;
-    return rounded.toFixed(precision);
+    // quantity는 base currency 단위, sz는 계약 수
+    // sz = quantity / ctVal
+    let contractQty = quantity / ctVal;
+
+    // OKX uses lotSz for step size
+    const lotSz = parseFloat(symbolInfo.lotSz || '1');
+    const precision = Math.max(0, Math.abs(Math.log10(lotSz)));
+
+    // Round to lot size (OKX 계약은 보통 정수)
+    const rounded = Math.floor(contractQty / lotSz) * lotSz;
+
+    // 최소 1 계약 보장
+    const finalQty = Math.max(rounded, lotSz);
+
+    this.logger.log(`[QTY] ${symbol}: qty=${quantity.toFixed(2)} / ctVal=${ctVal} = ${finalQty} contracts`);
+
+    return finalQty.toFixed(precision > 10 ? 0 : precision);
   }
 
   /**
@@ -493,27 +508,20 @@ export class OkxService {
       const instId = this.toOkxInstId(params.symbol);
       const path = '/api/v5/trade/order';
 
-      // ✅ 방향 반전 로직 (reduceOnly 주문은 반전하지 않음!)
-      // 원래: BUY → long, SELL → short
-      // 반전: BUY → short, SELL → long
-      // reduceOnly: 포지션 청산이므로 반전 없이 원래 방향 유지
+      // ✅ 전략 방향 반전 로직 (우리 전략 특성)
+      // - LONG 신호 → OKX SELL 주문 (숏 포지션 오픈)
+      // - SHORT 신호 → OKX BUY 주문 (롱 포지션 오픈)
+      // - reduceOnly 주문은 반전하지 않음 (포지션 청산용)
       let finalSide: 'buy' | 'sell';
-      let finalPosSide: 'long' | 'short';
 
       if (params.reduceOnly) {
         // 포지션 청산: 반전 없음
         finalSide = params.side === 'BUY' ? 'buy' : 'sell';
-        finalPosSide = params.side === 'BUY' ? 'short' : 'long';  // BUY closes SHORT, SELL closes LONG
-        this.logger.log(
-          `[ORDER] ReduceOnly - No reversal: ${params.side} → ${finalSide.toUpperCase()} (closing ${finalPosSide})`
-        );
+        this.logger.log(`[ORDER] Close: ${params.side} → ${finalSide.toUpperCase()}`);
       } else {
-        // 신규 진입: 방향 반전
+        // 신규 진입: 방향 반전 (전략 특성)
         finalSide = params.side === 'BUY' ? 'sell' : 'buy';
-        finalPosSide = params.side === 'BUY' ? 'short' : 'long';
-        this.logger.log(
-          `[ORDER REVERSAL] Original: ${params.side} → Reversed: ${finalSide.toUpperCase()} (${finalPosSide})`
-        );
+        this.logger.log(`[ORDER] Entry REVERSED: ${params.side} → ${finalSide.toUpperCase()}`);
       }
 
       // OKX order type mapping
@@ -522,9 +530,9 @@ export class OkxService {
 
       const orderBody: any = {
         instId,
-        tdMode: 'cross',  // cross margin
-        side: finalSide,  // ✅ 최종 방향 (reduceOnly면 원래, 아니면 반전)
-        posSide: finalPosSide,  // ✅ 최종 포지션 방향
+        tdMode: 'cross',  // ✅ cross margin (matches leverage setting mgnMode)
+        side: finalSide,
+        posSide: 'net',   // ✅ OKX one-way mode
         ordType,
         sz: params.quantity ? this.formatQuantity(params.symbol, params.quantity) : undefined,
       };
@@ -543,10 +551,10 @@ export class OkxService {
       this.logger.log(
         `[ORDER] Creating ${params.type} order:\n` +
         `  Symbol: ${params.symbol} (${instId})\n` +
-        `  Original Side: ${params.side}\n` +
-        `  Final Side: ${finalSide.toUpperCase()} / ${finalPosSide}\n` +
-        `  ReduceOnly: ${params.reduceOnly || false}\n` +
-        `  Quantity: ${orderBody.sz}`
+        `  Side: ${finalSide.toUpperCase()}\n` +
+        `  Quantity: ${orderBody.sz}\n` +
+        `  Price: ${orderBody.px || 'N/A'}\n` +
+        `  Body: ${body}`
       );
 
       const response = await this.orderBreaker.fire(async () => {
@@ -559,7 +567,8 @@ export class OkxService {
       }) as any;
 
       if (response.code !== '0') {
-        throw new Error(`OKX order error: ${response.msg}`);
+        this.logger.error(`[ORDER] OKX Error Response: ${JSON.stringify(response)}`);
+        throw new Error(`OKX order error: ${response.msg} (code: ${response.code})`);
       }
 
       const order = response.data[0];
@@ -602,11 +611,10 @@ export class OkxService {
     const instId = this.toOkxInstId(params.symbol);
     const path = '/api/v5/trade/order-algo';
 
-    // ✅ 방향 반전 로직
+    // ✅ 방향 반전 로직 (OKX one-way mode: posSide는 항상 'net')
     // isStrategyPosition=true: 전략 포지션 (DB side는 신호 방향) → 반전 필요
     // isStrategyPosition=false: 수동 포지션 (DB side는 실제 방향) → 반전 없음
     let finalSide: 'buy' | 'sell';
-    let finalPosSide: 'long' | 'short';
 
     // 기본값: 전략 포지션으로 가정 (기존 동작 유지)
     const needReversal = params.isStrategyPosition !== false;
@@ -614,32 +622,31 @@ export class OkxService {
     if (needReversal) {
       // 전략 포지션: 방향 반전
       finalSide = params.side === 'BUY' ? 'sell' : 'buy';
-      finalPosSide = params.side === 'BUY' ? 'short' : 'long';
       this.logger.log(
-        `[ALGO ORDER REVERSAL] Strategy position: ${params.side} → ${finalSide.toUpperCase()} (${finalPosSide})`
+        `[ALGO ORDER REVERSAL] Strategy position: ${params.side} → ${finalSide.toUpperCase()}`
       );
     } else {
       // 수동 포지션: 반전 없음
       finalSide = params.side === 'BUY' ? 'buy' : 'sell';
-      finalPosSide = params.side === 'BUY' ? 'short' : 'long';  // BUY closes SHORT, SELL closes LONG
       this.logger.log(
-        `[ALGO ORDER] Manual position - No reversal: ${params.side} → ${finalSide.toUpperCase()} (closing ${finalPosSide})`
+        `[ALGO ORDER] Manual position - No reversal: ${params.side} → ${finalSide.toUpperCase()}`
       );
     }
 
     // OKX algo order type: conditional
+    // ✅ OKX one-way mode: posSide는 'net'으로 설정 (또는 생략)
     const orderBody: any = {
       instId,
       tdMode: 'cross',
-      side: finalSide,  // ✅ 최종 방향 (closePosition이면 원래, 아니면 반전)
-      posSide: finalPosSide,  // ✅ 최종 포지션 방향
+      side: finalSide,  // ✅ 최종 방향
+      posSide: 'net',   // ✅ One-way mode에서는 'net' 사용
       ordType: 'conditional',
-      triggerPx: this.formatPrice(params.symbol, params.triggerPrice),
-      triggerPxType: 'last',  // last price trigger
     };
 
     if (params.closePosition) {
+      // ✅ closeFraction 사용 시 reduceOnly 필요
       orderBody.closeFraction = '1';  // Close 100%
+      orderBody.reduceOnly = true;
     } else if (params.quantity) {
       orderBody.sz = this.formatQuantity(params.symbol, params.quantity);
     }
@@ -662,7 +669,7 @@ export class OkxService {
       `[ALGO ORDER] Creating ${params.type}:\n` +
       `  Symbol: ${params.symbol}\n` +
       `  Original Side: ${params.side}\n` +
-      `  Final Side: ${finalSide.toUpperCase()} / ${finalPosSide}\n` +
+      `  Final Side: ${finalSide.toUpperCase()} (posSide: net)\n` +
       `  Trigger Price: ${orderBody.triggerPx}\n` +
       `  Close Position: ${params.closePosition || false}\n` +
       `  Order Body: ${JSON.stringify(orderBody)}`
@@ -694,7 +701,7 @@ export class OkxService {
         instId,
         symbol: params.symbol,             // Binance compatible
         side: finalSide,
-        posSide: finalPosSide,
+        posSide: 'net',
         ordType: params.type,
         type: params.type,                  // Binance compatible (alias)
         triggerPx: orderBody.triggerPx,
@@ -803,12 +810,24 @@ export class OkxService {
       }
 
       // Map to Binance-compatible format
-      const mappedOrders = orders.map((o: any) => ({
-        ...o,
-        symbol: this.fromOkxInstId(o.instId),  // Binance compatible
-        type: o.ordType || 'STOP_MARKET',       // Binance compatible (map ordType to type)
-        closePosition: o.closeFraction === '1', // Binance compatible
-      }));
+      // OKX는 모든 algo order에 ordType: 'conditional' 반환
+      // SL: slTriggerPx 속성 존재
+      // TP: tpTriggerPx 속성 존재
+      const mappedOrders = orders.map((o: any) => {
+        let type = 'STOP_MARKET';  // default
+        if (o.tpTriggerPx && parseFloat(o.tpTriggerPx) > 0) {
+          type = 'TAKE_PROFIT_MARKET';
+        } else if (o.slTriggerPx && parseFloat(o.slTriggerPx) > 0) {
+          type = 'STOP_MARKET';
+        }
+
+        return {
+          ...o,
+          symbol: this.fromOkxInstId(o.instId),  // Binance compatible
+          type: type,                             // ✅ SL vs TP 구분
+          closePosition: o.closeFraction === '1', // Binance compatible
+        };
+      });
 
       this.logger.debug(`[ALGO ORDER] Found ${mappedOrders.length} open algo orders`);
       return mappedOrders;
@@ -880,7 +899,7 @@ export class OkxService {
   }
 
   /**
-   * Get historical candles
+   * Get historical candles (with pagination for OKX 300 limit)
    */
   async getHistoricalCandles(
     symbol: string,
@@ -888,9 +907,32 @@ export class OkxService {
     limit: number = 100
   ): Promise<CandleData[]> {
     try {
-      const candles = await this.getKlines(symbol, interval, limit);
+      const OKX_MAX_LIMIT = 300;
+      let allCandles: Candle[] = [];
+      let endTime: number | undefined = undefined;
 
-      return candles.map(c => ({
+      // OKX는 최대 300개만 반환하므로 페이지네이션 필요
+      while (allCandles.length < limit) {
+        const remaining = limit - allCandles.length;
+        const fetchLimit = Math.min(remaining, OKX_MAX_LIMIT);
+
+        const candles = await this.getKlines(symbol, interval, fetchLimit, undefined, endTime);
+
+        if (candles.length === 0) break;
+
+        // 오래된 캔들을 앞에 추가 (시간순 정렬 유지)
+        allCandles = [...candles, ...allCandles];
+
+        // 다음 페이지를 위해 가장 오래된 캔들의 시간 설정
+        endTime = candles[0].openTime;
+
+        // API rate limit 방지
+        if (allCandles.length < limit) {
+          await this.sleep(200);
+        }
+      }
+
+      return allCandles.slice(-limit).map(c => ({
         timestamp: new Date(c.openTime),
         open: parseFloat(c.open),
         high: parseFloat(c.high),
@@ -1003,12 +1045,14 @@ export class OkxService {
       }
 
       // Create new SL
+      // ✅ side 파라미터는 실제 포지션 방향 (DB에서 가져옴) - 반전 불필요
       const newSlOrder = await this.createAlgoOrder({
         symbol,
         side: side === 'LONG' ? 'SELL' : 'BUY',
         type: 'STOP_MARKET',
         triggerPrice: newStopPrice,
         closePosition: true,
+        isStrategyPosition: false,  // ✅ 실제 포지션 방향 - 반전 불필요
       });
 
       this.logger.log(
@@ -1127,6 +1171,8 @@ export class OkxService {
           price: t.fillPx,
           qty: t.fillSz,
           realizedPnl: t.pnl || '0',
+          commission: t.fee || '0',  // OKX uses 'fee', map to 'commission' for Binance compatibility
+          side: t.side?.toUpperCase() || '',  // 'buy' or 'sell' → 'BUY' or 'SELL'
           time: parseInt(t.fillTime),
         }));
       },

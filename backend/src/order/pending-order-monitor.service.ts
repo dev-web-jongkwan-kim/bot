@@ -263,22 +263,38 @@ export class PendingOrderMonitorService implements OnModuleInit {
     try {
       // ═══════════════════════════════════════════════════════════════════
       // SL/TP 슬리피지 보정 (백테스트와 동일)
+      // ✅ 주문 방향 반전에 따른 SL/TP 반전 적용
+      // - LONG 신호 → SHORT 포지션: SL은 위쪽, TP는 아래쪽
+      // - SHORT 신호 → LONG 포지션: SL은 아래쪽, TP는 위쪽
       // ═══════════════════════════════════════════════════════════════════
       const TP1_RATIO = 1.2;
       const TP2_RATIO = 4.0;
 
       const plannedEntry = signal.entryPrice;
       const entrySlippageAmount = entryPrice - plannedEntry;
-      const actualStopLoss = signal.stopLoss + entrySlippageAmount;
+
+      // 원래 리스크 거리 계산
+      const originalRisk = Math.abs(signal.entryPrice - signal.stopLoss);
+
+      // ✅ 반전된 SL 계산 (슬리피지 보정 포함)
+      // LONG 신호 → SHORT 포지션: SL은 entry 위쪽
+      // SHORT 신호 → LONG 포지션: SL은 entry 아래쪽
+      const actualStopLoss = signal.side === 'LONG'
+        ? entryPrice + originalRisk + entrySlippageAmount  // SHORT 포지션: SL 위쪽
+        : entryPrice - originalRisk + entrySlippageAmount; // LONG 포지션: SL 아래쪽
+
       const actualRisk = Math.abs(entryPrice - actualStopLoss);
 
+      // ✅ 반전된 TP 계산
+      // LONG 신호 → SHORT 포지션: TP는 entry 아래쪽 (가격 하락 = 이익)
+      // SHORT 신호 → LONG 포지션: TP는 entry 위쪽 (가격 상승 = 이익)
       const actualTP1 = signal.side === 'LONG'
-        ? entryPrice + (actualRisk * TP1_RATIO)
-        : entryPrice - (actualRisk * TP1_RATIO);
+        ? entryPrice - (actualRisk * TP1_RATIO)  // SHORT 포지션: TP 아래쪽
+        : entryPrice + (actualRisk * TP1_RATIO); // LONG 포지션: TP 위쪽
 
       const actualTP2 = signal.side === 'LONG'
-        ? entryPrice + (actualRisk * TP2_RATIO)
-        : entryPrice - (actualRisk * TP2_RATIO);
+        ? entryPrice - (actualRisk * TP2_RATIO)  // SHORT 포지션: TP 아래쪽
+        : entryPrice + (actualRisk * TP2_RATIO); // LONG 포지션: TP 위쪽
 
       this.logger.log(
         `\n🔄 [MONITOR] SL/TP Calculation for ${order.symbol}:\n` +
@@ -310,9 +326,12 @@ export class PendingOrderMonitorService implements OnModuleInit {
 
       let slOrder;
       try {
+        // ✅ 반전된 포지션 청산 방향
+        // LONG 신호 → SHORT 포지션: BUY로 청산
+        // SHORT 신호 → LONG 포지션: SELL로 청산
         slOrder = await this.okxService.createAlgoOrder({
           symbol: order.symbol,
-          side: order.side === 'LONG' ? 'SELL' : 'BUY',
+          side: order.side === 'LONG' ? 'BUY' : 'SELL',
           type: 'STOP_MARKET',
           triggerPrice: formattedSL,
           closePosition: true,
@@ -342,9 +361,12 @@ export class PendingOrderMonitorService implements OnModuleInit {
         ));
 
         try {
+          // ✅ 반전된 포지션 청산 방향
+          // LONG 신호 → SHORT 포지션: BUY로 청산
+          // SHORT 신호 → LONG 포지션: SELL로 청산
           const tpOrder = await this.okxService.createAlgoOrder({
             symbol: order.symbol,
-            side: order.side === 'LONG' ? 'SELL' : 'BUY',
+            side: order.side === 'LONG' ? 'BUY' : 'SELL',
             type: 'TAKE_PROFIT_MARKET',
             triggerPrice: formattedTP1,
             quantity: formattedQty,
@@ -424,9 +446,12 @@ export class PendingOrderMonitorService implements OnModuleInit {
    */
   private async emergencyClose(order: PendingOrder, quantity: number): Promise<void> {
     try {
+      // ✅ 반전된 포지션 청산 방향
+      // LONG 신호 → SHORT 포지션: BUY로 청산
+      // SHORT 신호 → LONG 포지션: SELL로 청산
       await this.okxService.createOrder({
         symbol: order.symbol,
-        side: order.side === 'LONG' ? 'SELL' : 'BUY',
+        side: order.side === 'LONG' ? 'BUY' : 'SELL',
         type: 'MARKET',
         quantity: quantity,
       });
