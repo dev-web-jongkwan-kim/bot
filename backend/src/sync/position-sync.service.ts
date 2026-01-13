@@ -712,6 +712,14 @@ export class PositionSyncService {
   private async checkAndPlaceMissingSL(dbPositions: Position[]): Promise<void> {
     for (const dbPos of dbPositions) {
       try {
+        // v21: 포지션 생성 후 30초 동안은 SL Watchdog 체크 스킵 (SL/TP 생성 대기)
+        const positionAge = Date.now() - new Date(dbPos.createdAt).getTime();
+        const GRACE_PERIOD_MS = 30 * 1000; // 30초
+        if (positionAge < GRACE_PERIOD_MS) {
+          this.logger.debug(`[WATCHDOG] ${dbPos.symbol}: Position too new (${Math.round(positionAge/1000)}s), skipping SL check`);
+          continue;
+        }
+
         // Algo Order에서 SL/TP 주문 찾기
         const algoOrders = await this.binanceService.getOpenAlgoOrders(dbPos.symbol);
 
@@ -855,6 +863,26 @@ export class PositionSyncService {
         // SL이 없으면 긴급 생성
         // ═══════════════════════════════════════════════════════════
         if (!existingSL) {
+          // v21: Binance에서 실제 포지션 존재 여부 확인
+          const binancePositions = await this.binanceService.getOpenPositions();
+          const binancePos = binancePositions.find(p => p.symbol === dbPos.symbol);
+          const hasRealPosition = binancePos && Math.abs(parseFloat(binancePos.positionAmt)) > 0;
+
+          if (!hasRealPosition) {
+            this.logger.debug(`[SL WATCHDOG] ${dbPos.symbol}: No real position on Binance, skipping SL creation`);
+            // DB 상태 업데이트 (포지션 없으면 CLOSED로)
+            dbPos.status = 'CLOSED';
+            dbPos.metadata = {
+              ...dbPos.metadata,
+              autoClosedReason: 'NO_BINANCE_POSITION',
+              autoClosedTime: new Date().toISOString(),
+            };
+            await this.positionRepo.save(dbPos);
+            this.slTpRetryCount.delete(dbPos.symbol);
+            this.positionWithoutSlSince.delete(dbPos.symbol);
+            continue;
+          }
+
           this.logger.warn(
             `\n🚨 [SL WATCHDOG] Missing SL detected!\n` +
             `  Symbol: ${dbPos.symbol} ${dbPos.side}\n` +
@@ -896,6 +924,9 @@ export class PositionSyncService {
           } catch (slError: any) {
             if (slError.code === -4130 || slError.message?.includes('-4130')) {
               this.logger.log(`[SL WATCHDOG] ${dbPos.symbol}: SL already exists`);
+            } else if (slError.code === -4509 || slError.message?.includes('-4509')) {
+              // v21: 포지션이 아직 Binance에서 인식되지 않음 - 재시도 카운터 증가하지 않고 다음 주기에 재시도
+              this.logger.debug(`[SL WATCHDOG] ${dbPos.symbol}: Position not yet recognized by Binance, will retry next cycle`);
             } else {
               // ✅ [방어 로직] SL 생성 실패 - 재시도 카운터 증가
               this.slTpRetryCount.set(dbPos.symbol, currentRetries + 1);
@@ -957,11 +988,16 @@ export class PositionSyncService {
               this.logger.log(`  ✅ Emergency TP created: ${tpOrder.algoId} @ ${formattedTP}`);
               // SL과 TP 둘 다 성공하면 다음 사이클에서 카운터 리셋됨
             } catch (tpError: any) {
-              // ✅ [방어 로직] TP 생성 실패 - 재시도 카운터 증가
-              this.slTpRetryCount.set(dbPos.symbol, currentRetries + 1);
-              this.logger.error(
-                `[TP WATCHDOG] Failed (retry ${currentRetries + 1}/${this.MAX_SLTP_RETRIES}): ${tpError.message}`
-              );
+              if (tpError.code === -4509 || tpError.message?.includes('-4509')) {
+                // v21: 포지션이 아직 Binance에서 인식되지 않음 - 다음 주기에 재시도
+                this.logger.debug(`[TP WATCHDOG] ${dbPos.symbol}: Position not yet recognized by Binance, will retry next cycle`);
+              } else {
+                // ✅ [방어 로직] TP 생성 실패 - 재시도 카운터 증가
+                this.slTpRetryCount.set(dbPos.symbol, currentRetries + 1);
+                this.logger.error(
+                  `[TP WATCHDOG] Failed (retry ${currentRetries + 1}/${this.MAX_SLTP_RETRIES}): ${tpError.message}`
+                );
+              }
             }
           } else {
             // TP 가격을 구할 수 없는 경우도 재시도 카운터 증가
