@@ -82,6 +82,27 @@ interface Config {
   obMaxBars15m: number;           // 15분봉 OB 최대 수명 (캔들)
   maxOBSizePercent: number;       // OB 최대 크기 (%)
   entryPosition: number;          // 진입점 위치 (0~1)
+
+  // ============================================
+  // v23: ATR 기반 주문 설정
+  // ============================================
+  order: {
+    entryOffsetAtr: number;       // 진입 오프셋 (ATR 배수) - Limit 주문 가격 조정
+    tpAtr: number;                // TP 거리 (ATR 배수)
+    slAtr: number;                // SL 거리 (ATR 배수)
+    atrPeriod: number;            // ATR 계산 기간
+    unfillTimeoutSec: number;     // 미체결 타임아웃 (초)
+  };
+
+  // ============================================
+  // v23: 시간 기반 포지션 관리
+  // ============================================
+  position: {
+    maxHoldTimeSec: number;       // 최대 보유 시간 (초)
+    tpReduceTimeSec: number;      // TP 축소 시작 시간 (초)
+    tpReduceRatio: number;        // TP 축소 비율 (0~1)
+    breakevenTimeSec: number;     // 본전 청산 시작 시간 (초)
+  };
 }
 
 @Injectable()
@@ -161,6 +182,27 @@ export class SimpleTrueOBStrategy implements IStrategy {
       obMaxBars15m: 12,             // 15분봉 OB 최대 수명 12캔들 (3시간)
       maxOBSizePercent: 1.5,        // OB 최대 크기 1.5%
       entryPosition: 0.4,           // 진입점 40% (LONG: BOTTOM+40%, SHORT: TOP-40%)
+
+      // ============================================
+      // v23: ATR 기반 주문 설정
+      // ============================================
+      order: {
+        entryOffsetAtr: 0.15,       // 진입 오프셋 = ATR × 0.15
+        tpAtr: 0.6,                 // TP = ATR × 0.6 (R:R 2:1)
+        slAtr: 0.3,                 // SL = ATR × 0.3
+        atrPeriod: 14,              // ATR 14기간
+        unfillTimeoutSec: 300,      // 5분 미체결 시 취소
+      },
+
+      // ============================================
+      // v23: 시간 기반 포지션 관리
+      // ============================================
+      position: {
+        maxHoldTimeSec: 1800,       // 30분 최대 보유
+        tpReduceTimeSec: 1200,      // 20분 후 TP 축소
+        tpReduceRatio: 0.5,         // TP 50%로 축소
+        breakevenTimeSec: 1500,     // 25분 후 본전 청산
+      },
     };
   }
 
@@ -893,30 +935,41 @@ export class SimpleTrueOBStrategy implements IStrategy {
       this.logger.log(`[${symbol}/${timeframe}] ✅ OB size OK: ${obSizePercent.toFixed(2)}%`);
     }
 
-    // v21: 진입 시그널 생성 (entryPoint 사용)
-    const slBuffer = 0.01;  // 롤백: 0.5% → 1.0% (0.5%는 너무 타이트함)
-
+    // v23: ATR 기반 SL/TP 계산
     // 슬리피지 적용 (백테스트와 동일)
     const slippageFactor = activeOB.type === 'LONG'
       ? (1 + this.config.slippage)
       : (1 - this.config.slippage);
-    const entry = entryPoint * slippageFactor;  // v21: obMidpoint → entryPoint
+
+    // v23: 진입 오프셋 적용 (ATR 기반)
+    // LONG: 현재가보다 ATR×offset 만큼 아래에서 매수
+    // SHORT: 현재가보다 ATR×offset 만큼 위에서 매도
+    const entryOffset = atr * this.config.order.entryOffsetAtr;
+    const entry = activeOB.type === 'LONG'
+      ? (entryPoint - entryOffset) * slippageFactor
+      : (entryPoint + entryOffset) * slippageFactor;
+
+    // v23: ATR 기반 SL/TP
+    const slDistance = atr * this.config.order.slAtr;  // SL = ATR × 0.3
+    const tpDistance = atr * this.config.order.tpAtr;  // TP = ATR × 0.6 (R:R 2:1)
 
     let stopLoss: number;
     let takeProfit1: number;
     let takeProfit2: number;
 
     if (activeOB.type === 'LONG') {
-      stopLoss = activeOB.bottom * (1 - slBuffer);
-      const risk = entry - stopLoss;
-      takeProfit1 = entry + (risk * 1.2);  // 롤백: 0.8R → 1.2R
-      takeProfit2 = entry + (risk * this.config.rrRatio);  // rrRatio = 4.0
+      stopLoss = entry - slDistance;
+      takeProfit1 = entry + tpDistance;
+      takeProfit2 = entry + (tpDistance * 2);  // TP2 = TP1 × 2
     } else {
-      stopLoss = activeOB.top * (1 + slBuffer);
-      const risk = stopLoss - entry;
-      takeProfit1 = entry - (risk * 1.2);  // 롤백: 0.8R → 1.2R
-      takeProfit2 = entry - (risk * this.config.rrRatio);  // rrRatio = 4.0
+      stopLoss = entry + slDistance;
+      takeProfit1 = entry - tpDistance;
+      takeProfit2 = entry - (tpDistance * 2);  // TP2 = TP1 × 2
     }
+
+    // v23: SL/TP 퍼센트 계산 (로깅용)
+    const slPercent = (slDistance / entry) * 100;
+    const tpPercent = (tpDistance / entry) * 100;
 
     // v7: ATR% 기반 동적 레버리지 계산
     const atrPercent = (atr / currentCandle.close) * 100;
@@ -961,11 +1014,13 @@ export class SimpleTrueOBStrategy implements IStrategy {
     if (this.isLiveMode) {
       this.logger.log(`\n${'='.repeat(60)}`);
       this.logger.log(`[${symbol}/${timeframe}] ENTRY SIGNAL: ${activeOB.type} ${activeOB.method}`);
-      this.logger.log(`  Entry: ${entry.toFixed(6)} (with ${this.config.slippage * 100}% slippage)`);
-      this.logger.log(`  SL: ${stopLoss.toFixed(6)}, TP1: ${takeProfit1.toFixed(6)}, TP2: ${takeProfit2.toFixed(6)}`);
+      this.logger.log(`  Entry: ${entry.toFixed(6)} (offset: ${entryOffset.toFixed(6)})`);
+      this.logger.log(`  SL: ${stopLoss.toFixed(6)} (-${slPercent.toFixed(2)}% = ATR×${this.config.order.slAtr})`);
+      this.logger.log(`  TP1: ${takeProfit1.toFixed(6)} (+${tpPercent.toFixed(2)}% = ATR×${this.config.order.tpAtr})`);
+      this.logger.log(`  R:R = 1:${(tpDistance / slDistance).toFixed(1)}`);
       this.logger.log(`  Position: ${positionSize.toFixed(4)} @ $${margin.toFixed(2)} margin (${leverage}x)`);
-      this.logger.log(`  ATR%: ${atrPercent.toFixed(2)}% → Leverage: ${leverage}x`);
-      this.logger.log(`  Risk Multiplier: ${positionSizeMultiplier.toFixed(2)}`);
+      this.logger.log(`  ATR: ${atr.toFixed(6)} (${atrPercent.toFixed(2)}%)`);
+      this.logger.log(`  Time Mgmt: TP축소 ${this.config.position.tpReduceTimeSec / 60}분, 본전 ${this.config.position.breakevenTimeSec / 60}분, 최대 ${this.config.position.maxHoldTimeSec / 60}분`);
       this.logger.log(`${'='.repeat(60)}\n`);
     }
 
