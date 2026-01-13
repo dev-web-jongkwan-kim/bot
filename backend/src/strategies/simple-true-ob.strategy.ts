@@ -97,6 +97,8 @@ interface Config {
   use15mStrictFilter: boolean;    // 15분봉 강화 필터 사용 여부
   strict15mAtrMax: number;        // 15분봉 ATR% 최대값 (더 엄격)
   strict15mOBSizeMax: number;     // 15분봉 OB 크기 최대값 (더 엄격)
+  // v19: 진입점 위치 (0 = OB BOTTOM/TOP, 0.5 = MIDPOINT, 1 = OB TOP/BOTTOM)
+  entryPosition: number;          // LONG: BOTTOM에서 위로, SHORT: TOP에서 아래로
 }
 
 @Injectable()
@@ -186,6 +188,8 @@ export class SimpleTrueOBStrategy implements IStrategy {
       use15mStrictFilter: true,     // 15분봉에 더 엄격한 필터 적용
       strict15mAtrMax: 0.6,         // 15분봉 ATR% 최대 0.6% (5분봉 0.8%보다 엄격)
       strict15mOBSizeMax: 1.2,      // v19: 15분봉 OB 크기 최대 1.2% (0.3% → 1.2% 완화)
+      // v19: 진입점 위치 (MIDPOINT 0.5 → 0.35로 변경, BOTTOM 쪽으로 이동)
+      entryPosition: 0.35,          // LONG: BOTTOM+35%, SHORT: TOP-35%
     };
   }
 
@@ -911,13 +915,27 @@ export class SimpleTrueOBStrategy implements IStrategy {
       return null;
     }
 
-    // Retest 체크: 가격이 OB 중간가에 도달했는지 (백테스트와 동일)
-    const obMidpoint = (activeOB.top + activeOB.bottom) / 2;
-    const priceHitMidpoint = currentCandle.low <= obMidpoint && obMidpoint <= currentCandle.high;
+    // v19: 진입점 체크 (MIDPOINT → 0.35 위치로 변경)
+    // LONG: OB BOTTOM에서 35% 위 = 더 좋은 가격에 진입
+    // SHORT: OB TOP에서 35% 아래 = 더 좋은 가격에 진입
+    const obSize = activeOB.top - activeOB.bottom;
+    const entryPoint = activeOB.type === 'LONG'
+      ? activeOB.bottom + (obSize * this.config.entryPosition)  // LONG: BOTTOM에서 위로
+      : activeOB.top - (obSize * this.config.entryPosition);    // SHORT: TOP에서 아래로
 
-    if (!priceHitMidpoint) {
+    // 가격이 진입점에 도달했는지 체크
+    // LONG: 가격이 진입점까지 내려왔는지 (low <= entryPoint)
+    // SHORT: 가격이 진입점까지 올라왔는지 (high >= entryPoint)
+    const priceHitEntry = activeOB.type === 'LONG'
+      ? currentCandle.low <= entryPoint
+      : currentCandle.high >= entryPoint;
+
+    if (!priceHitEntry) {
       return null;
     }
+
+    // 기존 obMidpoint 변수는 다른 곳에서도 사용하므로 유지
+    const obMidpoint = (activeOB.top + activeOB.bottom) / 2;
 
     // v19: 미티게이션 체크 제거 - 두 번째 터치도 허용
     // (기존 v17 미티게이션 체크 비활성화)
@@ -1092,14 +1110,14 @@ export class SimpleTrueOBStrategy implements IStrategy {
       this.logger.log(`[${symbol}/${timeframe}] ✅ OB size OK: ${obSizePercent.toFixed(3)}%`);
     }
 
-    // 진입 시그널 생성 (OB 중간가 사용)
+    // v19: 진입 시그널 생성 (entryPoint 사용 - 0.35 위치)
     const slBuffer = 0.01;  // 롤백: 0.5% → 1.0% (0.5%는 너무 타이트함)
 
     // 슬리피지 적용 (백테스트와 동일)
     const slippageFactor = activeOB.type === 'LONG'
       ? (1 + this.config.slippage)
       : (1 - this.config.slippage);
-    const entry = obMidpoint * slippageFactor;
+    const entry = entryPoint * slippageFactor;  // v19: obMidpoint → entryPoint
 
     let stopLoss: number;
     let takeProfit1: number;
