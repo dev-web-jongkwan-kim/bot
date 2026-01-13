@@ -371,9 +371,11 @@ export class BinanceService {
 
   // ✅ clientOrderId 생성 - 멱등성 보장 (최대 36자)
   private generateClientOrderId(symbol: string, type: string): string {
-    // 바이낸스 제한: 36자 미만
+    // 바이낸스 제한: 36자 미만, 허용 문자: ^[.A-Z:/a-z0-9_-]{1,36}$
     // 형식: SYM_T_TIMESTAMP_RANDOM (예: BONK_L_abc123_xyz789)
-    const shortSymbol = symbol.replace('USDT', '').replace('1000', '').substring(0, 6);
+    // v20: 비영문 문자(중국어 등) 제거
+    const cleanSymbol = symbol.replace('USDT', '').replace('1000', '').replace(/[^A-Za-z0-9]/g, '');
+    const shortSymbol = cleanSymbol.substring(0, 6) || 'SYM'; // 비어있으면 기본값
     const typeChar = type.charAt(0); // L=LIMIT, M=MARKET, S=STOP_MARKET, T=TAKE_PROFIT_MARKET
     const timestamp = Date.now().toString(36); // base36로 변환 (8자)
     const random = Math.random().toString(36).substring(2, 8); // 6자
