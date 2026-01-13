@@ -31,6 +31,9 @@ export class PositionSyncService {
   // ✅ 방어 로직: 포지션별 SL 부재 시작 시간 추적
   private positionWithoutSlSince: Map<string, number> = new Map();
 
+  // v22: 현재 sync 사이클에서 청산된 심볼 (중복 처리 방지)
+  private closedInCurrentCycle: Set<string> = new Set();
+
   // v15: 타임프레임별 최대 보유 시간 (밀리초)
   // 5분봉: 2시간 (24캔들) - 데이터 분석 결과 120분 이후 승률 급락
   // 15분봉: 4시간 (16캔들) - 기존 유지
@@ -70,6 +73,9 @@ export class PositionSyncService {
     }
 
     this.isSyncing = true;
+    // v22: 매 사이클 시작 시 청산된 심볼 목록 초기화
+    this.closedInCurrentCycle.clear();
+
     try {
       // 1. 바이낸스에서 실제 오픈 포지션 가져오기
       const binancePositions = await this.binanceService.getOpenPositions();
@@ -101,6 +107,13 @@ export class PositionSyncService {
       // 3. 바이낸스에 있는 포지션 기준으로 DB 업데이트/생성
       for (const binancePos of activePositions) {
         const symbol = binancePos.symbol;
+
+        // v22: 이번 사이클에서 이미 청산한 심볼은 스킵
+        if (this.closedInCurrentCycle.has(symbol)) {
+          this.logger.debug(`[SYNC] ${symbol}: Already closed in this cycle, skipping`);
+          continue;
+        }
+
         const positionAmt = parseFloat(binancePos.positionAmt);
         const entryPrice = parseFloat(binancePos.entryPrice);
         const markPrice = parseFloat(binancePos.markPrice);
@@ -1122,6 +1135,9 @@ export class PositionSyncService {
           `  ════════════════════════════════════════════════════`
         );
 
+        // v22: 청산된 심볼 추적 (메인 루프에서 중복 처리 방지)
+        this.closedInCurrentCycle.add(symbol);
+
       } catch (error: any) {
         this.logger.error(`  ❌ Failed to close unknown position: ${error.message}`);
       }
@@ -1212,6 +1228,9 @@ export class PositionSyncService {
             `  ✅ Oversized margin position CLOSED: ${closeOrder.orderId}\n` +
             `  ════════════════════════════════════════════════════`
           );
+
+          // v22: 청산된 심볼 추적 (메인 루프에서 중복 처리 방지)
+          this.closedInCurrentCycle.add(symbol);
 
           // DB에 포지션이 있으면 상태 업데이트
           const dbPos = await this.positionRepo.findOne({
