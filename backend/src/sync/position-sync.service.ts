@@ -1101,10 +1101,23 @@ export class PositionSyncService {
         continue;
       }
 
-      // ⚠️ 미인식 포지션 발견 - 즉시 청산!
+      // ⚠️ 미인식 포지션 발견
       const entryPrice = parseFloat(binancePos.entryPrice);
       const currentQty = Math.abs(positionAmt);
       const positionValue = entryPrice * currentQty;
+
+      // v22: Binance 포지션의 updateTime 확인 (포지션 생성 후 30초 대기)
+      // Binance API는 updateTime을 밀리초 timestamp로 제공
+      const positionUpdateTime = parseInt(binancePos.updateTime || '0');
+      const positionAge = Date.now() - positionUpdateTime;
+      const GRACE_PERIOD_MS = 30 * 1000; // 30초
+
+      if (positionAge < GRACE_PERIOD_MS) {
+        this.logger.debug(
+          `[DEFENSE] ${symbol}: Position too new (${Math.round(positionAge/1000)}s), waiting for OrderService to process`
+        );
+        continue;
+      }
 
       this.logger.error(
         `\n🚨🚨🚨 [CRITICAL] UNKNOWN POSITION DETECTED! 🚨🚨🚨\n` +
@@ -1113,6 +1126,7 @@ export class PositionSyncService {
         `  Quantity:  ${currentQty}\n` +
         `  Entry:     ${entryPrice}\n` +
         `  Value:     $${positionValue.toFixed(2)}\n` +
+        `  Age:       ${Math.round(positionAge/1000)}s\n` +
         `  → CLOSING IMMEDIATELY!`
       );
 
