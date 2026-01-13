@@ -96,7 +96,12 @@ export class CandleAggregatorService {
     const promises: Promise<void>[] = [];
     const strategyCount = this.strategyCallbacks.size;
 
-    // [FLOW-2] 전략 브로드캐스트 로깅
+    // [FLOW-2] 전략 브로드캐스트 로깅 - 전략이 없으면 경고
+    if (strategyCount === 0) {
+      this.logger.warn(`[FLOW-2] ⚠️ No strategies registered! Candle ${symbol} ${timeframe} not processed.`);
+      return;
+    }
+
     this.logger.debug(
       `[FLOW-2] Aggregator → Strategy | Broadcasting ${symbol} ${timeframe} to ${strategyCount} strategies`
     );

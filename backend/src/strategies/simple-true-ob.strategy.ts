@@ -14,28 +14,18 @@
  * - v8: 재진입 쿨다운 12캔들 (5분봉 1시간, 15분봉 3시간)
  * - v9: tp1Ratio 1.0 (승률 57%, MDD 22.5%, ROI +1207%)
  * - v10: ATR + CVD 필터 추가 (승률 58.8% → 62.5%, +3.7%p)
- * - v11: 파라미터 최적화 → ❌ 실패 (실전 승률 25%, 청산 급증)
- * - v10 롤백 (2026-01-13): v11 전체 롤백 완료
- *   - slBuffer: 0.5% → 1.0%, tp1Ratio: 0.8R → 1.2R
- *   - 레버리지: 20/15/10 → 15/10/5
- *   - orbAtr: 1.0 → 1.5, orbVol: 1.5 → 2.0
- *   - retryCooldown: 6 → 12, atrFilterMin: 0.4 → 0.5
- * - v17 (2026-01-13): 실전 데이터 분석 기반 필터 강화
- *   - ATR 구간 제한: 0.5~3.0% → 0.5~0.8% (최적 구간)
- *   - OB 크기 필터 추가: 0.5% 초과 OB 제외 (작은 OB가 승률 높음)
- *   - 타임프레임별 OB 수명: 5분봉 12캔들(1시간), 15분봉 8캔들(2시간)
- *   - 미티게이션 체크: OB 영역 이미 터치된 경우 진입 거부
- * - v18 (2026-01-13): 방향 확실성 강화
- *   - MTF EMA 배열 필터: 5분봉 진입 시 15분봉 EMA9>21>50 확인
- *   - 15분봉 강화 필터: ATR 0.6% 이하, OB 크기 0.3% 이하, EMA 배열 필수
+ * - v11: 파라미터 최적화 (ROI 2969% → 8008%, +170%)
+ *   - orbAtr: 1.5 → 1.0, orbVol: 2.0 → 1.5
+ *   - slBuffer: 1.0% → 0.5%, tp1Ratio: 1.2R → 0.8R
+ *   - retryCooldown: 12 → 6, atrFilterMin: 0.5 → 0.4
+ *   - 동적 레버리지: 15/10/5 → 20/15/10
  *
- * 현재 버전: v18 (방향 확실성 강화)
  * 최종 성능 (백테스트 2025-10-05 ~ 2026-01-05, 고정마진 $15):
  * - ROI: +1207%, Win Rate: 57.0%, MDD: 22.5%
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { ATR, SMA, EMA } from 'technicalindicators';
+import { ATR, SMA } from 'technicalindicators';
 import { IStrategy, StrategySignal, STRATEGY_NAMES } from './strategy.interface';
 import { CandleData } from '../websocket/candle-aggregator.service';
 import {
@@ -62,9 +52,7 @@ interface Config {
   londonHour: number;
   nyHour: number;
   rrRatio: number;
-  obMaxBars: number;           // deprecated: 타임프레임별 설정 사용
-  obMaxBars5m: number;         // v17: 5분봉 OB 최대 수명 (캔들)
-  obMaxBars15m: number;        // v17: 15분봉 OB 최대 수명 (캔들)
+  obMaxBars: number;
   makerFee: number;
   takerFee: number;
   leverage: number;
@@ -85,20 +73,8 @@ interface Config {
   // v10: ATR + CVD 방향 필터
   useATRCVDFilter: boolean;       // ATR + CVD 필터 사용 여부
   atrFilterMin: number;           // ATR% 최소값 (0.5%)
-  atrFilterMax: number;           // ATR% 최대값 (0.8%)
+  atrFilterMax: number;           // ATR% 최대값 (3.0%)
   cvdLookback: number;            // CVD 계산 기간 (20캔들)
-  maxOBSizePercent: number;       // v17: OB 최대 크기 (0.5%)
-  // v18: MTF EMA 배열 필터
-  useMTFFilter: boolean;          // MTF 필터 사용 여부
-  emaFastPeriod: number;          // EMA 단기 (9)
-  emaMidPeriod: number;           // EMA 중기 (21)
-  emaSlowPeriod: number;          // EMA 장기 (50)
-  // v18: 15분봉 강화 필터
-  use15mStrictFilter: boolean;    // 15분봉 강화 필터 사용 여부
-  strict15mAtrMax: number;        // 15분봉 ATR% 최대값 (더 엄격)
-  strict15mOBSizeMax: number;     // 15분봉 OB 크기 최대값 (더 엄격)
-  // v19: 진입점 위치 (0 = OB BOTTOM/TOP, 0.5 = MIDPOINT, 1 = OB TOP/BOTTOM)
-  entryPosition: number;          // LONG: BOTTOM에서 위로, SHORT: TOP에서 아래로
 }
 
 @Injectable()
@@ -112,9 +88,6 @@ export class SimpleTrueOBStrategy implements IStrategy {
   private failedOBsMap: Map<string, Array<{ price: number; barIndex: number }>> = new Map();
   private candleCountMap: Map<string, number> = new Map();
   private candleBufferMap: Map<string, OHLCV[]> = new Map();
-
-  // v18: MTF용 15분봉 캔들 버퍼 (심볼별, 5분봉 진입 시 참조)
-  private candle15mBufferMap: Map<string, OHLCV[]> = new Map();
 
   // 리스크 관리: 심볼+타임프레임별 연속 손실/수익 관리
   private consecutiveLossesMap: Map<string, number> = new Map();
@@ -131,8 +104,8 @@ export class SimpleTrueOBStrategy implements IStrategy {
   // ✅ 실시간 모드 플래그 (과거 데이터 로딩 중에는 false)
   private isLiveMode = false;
 
-  // v8: 재진입 쿨다운 (v10 원복)
-  private readonly REENTRY_COOLDOWN_BARS = 12;  // 5분봉 1시간, 15분봉 3시간
+  // v8: 재진입 쿨다운 (v11 최적화: 12 → 6)
+  private readonly REENTRY_COOLDOWN_BARS = 6;  // 5분봉 30분, 15분봉 1.5시간
   private lastExitCandleIndexMap: Map<string, number> = new Map();
 
   constructor() {
@@ -148,17 +121,15 @@ export class SimpleTrueOBStrategy implements IStrategy {
       sweepWickMin: 0.6,
       sweepPenMin: 0.1,
       sweepPenMax: 1.0,
-      orbAtr: 1.0,              // v11 최적화: 1.5 → 1.0
-      orbVol: 1.5,              // v11 최적화: 2.0 → 1.5
+      orbAtr: 1.0,              // v11 최적화: 1.5 → 1.0 (더 많은 OB 감지)
+      orbVol: 1.5,              // v11 최적화: 2.0 → 1.5 (더 많은 OB 감지)
       londonHour: 7,
       nyHour: 14,
       rrRatio: 4.0,             // v4 최적화: 3.0 → 4.0
-      obMaxBars: 60,            // deprecated: 타임프레임별 설정 사용
-      obMaxBars5m: 12,          // v17: 5분봉 OB 최대 수명 12캔들 (1시간)
-      obMaxBars15m: 8,          // v17: 15분봉 OB 최대 수명 8캔들 (2시간)
+      obMaxBars: 60,            // 원복: 60봉 유지 (OB 교체는 활성화)
       makerFee: 0.0004,         // 0.04%
       takerFee: 0.00075,        // 0.075%
-      leverage: 20,             // v11 최적화: 20x
+      leverage: 15,             // v5 최적화: 10 → 15
       capitalUsage: 0.1,        // 10%
       slippage: 0.0002,         // 0.02% - 백테스트와 동일하게 추가
       maxHoldingBars: 48,       // v5 최적화: 72 → 48 (4시간)
@@ -172,34 +143,22 @@ export class SimpleTrueOBStrategy implements IStrategy {
       orderValidityBars5m: 3,       // 5분봉 15분 (3 × 5분) - 백테스트 REALISTIC_CONFIG와 동일
       orderValidityBars15m: 3,      // 15분봉 45분 (3 × 15분) - 백테스트 REALISTIC_CONFIG와 동일
       // v7: ATR% 기반 동적 레버리지
-      useDynamicLeverage: false,    // v19: 비활성화 (10x 고정)
+      useDynamicLeverage: true,     // 활성화
       // v10: ATR + CVD 방향 필터
       useATRCVDFilter: true,        // 활성화
       atrFilterMin: 0.4,            // v11 최적화: 0.5 → 0.4
-      atrFilterMax: 0.8,            // v17: ATR% 최대 0.8% (실전 분석: 0.5~0.8% 최고 승률)
+      atrFilterMax: 3.0,            // ATR% 최대 3.0%
       cvdLookback: 20,              // CVD 20캔들 기준
-      maxOBSizePercent: 1.5,        // v19: OB 최대 크기 1.5% (0.5% → 1.5% 완화)
-      // v18: MTF EMA 배열 필터
-      useMTFFilter: false,          // v19: 비활성화 (데이터 수집 후 개선 예정)
-      emaFastPeriod: 9,             // EMA 단기
-      emaMidPeriod: 21,             // EMA 중기
-      emaSlowPeriod: 50,            // EMA 장기
-      // v18: 15분봉 강화 필터
-      use15mStrictFilter: true,     // 15분봉에 더 엄격한 필터 적용
-      strict15mAtrMax: 0.6,         // 15분봉 ATR% 최대 0.6% (5분봉 0.8%보다 엄격)
-      strict15mOBSizeMax: 1.2,      // v19: 15분봉 OB 크기 최대 1.2% (0.3% → 1.2% 완화)
-      // v19: 진입점 위치 (MIDPOINT 0.5 → 0.35로 변경, BOTTOM 쪽으로 이동)
-      entryPosition: 0.35,          // LONG: BOTTOM+35%, SHORT: TOP-35%
     };
   }
 
   /**
-   * ATR% 기반 동적 레버리지 계산 (롤백: 20/15/10 → 15/10/5)
+   * ATR% 기반 동적 레버리지 계산 (v11 최적화: 15/10/5 → 20/15/10)
    */
   private getDynamicLeverage(atrPercent: number): number {
-    if (atrPercent < 1.5) return 15;      // 낮은 변동성 → 롤백: 20→15
-    if (atrPercent <= 3.0) return 10;     // 보통 변동성 → 롤백: 15→10
-    return 5;                              // 높은 변동성 → 롤백: 10→5
+    if (atrPercent < 1.5) return 20;      // 낮은 변동성 → 공격적 (v11: 15→20)
+    if (atrPercent <= 3.0) return 15;     // 보통 변동성 → 중립 (v11: 10→15)
+    return 10;                             // 높은 변동성 → 방어적 (v11: 5→10)
   }
 
   /**
@@ -288,81 +247,6 @@ export class SimpleTrueOBStrategy implements IStrategy {
     const atrPassed = this.checkATRVolatilityFilter(candles, currentIndex);
     const cvdPassed = this.checkCVDFilter(candles, obType, currentIndex);
     return atrPassed && cvdPassed;
-  }
-
-  /**
-   * v18: MTF EMA 배열 체크 - 15분봉 EMA 배열로 방향 확인
-   * LONG: EMA9 > EMA21 > EMA50 (상승 추세)
-   * SHORT: EMA9 < EMA21 < EMA50 (하락 추세)
-   */
-  private checkMTFEMAAlignment(symbol: string, obType: 'LONG' | 'SHORT'): boolean {
-    const candles15m = this.candle15mBufferMap.get(symbol);
-
-    if (!candles15m || candles15m.length < this.config.emaSlowPeriod + 10) {
-      // 15분봉 데이터 부족 시 통과 (초기에는 필터 적용 안함)
-      return true;
-    }
-
-    const closes = candles15m.map(c => c.close);
-
-    // EMA 계산
-    const ema9Values = EMA.calculate({
-      period: this.config.emaFastPeriod,
-      values: closes,
-    });
-    const ema21Values = EMA.calculate({
-      period: this.config.emaMidPeriod,
-      values: closes,
-    });
-    const ema50Values = EMA.calculate({
-      period: this.config.emaSlowPeriod,
-      values: closes,
-    });
-
-    if (ema9Values.length === 0 || ema21Values.length === 0 || ema50Values.length === 0) {
-      return true;  // 계산 불가 시 통과
-    }
-
-    // 최신 EMA 값
-    const ema9 = ema9Values[ema9Values.length - 1];
-    const ema21 = ema21Values[ema21Values.length - 1];
-    const ema50 = ema50Values[ema50Values.length - 1];
-
-    if (obType === 'LONG') {
-      // 상승 추세: EMA9 > EMA21 > EMA50
-      const aligned = ema9 > ema21 && ema21 > ema50;
-      if (!aligned && this.isLiveMode) {
-        this.logger.debug(
-          `[${symbol}] MTF EMA not aligned for LONG: EMA9=${ema9.toFixed(2)}, EMA21=${ema21.toFixed(2)}, EMA50=${ema50.toFixed(2)}`
-        );
-      }
-      return aligned;
-    } else {
-      // 하락 추세: EMA9 < EMA21 < EMA50
-      const aligned = ema9 < ema21 && ema21 < ema50;
-      if (!aligned && this.isLiveMode) {
-        this.logger.debug(
-          `[${symbol}] MTF EMA not aligned for SHORT: EMA9=${ema9.toFixed(2)}, EMA21=${ema21.toFixed(2)}, EMA50=${ema50.toFixed(2)}`
-        );
-      }
-      return aligned;
-    }
-  }
-
-  /**
-   * v18: 15분봉 캔들 버퍼에 추가 (MTF용)
-   */
-  private add15mCandleToBuffer(symbol: string, candle: OHLCV): void {
-    let buffer = this.candle15mBufferMap.get(symbol);
-    if (!buffer) {
-      buffer = [];
-      this.candle15mBufferMap.set(symbol, buffer);
-    }
-    buffer.push(candle);
-    // 최대 200개 유지 (EMA50 계산 + 여유)
-    if (buffer.length > 200) {
-      buffer.shift();
-    }
   }
 
   private getStateKey(symbol: string, timeframe: string): string {
@@ -498,17 +382,6 @@ export class SimpleTrueOBStrategy implements IStrategy {
    * 15분봉 종가 이벤트
    */
   async on15minCandleClose(symbol: string, candle: CandleData): Promise<StrategySignal | null> {
-    // v18: MTF용 15분봉 캔들 저장 (5분봉 진입 시 EMA 배열 체크에 사용)
-    const ohlcv: OHLCV = {
-      timestamp: candle.timestamp,
-      open: candle.open,
-      high: candle.high,
-      low: candle.low,
-      close: candle.close,
-      volume: candle.volume,
-    };
-    this.add15mCandleToBuffer(symbol, ohlcv);
-
     return this.processCandle(symbol, '15m', candle);
   }
 
@@ -661,16 +534,11 @@ export class SimpleTrueOBStrategy implements IStrategy {
     let activeOB = this.getActiveOB(stateKey);
 
     // OB 에이징 및 무효화 체크 (먼저)
-    // v17: 타임프레임별 OB 수명 적용
-    const obMaxBars = timeframe === '5m'
-      ? this.config.obMaxBars5m   // 12캔들 (1시간)
-      : this.config.obMaxBars15m; // 8캔들 (2시간)
-
     if (activeOB) {
       activeOB.age = i - activeOB.barIndex;
 
-      if (activeOB.age > obMaxBars) {
-        this.logger.debug(`[${symbol}/${timeframe}] OB expired (age: ${activeOB.age} > ${obMaxBars})`);
+      if (activeOB.age > this.config.obMaxBars) {
+        this.logger.debug(`[${symbol}/${timeframe}] OB expired (age: ${activeOB.age})`);
         activeOB = null;
       }
       else if (activeOB.type === 'LONG' && currentCandle.low < activeOB.bottom) {
@@ -680,32 +548,6 @@ export class SimpleTrueOBStrategy implements IStrategy {
       else if (activeOB.type === 'SHORT' && currentCandle.high > activeOB.top) {
         this.logger.debug(`[${symbol}/${timeframe}] SHORT OB invalidated (price broke top)`);
         activeOB = null;
-      }
-      // v17: 미티게이션 체크 - 가격이 이미 OB 영역에 진입했는지 확인
-      // OB 형성 후 가격이 OB 영역에 이미 닿았으면 미티게이션됨 (무효)
-      else if (!activeOB.mitigated && activeOB.pricedMovedAway) {
-        // 가격이 충분히 벗어난 후에만 미티게이션 체크 (첫 번째 터치는 허용)
-        let wasMitigated = false;
-
-        if (activeOB.type === 'LONG') {
-          // LONG OB: 가격이 OB 영역으로 내려왔는지 (현재 캔들에서 터치)
-          // low <= top 이면 OB 영역에 진입
-          if (currentCandle.low <= activeOB.top) {
-            wasMitigated = true;
-          }
-        } else {
-          // SHORT OB: 가격이 OB 영역으로 올라왔는지 (현재 캔들에서 터치)
-          // high >= bottom 이면 OB 영역에 진입
-          if (currentCandle.high >= activeOB.bottom) {
-            wasMitigated = true;
-          }
-        }
-
-        if (wasMitigated) {
-          activeOB.mitigated = true;
-          this.setActiveOB(stateKey, activeOB);
-          // 미티게이션되면 다음 진입에서 체크됨
-        }
       }
     }
 
@@ -915,30 +757,13 @@ export class SimpleTrueOBStrategy implements IStrategy {
       return null;
     }
 
-    // v19: 진입점 체크 (MIDPOINT → 0.35 위치로 변경)
-    // LONG: OB BOTTOM에서 35% 위 = 더 좋은 가격에 진입
-    // SHORT: OB TOP에서 35% 아래 = 더 좋은 가격에 진입
-    // obSize는 위에서 이미 계산됨 (line 905)
-    const entryPoint = activeOB.type === 'LONG'
-      ? activeOB.bottom + (obSize * this.config.entryPosition)  // LONG: BOTTOM에서 위로
-      : activeOB.top - (obSize * this.config.entryPosition);    // SHORT: TOP에서 아래로
+    // Retest 체크: 가격이 OB 중간가에 도달했는지 (백테스트와 동일)
+    const obMidpoint = (activeOB.top + activeOB.bottom) / 2;
+    const priceHitMidpoint = currentCandle.low <= obMidpoint && obMidpoint <= currentCandle.high;
 
-    // 가격이 진입점에 도달했는지 체크
-    // LONG: 가격이 진입점까지 내려왔는지 (low <= entryPoint)
-    // SHORT: 가격이 진입점까지 올라왔는지 (high >= entryPoint)
-    const priceHitEntry = activeOB.type === 'LONG'
-      ? currentCandle.low <= entryPoint
-      : currentCandle.high >= entryPoint;
-
-    if (!priceHitEntry) {
+    if (!priceHitMidpoint) {
       return null;
     }
-
-    // 기존 obMidpoint 변수는 다른 곳에서도 사용하므로 유지
-    const obMidpoint = (activeOB.top + activeOB.bottom) / 2;
-
-    // v19: 미티게이션 체크 제거 - 두 번째 터치도 허용
-    // (기존 v17 미티게이션 체크 비활성화)
 
     // requireReversal 체크 (백테스트와 동일하게 추가)
     if (this.config.requireReversal) {
@@ -1026,98 +851,14 @@ export class SimpleTrueOBStrategy implements IStrategy {
       }
     }
 
-    // v18: MTF EMA 배열 필터 (5분봉 진입 시 15분봉 EMA 배열 확인)
-    if (this.config.useMTFFilter && timeframe === '5m') {
-      const mtfPassed = this.checkMTFEMAAlignment(symbol, activeOB.type);
-      if (!mtfPassed) {
-        if (this.isLiveMode) {
-          this.logger.log(
-            `[${symbol}/${timeframe}] ❌ MTF EMA filter rejected: 15m EMA not aligned for ${activeOB.type}`
-          );
-        }
-        return null;  // OB 유지, 다음 캔들에서 재시도
-      }
-      if (this.isLiveMode) {
-        this.logger.log(`[${symbol}/${timeframe}] ✅ MTF EMA aligned for ${activeOB.type}`);
-      }
-    }
-
-    // v18: 15분봉 강화 필터 (더 엄격한 조건)
-    if (this.config.use15mStrictFilter && timeframe === '15m') {
-      // 15분봉용 더 엄격한 ATR% 체크
-      const atrValues = ATR.calculate({
-        high: candles.slice(-100).map(c => c.high),
-        low: candles.slice(-100).map(c => c.low),
-        close: candles.slice(-100).map(c => c.close),
-        period: 14,
-      });
-      const currentATR = atrValues.length > 0 ? atrValues[atrValues.length - 1] : 0;
-      const atrPct = (currentATR / currentCandle.close) * 100;
-
-      if (atrPct > this.config.strict15mAtrMax) {
-        if (this.isLiveMode) {
-          this.logger.log(
-            `[${symbol}/${timeframe}] ❌ 15m strict ATR filter: ${atrPct.toFixed(2)}% > ${this.config.strict15mAtrMax}%`
-          );
-        }
-        return null;
-      }
-
-      // 15분봉용 더 엄격한 OB 크기 체크
-      const obSizePct = ((activeOB.top - activeOB.bottom) / obMidpoint) * 100;
-      if (obSizePct > this.config.strict15mOBSizeMax) {
-        if (this.isLiveMode) {
-          this.logger.log(
-            `[${symbol}/${timeframe}] ❌ 15m strict OB size filter: ${obSizePct.toFixed(3)}% > ${this.config.strict15mOBSizeMax}%`
-          );
-        }
-        this.setActiveOB(stateKey, null);
-        return null;
-      }
-
-      // 15분봉은 EMA 배열도 필수 (자체 타임프레임)
-      const mtfPassed = this.checkMTFEMAAlignment(symbol, activeOB.type);
-      if (!mtfPassed) {
-        if (this.isLiveMode) {
-          this.logger.log(
-            `[${symbol}/${timeframe}] ❌ 15m EMA alignment required but not met`
-          );
-        }
-        return null;
-      }
-
-      if (this.isLiveMode) {
-        this.logger.log(`[${symbol}/${timeframe}] ✅ 15m strict filters passed`);
-      }
-    }
-
-    // v17: OB 크기 필터 (작은 OB가 승률 높음) - 5분봉용
-    // obMidpoint는 이미 Retest 체크에서 계산됨
-    const obSizePercent = ((activeOB.top - activeOB.bottom) / obMidpoint) * 100;
-    // 15분봉은 위에서 이미 체크했으므로 5분봉만 체크
-    if (timeframe === '5m' && obSizePercent > this.config.maxOBSizePercent) {
-      if (this.isLiveMode) {
-        this.logger.log(
-          `[${symbol}/${timeframe}] ❌ OB size filter rejected: ${obSizePercent.toFixed(3)}% > ${this.config.maxOBSizePercent}%`
-        );
-      }
-      // OB 무효화 - 너무 큰 OB는 신뢰도 낮음
-      this.setActiveOB(stateKey, null);
-      return null;
-    }
-
-    if (this.isLiveMode) {
-      this.logger.log(`[${symbol}/${timeframe}] ✅ OB size OK: ${obSizePercent.toFixed(3)}%`);
-    }
-
-    // v19: 진입 시그널 생성 (entryPoint 사용 - 0.35 위치)
+    // 진입 시그널 생성 (OB 중간가 사용)
     const slBuffer = 0.005;  // v11 최적화: 1.0% → 0.5%
 
     // 슬리피지 적용 (백테스트와 동일)
     const slippageFactor = activeOB.type === 'LONG'
       ? (1 + this.config.slippage)
       : (1 - this.config.slippage);
-    const entry = entryPoint * slippageFactor;  // v19: obMidpoint → entryPoint
+    const entry = obMidpoint * slippageFactor;
 
     let stopLoss: number;
     let takeProfit1: number;
@@ -1126,12 +867,12 @@ export class SimpleTrueOBStrategy implements IStrategy {
     if (activeOB.type === 'LONG') {
       stopLoss = activeOB.bottom * (1 - slBuffer);
       const risk = entry - stopLoss;
-      takeProfit1 = entry + (risk * 0.8);  // v11 최적화: 0.8R
+      takeProfit1 = entry + (risk * 0.8);  // v11 최적화: TP1=1.2R → 0.8R
       takeProfit2 = entry + (risk * this.config.rrRatio);  // rrRatio = 4.0
     } else {
       stopLoss = activeOB.top * (1 + slBuffer);
       const risk = stopLoss - entry;
-      takeProfit1 = entry - (risk * 0.8);  // v11 최적화: 0.8R
+      takeProfit1 = entry - (risk * 0.8);  // v11 최적화: TP1=1.2R → 0.8R
       takeProfit2 = entry - (risk * this.config.rrRatio);  // rrRatio = 4.0
     }
 
@@ -1142,27 +883,23 @@ export class SimpleTrueOBStrategy implements IStrategy {
       : this.config.leverage;
 
     // 포지션 크기 계산 (백테스트와 동일 - 자본 기반 동적)
-    // v18: 마진 범위 제한 ($15 ~ $30)
-    const MIN_MARGIN = 15;
-    const MAX_MARGIN = 30;
     const capital = this.getCapital(symbol);
     let margin: number;
 
     if (capital < 1000) {
-      margin = MIN_MARGIN;  // 최소 마진
+      margin = 15;  // 최소 마진
     } else {
       margin = capital * this.config.capitalUsage;
+      if (margin < 15) {
+        margin = 15;
+      }
     }
 
     // 리스크 관리 적용
     const positionSizeMultiplier = this.getPositionSizeMultiplier(stateKey);
     margin = margin * positionSizeMultiplier;
-
-    // v18: 마진 범위 제한 적용
-    if (margin < MIN_MARGIN) {
-      margin = MIN_MARGIN;
-    } else if (margin > MAX_MARGIN) {
-      margin = MAX_MARGIN;
+    if (margin < 15) {
+      margin = 15;
     }
 
     const positionValue = margin * leverage;
@@ -1319,7 +1056,6 @@ export class SimpleTrueOBStrategy implements IStrategy {
     this.failedOBsMap.clear();
     this.candleCountMap.clear();
     this.candleBufferMap.clear();
-    this.candle15mBufferMap.clear();  // v18: MTF용 15분봉 버퍼도 초기화
     this.consecutiveLossesMap.clear();
     this.consecutiveWinsMap.clear();
     this.positionSizeMultiplierMap.clear();
