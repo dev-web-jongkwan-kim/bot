@@ -334,7 +334,7 @@ export class OkxService {
   }
 
   /**
-   * Get account info
+   * Get account info (Binance compatible format)
    */
   async getAccountInfo() {
     return this.retryOperation(
@@ -349,7 +349,19 @@ export class OkxService {
           throw new Error(`OKX API error: ${data.msg}`);
         }
 
-        return data.data[0];
+        const account = data.data[0];
+        const usdtBalance = account.details?.find((d: any) => d.ccy === 'USDT');
+
+        // Map to Binance-compatible format
+        return {
+          totalWalletBalance: usdtBalance?.eq || account.totalEq || '0',
+          totalUnrealizedProfit: usdtBalance?.upl || '0',
+          totalMarginBalance: usdtBalance?.eq || account.totalEq || '0',
+          availableBalance: usdtBalance?.availBal || '0',
+          maxWithdrawAmount: usdtBalance?.availBal || '0',
+          // Original OKX data
+          raw: account,
+        };
       },
       'getAccountInfo',
     );
@@ -362,16 +374,8 @@ export class OkxService {
     return this.retryOperation(
       async () => {
         const account = await this.getAccountInfo();
-        const usdtBalance = account.details?.find((d: any) => d.ccy === 'USDT');
-
-        if (!usdtBalance) {
-          this.logger.warn('USDT balance not found');
-          return 0;
-        }
-
-        const availableBalance = parseFloat(usdtBalance.availBal || '0');
+        const availableBalance = parseFloat(account.availableBalance || '0');
         this.logger.debug(`[Balance] Available: $${availableBalance.toFixed(2)}`);
-
         return availableBalance;
       },
       'getAvailableBalance',

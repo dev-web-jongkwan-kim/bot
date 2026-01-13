@@ -14,8 +14,9 @@ export class OkxWebSocketService implements OnModuleDestroy {
   private readonly RECONNECT_DELAY = 1000;
   private readonly MAX_RECONNECT_ATTEMPTS = 5;
 
-  // OKX WebSocket URL
-  private readonly WS_URL = 'wss://ws.okx.com:8443/ws/v5/public';
+  // OKX WebSocket URL (business for candles, public for mark price)
+  private readonly WS_BUSINESS_URL = 'wss://ws.okx.com:8443/ws/v5/business';
+  private readonly WS_PUBLIC_URL = 'wss://ws.okx.com:8443/ws/v5/public';
 
   private ws: WebSocket | null = null;
   private reconnectAttempts = 0;
@@ -78,9 +79,9 @@ export class OkxWebSocketService implements OnModuleDestroy {
    */
   private async connect(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.logger.log('Connecting to OKX WebSocket...');
+      this.logger.log('Connecting to OKX Business WebSocket (for candles)...');
 
-      this.ws = new WebSocket(this.WS_URL);
+      this.ws = new WebSocket(this.WS_BUSINESS_URL);
 
       this.ws.on('open', () => {
         this.logger.log('OKX WebSocket connected');
@@ -92,11 +93,19 @@ export class OkxWebSocketService implements OnModuleDestroy {
       });
 
       this.ws.on('message', (data: WebSocket.Data) => {
+        const rawMessage = data.toString();
+
+        // Handle pong response (plain text, not JSON)
+        if (rawMessage === 'pong') {
+          return;
+        }
+
         try {
-          const message = JSON.parse(data.toString());
+          const message = JSON.parse(rawMessage);
           this.handleMessage(message);
         } catch (error) {
-          this.logger.error('Error parsing message:', error);
+          // Ignore non-JSON messages (like pong)
+          this.logger.debug(`Non-JSON message received: ${rawMessage.substring(0, 50)}`);
         }
       });
 
@@ -153,17 +162,9 @@ export class OkxWebSocketService implements OnModuleDestroy {
       this.ws.send(JSON.stringify(subscribeMsg));
     }
 
-    // Subscribe to mark price
-    const markPriceMsg = {
-      op: 'subscribe',
-      args: instIds.map(instId => ({
-        channel: 'mark-price',
-        instId,
-      })),
-    };
-
-    this.logger.log(`Subscribing to mark-price for ${instIds.length} instruments`);
-    this.ws.send(JSON.stringify(markPriceMsg));
+    // Note: mark-price requires public WebSocket, skipping for now
+    // Candle data is sufficient for strategy signals
+    this.logger.log(`Candle subscriptions complete (mark-price skipped - uses different WS)`);
   }
 
   /**

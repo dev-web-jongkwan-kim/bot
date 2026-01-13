@@ -198,7 +198,7 @@ export class SymbolSelectionService {
   private getDefaultSymbols(): string[] {
     return [
       'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT',
-      'ADAUSDT', 'DOGEUSDT', 'DOTUSDT', 'MATICUSDT', 'AVAXUSDT',
+      'ADAUSDT', 'DOGEUSDT', 'DOTUSDT', 'POLUSDT', 'AVAXUSDT',  // MATIC → POL (OKX)
       'LINKUSDT', 'LTCUSDT', 'ATOMUSDT', 'UNIUSDT', 'ETCUSDT',
       'FILUSDT', 'APTUSDT', 'ARBUSDT', 'OPUSDT', 'NEARUSDT',
     ];
