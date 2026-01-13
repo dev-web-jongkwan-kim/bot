@@ -178,7 +178,7 @@ export class SimpleTrueOBStrategy implements IStrategy {
       cvdLookback: 20,              // CVD 20캔들 기준
       maxOBSizePercent: 1.5,        // v19: OB 최대 크기 1.5% (0.5% → 1.5% 완화)
       // v18: MTF EMA 배열 필터
-      useMTFFilter: true,           // 5분봉 진입 시 15분봉 EMA 배열 확인
+      useMTFFilter: false,          // v19: 비활성화 (데이터 수집 후 개선 예정)
       emaFastPeriod: 9,             // EMA 단기
       emaMidPeriod: 21,             // EMA 중기
       emaSlowPeriod: 50,            // EMA 장기
