@@ -35,9 +35,9 @@ export class RiskService {
   private dailyStartBalance: number = 0;
   private dailyStartBalanceDate: string = '';  // YYYY-MM-DD 형식
 
-  // ✅ 마진 범위 제한 (v16)
-  private readonly MIN_MARGIN = 15;   // 최소 마진 $15
-  private readonly MAX_MARGIN = 30;   // 최대 마진 $30
+  // ✅ 마진 고정 (v19)
+  private readonly MIN_MARGIN = 20;   // v19: 마진 $20 고정
+  private readonly MAX_MARGIN = 20;   // v19: 마진 $20 고정
   private readonly ABNORMAL_MARGIN_THRESHOLD = 35;  // 비정상 마진 기준 $35
 
   // ✅ 캔들 기반 동시 진입 제한 (상관관계 필터링)

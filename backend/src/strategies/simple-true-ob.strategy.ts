@@ -156,7 +156,7 @@ export class SimpleTrueOBStrategy implements IStrategy {
       obMaxBars15m: 8,          // v17: 15분봉 OB 최대 수명 8캔들 (2시간)
       makerFee: 0.0004,         // 0.04%
       takerFee: 0.00075,        // 0.075%
-      leverage: 15,             // v5 최적화: 10 → 15
+      leverage: 10,             // v19: 10x 고정
       capitalUsage: 0.1,        // 10%
       slippage: 0.0002,         // 0.02% - 백테스트와 동일하게 추가
       maxHoldingBars: 48,       // v5 최적화: 72 → 48 (4시간)
@@ -170,13 +170,13 @@ export class SimpleTrueOBStrategy implements IStrategy {
       orderValidityBars5m: 3,       // 5분봉 15분 (3 × 5분) - 백테스트 REALISTIC_CONFIG와 동일
       orderValidityBars15m: 3,      // 15분봉 45분 (3 × 15분) - 백테스트 REALISTIC_CONFIG와 동일
       // v7: ATR% 기반 동적 레버리지
-      useDynamicLeverage: true,     // 활성화
+      useDynamicLeverage: false,    // v19: 비활성화 (10x 고정)
       // v10: ATR + CVD 방향 필터
       useATRCVDFilter: true,        // 활성화
       atrFilterMin: 0.5,            // v10 원복 (0.4 → 0.5)
       atrFilterMax: 0.8,            // v17: ATR% 최대 0.8% (실전 분석: 0.5~0.8% 최고 승률)
       cvdLookback: 20,              // CVD 20캔들 기준
-      maxOBSizePercent: 0.5,        // v17: OB 최대 크기 0.5% (작은 OB가 승률 높음)
+      maxOBSizePercent: 1.5,        // v19: OB 최대 크기 1.5% (0.5% → 1.5% 완화)
       // v18: MTF EMA 배열 필터
       useMTFFilter: true,           // 5분봉 진입 시 15분봉 EMA 배열 확인
       emaFastPeriod: 9,             // EMA 단기
@@ -185,7 +185,7 @@ export class SimpleTrueOBStrategy implements IStrategy {
       // v18: 15분봉 강화 필터
       use15mStrictFilter: true,     // 15분봉에 더 엄격한 필터 적용
       strict15mAtrMax: 0.6,         // 15분봉 ATR% 최대 0.6% (5분봉 0.8%보다 엄격)
-      strict15mOBSizeMax: 0.3,      // 15분봉 OB 크기 최대 0.3% (5분봉 0.5%보다 엄격)
+      strict15mOBSizeMax: 1.2,      // v19: 15분봉 OB 크기 최대 1.2% (0.3% → 1.2% 완화)
     };
   }
 
@@ -919,18 +919,8 @@ export class SimpleTrueOBStrategy implements IStrategy {
       return null;
     }
 
-    // v17: 미티게이션 체크 - 이미 터치된 OB는 진입 불가
-    // 첫 번째 터치가 현재 캔들이어야 함 (이미 mitigated면 두 번째 터치)
-    if (activeOB.mitigated) {
-      if (this.isLiveMode) {
-        this.logger.log(
-          `[${symbol}/${timeframe}] ❌ OB mitigated - already touched before, rejecting`
-        );
-      }
-      // OB 무효화 - 이미 사용됨
-      this.setActiveOB(stateKey, null);
-      return null;
-    }
+    // v19: 미티게이션 체크 제거 - 두 번째 터치도 허용
+    // (기존 v17 미티게이션 체크 비활성화)
 
     // requireReversal 체크 (백테스트와 동일하게 추가)
     if (this.config.requireReversal) {
