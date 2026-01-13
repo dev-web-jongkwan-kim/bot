@@ -102,9 +102,13 @@ export class CandleAggregatorService {
       return;
     }
 
-    this.logger.debug(
-      `[FLOW-2] Aggregator → Strategy | Broadcasting ${symbol} ${timeframe} to ${strategyCount} strategies`
-    );
+    // [FLOW-2] 5분마다 로그 (스팸 방지)
+    const minutes = candle.timestamp.getMinutes();
+    if (minutes % 5 === 0 && candle.timestamp.getSeconds() < 10) {
+      this.logger.log(
+        `[FLOW-2] Aggregator → Strategy | Broadcasting to ${strategyCount} strategies`
+      );
+    }
 
     for (const [strategyName, callbacks] of this.strategyCallbacks.entries()) {
       for (const callback of callbacks) {

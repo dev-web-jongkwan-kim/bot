@@ -493,15 +493,28 @@ export class OkxService {
       const instId = this.toOkxInstId(params.symbol);
       const path = '/api/v5/trade/order';
 
-      // ✅ 방향 반전 로직
+      // ✅ 방향 반전 로직 (reduceOnly 주문은 반전하지 않음!)
       // 원래: BUY → long, SELL → short
       // 반전: BUY → short, SELL → long
-      const reversedSide = params.side === 'BUY' ? 'sell' : 'buy';
-      const reversedPosSide = params.side === 'BUY' ? 'short' : 'long';
+      // reduceOnly: 포지션 청산이므로 반전 없이 원래 방향 유지
+      let finalSide: 'buy' | 'sell';
+      let finalPosSide: 'long' | 'short';
 
-      this.logger.log(
-        `[ORDER REVERSAL] Original: ${params.side} → Reversed: ${reversedSide.toUpperCase()} (${reversedPosSide})`
-      );
+      if (params.reduceOnly) {
+        // 포지션 청산: 반전 없음
+        finalSide = params.side === 'BUY' ? 'buy' : 'sell';
+        finalPosSide = params.side === 'BUY' ? 'short' : 'long';  // BUY closes SHORT, SELL closes LONG
+        this.logger.log(
+          `[ORDER] ReduceOnly - No reversal: ${params.side} → ${finalSide.toUpperCase()} (closing ${finalPosSide})`
+        );
+      } else {
+        // 신규 진입: 방향 반전
+        finalSide = params.side === 'BUY' ? 'sell' : 'buy';
+        finalPosSide = params.side === 'BUY' ? 'short' : 'long';
+        this.logger.log(
+          `[ORDER REVERSAL] Original: ${params.side} → Reversed: ${finalSide.toUpperCase()} (${finalPosSide})`
+        );
+      }
 
       // OKX order type mapping
       let ordType = 'market';
@@ -510,8 +523,8 @@ export class OkxService {
       const orderBody: any = {
         instId,
         tdMode: 'cross',  // cross margin
-        side: reversedSide,  // ✅ 반전된 방향
-        posSide: reversedPosSide,  // ✅ 반전된 포지션 방향
+        side: finalSide,  // ✅ 최종 방향 (reduceOnly면 원래, 아니면 반전)
+        posSide: finalPosSide,  // ✅ 최종 포지션 방향
         ordType,
         sz: params.quantity ? this.formatQuantity(params.symbol, params.quantity) : undefined,
       };
@@ -531,7 +544,8 @@ export class OkxService {
         `[ORDER] Creating ${params.type} order:\n` +
         `  Symbol: ${params.symbol} (${instId})\n` +
         `  Original Side: ${params.side}\n` +
-        `  Reversed Side: ${reversedSide.toUpperCase()} / ${reversedPosSide}\n` +
+        `  Final Side: ${finalSide.toUpperCase()} / ${finalPosSide}\n` +
+        `  ReduceOnly: ${params.reduceOnly || false}\n` +
         `  Quantity: ${orderBody.sz}`
       );
 
@@ -558,7 +572,7 @@ export class OkxService {
       return {
         orderId: order.ordId,
         symbol: params.symbol,
-        side: reversedSide.toUpperCase(),
+        side: finalSide.toUpperCase(),
         type: params.type,
         origQty: orderBody.sz,
         executedQty: executedQty.toString(),  // Binance compatible
@@ -583,24 +597,42 @@ export class OkxService {
     triggerPrice: number;
     quantity?: number;
     closePosition?: boolean;
+    isStrategyPosition?: boolean;  // 전략 포지션 여부 (true면 반전 필요)
   }): Promise<AlgoOrderResponse> {
     const instId = this.toOkxInstId(params.symbol);
     const path = '/api/v5/trade/order-algo';
 
     // ✅ 방향 반전 로직
-    const reversedSide = params.side === 'BUY' ? 'sell' : 'buy';
-    const reversedPosSide = params.side === 'BUY' ? 'short' : 'long';
+    // isStrategyPosition=true: 전략 포지션 (DB side는 신호 방향) → 반전 필요
+    // isStrategyPosition=false: 수동 포지션 (DB side는 실제 방향) → 반전 없음
+    let finalSide: 'buy' | 'sell';
+    let finalPosSide: 'long' | 'short';
 
-    this.logger.log(
-      `[ALGO ORDER REVERSAL] Original: ${params.side} → Reversed: ${reversedSide.toUpperCase()} (${reversedPosSide})`
-    );
+    // 기본값: 전략 포지션으로 가정 (기존 동작 유지)
+    const needReversal = params.isStrategyPosition !== false;
+
+    if (needReversal) {
+      // 전략 포지션: 방향 반전
+      finalSide = params.side === 'BUY' ? 'sell' : 'buy';
+      finalPosSide = params.side === 'BUY' ? 'short' : 'long';
+      this.logger.log(
+        `[ALGO ORDER REVERSAL] Strategy position: ${params.side} → ${finalSide.toUpperCase()} (${finalPosSide})`
+      );
+    } else {
+      // 수동 포지션: 반전 없음
+      finalSide = params.side === 'BUY' ? 'buy' : 'sell';
+      finalPosSide = params.side === 'BUY' ? 'short' : 'long';  // BUY closes SHORT, SELL closes LONG
+      this.logger.log(
+        `[ALGO ORDER] Manual position - No reversal: ${params.side} → ${finalSide.toUpperCase()} (closing ${finalPosSide})`
+      );
+    }
 
     // OKX algo order type: conditional
     const orderBody: any = {
       instId,
       tdMode: 'cross',
-      side: reversedSide,  // ✅ 반전된 방향
-      posSide: reversedPosSide,  // ✅ 반전된 포지션 방향
+      side: finalSide,  // ✅ 최종 방향 (closePosition이면 원래, 아니면 반전)
+      posSide: finalPosSide,  // ✅ 최종 포지션 방향
       ordType: 'conditional',
       triggerPx: this.formatPrice(params.symbol, params.triggerPrice),
       triggerPxType: 'last',  // last price trigger
@@ -630,9 +662,10 @@ export class OkxService {
       `[ALGO ORDER] Creating ${params.type}:\n` +
       `  Symbol: ${params.symbol}\n` +
       `  Original Side: ${params.side}\n` +
-      `  Reversed Side: ${reversedSide.toUpperCase()} / ${reversedPosSide}\n` +
+      `  Final Side: ${finalSide.toUpperCase()} / ${finalPosSide}\n` +
       `  Trigger Price: ${orderBody.triggerPx}\n` +
-      `  Close Position: ${params.closePosition || false}`
+      `  Close Position: ${params.closePosition || false}\n` +
+      `  Order Body: ${JSON.stringify(orderBody)}`
     );
 
     try {
@@ -646,7 +679,10 @@ export class OkxService {
       }) as any;
 
       if (response.code !== '0') {
-        throw new Error(`OKX algo order error: ${response.msg}`);
+        // 더 자세한 에러 정보 출력
+        const errorMsg = response.msg || response.data?.[0]?.sMsg || JSON.stringify(response);
+        this.logger.error(`[ALGO ORDER] OKX Response Error:`, JSON.stringify(response, null, 2));
+        throw new Error(`OKX algo order error: ${errorMsg}`);
       }
 
       const order = response.data[0];
@@ -657,8 +693,8 @@ export class OkxService {
         algoClOrdId: order.algoClOrdId || '',
         instId,
         symbol: params.symbol,             // Binance compatible
-        side: reversedSide as 'buy' | 'sell',
-        posSide: reversedPosSide as 'long' | 'short',
+        side: finalSide,
+        posSide: finalPosSide,
         ordType: params.type,
         type: params.type,                  // Binance compatible (alias)
         triggerPx: orderBody.triggerPx,

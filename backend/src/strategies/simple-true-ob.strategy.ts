@@ -14,12 +14,14 @@
  * - v8: 재진입 쿨다운 12캔들 (5분봉 1시간, 15분봉 3시간)
  * - v9: tp1Ratio 1.0 (승률 57%, MDD 22.5%, ROI +1207%)
  * - v10: ATR + CVD 필터 추가 (승률 58.8% → 62.5%, +3.7%p)
- * - v11: 파라미터 최적화 (ROI 2969% → 8008%, +170%)
- *   - orbAtr: 1.5 → 1.0, orbVol: 2.0 → 1.5
- *   - slBuffer: 1.0% → 0.5%, tp1Ratio: 1.2R → 0.8R
- *   - retryCooldown: 12 → 6, atrFilterMin: 0.5 → 0.4
- *   - 동적 레버리지: 15/10/5 → 20/15/10
+ * - v11: 파라미터 최적화 → ❌ 실패 (실전 승률 25%, 청산 급증)
+ * - v10 롤백 (2026-01-13): v11 전체 롤백 완료
+ *   - slBuffer: 0.5% → 1.0%, tp1Ratio: 0.8R → 1.2R
+ *   - 레버리지: 20/15/10 → 15/10/5
+ *   - orbAtr: 1.0 → 1.5, orbVol: 1.5 → 2.0
+ *   - retryCooldown: 6 → 12, atrFilterMin: 0.4 → 0.5
  *
+ * 현재 버전: v10 (안정화)
  * 최종 성능 (백테스트 2025-10-05 ~ 2026-01-05, 고정마진 $15):
  * - ROI: +1207%, Win Rate: 57.0%, MDD: 22.5%
  */
@@ -104,8 +106,8 @@ export class SimpleTrueOBStrategy implements IStrategy {
   // ✅ 실시간 모드 플래그 (과거 데이터 로딩 중에는 false)
   private isLiveMode = false;
 
-  // v8: 재진입 쿨다운 (v11 최적화: 12 → 6)
-  private readonly REENTRY_COOLDOWN_BARS = 6;  // 5분봉 30분, 15분봉 1.5시간
+  // v8: 재진입 쿨다운 (v10 원복)
+  private readonly REENTRY_COOLDOWN_BARS = 12;  // 5분봉 1시간, 15분봉 3시간
   private lastExitCandleIndexMap: Map<string, number> = new Map();
 
   constructor() {
@@ -121,8 +123,8 @@ export class SimpleTrueOBStrategy implements IStrategy {
       sweepWickMin: 0.6,
       sweepPenMin: 0.1,
       sweepPenMax: 1.0,
-      orbAtr: 1.0,              // v11 최적화: 1.5 → 1.0 (더 많은 OB 감지)
-      orbVol: 1.5,              // v11 최적화: 2.0 → 1.5 (더 많은 OB 감지)
+      orbAtr: 1.5,              // v10 원복 (1.0 → 1.5)
+      orbVol: 2.0,              // v10 원복 (1.5 → 2.0)
       londonHour: 7,
       nyHour: 14,
       rrRatio: 4.0,             // v4 최적화: 3.0 → 4.0
@@ -146,19 +148,19 @@ export class SimpleTrueOBStrategy implements IStrategy {
       useDynamicLeverage: true,     // 활성화
       // v10: ATR + CVD 방향 필터
       useATRCVDFilter: true,        // 활성화
-      atrFilterMin: 0.4,            // v11 최적화: 0.5 → 0.4
+      atrFilterMin: 0.5,            // v10 원복 (0.4 → 0.5)
       atrFilterMax: 3.0,            // ATR% 최대 3.0%
       cvdLookback: 20,              // CVD 20캔들 기준
     };
   }
 
   /**
-   * ATR% 기반 동적 레버리지 계산 (v11 최적화: 15/10/5 → 20/15/10)
+   * ATR% 기반 동적 레버리지 계산 (롤백: 20/15/10 → 15/10/5)
    */
   private getDynamicLeverage(atrPercent: number): number {
-    if (atrPercent < 1.5) return 20;      // 낮은 변동성 → 공격적 (v11: 15→20)
-    if (atrPercent <= 3.0) return 15;     // 보통 변동성 → 중립 (v11: 10→15)
-    return 10;                             // 높은 변동성 → 방어적 (v11: 5→10)
+    if (atrPercent < 1.5) return 15;      // 낮은 변동성 → 롤백: 20→15
+    if (atrPercent <= 3.0) return 10;     // 보통 변동성 → 롤백: 15→10
+    return 5;                              // 높은 변동성 → 롤백: 10→5
   }
 
   /**
@@ -241,12 +243,19 @@ export class SimpleTrueOBStrategy implements IStrategy {
   }
 
   /**
-   * v10: ATR + CVD 조합 필터
+   * v10: ATR + CVD 조합 필터 (로깅 포함)
    */
-  private checkATRCVDFilter(candles: OHLCV[], obType: 'LONG' | 'SHORT', currentIndex: number): boolean {
+  private checkATRCVDFilter(candles: OHLCV[], obType: 'LONG' | 'SHORT', currentIndex: number, symbol?: string, timeframe?: string): { passed: boolean; reason?: string } {
     const atrPassed = this.checkATRVolatilityFilter(candles, currentIndex);
     const cvdPassed = this.checkCVDFilter(candles, obType, currentIndex);
-    return atrPassed && cvdPassed;
+
+    if (!atrPassed) {
+      return { passed: false, reason: 'ATR volatility out of range (0.5%~3.0%)' };
+    }
+    if (!cvdPassed) {
+      return { passed: false, reason: `CVD divergence (${obType} needs ${obType === 'LONG' ? 'buying' : 'selling'} pressure)` };
+    }
+    return { passed: true };
   }
 
   private getStateKey(symbol: string, timeframe: string): string {
@@ -852,7 +861,7 @@ export class SimpleTrueOBStrategy implements IStrategy {
     }
 
     // 진입 시그널 생성 (OB 중간가 사용)
-    const slBuffer = 0.005;  // v11 최적화: 1.0% → 0.5%
+    const slBuffer = 0.01;  // 롤백: 0.5% → 1.0% (0.5%는 너무 타이트함)
 
     // 슬리피지 적용 (백테스트와 동일)
     const slippageFactor = activeOB.type === 'LONG'
@@ -867,12 +876,12 @@ export class SimpleTrueOBStrategy implements IStrategy {
     if (activeOB.type === 'LONG') {
       stopLoss = activeOB.bottom * (1 - slBuffer);
       const risk = entry - stopLoss;
-      takeProfit1 = entry + (risk * 0.8);  // v11 최적화: TP1=1.2R → 0.8R
+      takeProfit1 = entry + (risk * 1.2);  // 롤백: 0.8R → 1.2R
       takeProfit2 = entry + (risk * this.config.rrRatio);  // rrRatio = 4.0
     } else {
       stopLoss = activeOB.top * (1 + slBuffer);
       const risk = stopLoss - entry;
-      takeProfit1 = entry - (risk * 0.8);  // v11 최적화: TP1=1.2R → 0.8R
+      takeProfit1 = entry - (risk * 1.2);  // 롤백: 0.8R → 1.2R
       takeProfit2 = entry - (risk * this.config.rrRatio);  // rrRatio = 4.0
     }
 

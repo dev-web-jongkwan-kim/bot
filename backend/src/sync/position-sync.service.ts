@@ -256,6 +256,7 @@ export class PositionSyncService {
                 type: 'TAKE_PROFIT_MARKET',
                 triggerPrice: formattedTP1,
                 quantity: formattedQty,  // 100% 청산
+                isStrategyPosition: strategy !== 'MANUAL',  // 수동 포지션은 반전 없음
               });
               this.logger.log(`[RECOVERY] ✓ TP created at ${formattedTP1} (100% qty: ${formattedQty})`);
             } catch (tpError: any) {
@@ -882,6 +883,7 @@ export class PositionSyncService {
               type: 'STOP_MARKET',
               triggerPrice: formattedSL,
               closePosition: true,
+              isStrategyPosition: dbPos.strategy !== 'MANUAL',  // 수동 포지션은 반전 없음
             });
 
             dbPos.metadata = {
@@ -945,6 +947,7 @@ export class PositionSyncService {
                 type: 'TAKE_PROFIT_MARKET',
                 triggerPrice: formattedTP,
                 quantity: formattedQty,
+                isStrategyPosition: dbPos.strategy !== 'MANUAL',  // 수동 포지션은 반전 없음
               });
 
               dbPos.metadata = {
