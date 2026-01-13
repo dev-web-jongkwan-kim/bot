@@ -222,13 +222,18 @@ export class OkxWebSocketService implements OnModuleDestroy {
 
           const key = `${symbol}_${timeframe}`;
 
+          // Debug: Log first few candle updates to see what confirm values we get
+          if (symbol === 'BTCUSDT') {
+            this.logger.debug(`[DEBUG] ${symbol} ${timeframe} confirm=${confirm} ts=${ts}`);
+          }
+
           // Candle is complete (confirm = "1")
           if (confirm === '1') {
             const changePercent = ((candle.close - candle.open) / candle.open * 100).toFixed(2);
             const direction = candle.close >= candle.open ? '📈' : '📉';
 
             this.logger.log(
-              `[FLOW-1] OKX WebSocket → Candle | ${symbol} ${timeframe} ` +
+              `[FLOW-1] OKX WebSocket → Candle CLOSED | ${symbol} ${timeframe} ` +
               `${direction} ${changePercent}% | O:${candle.open.toFixed(2)} C:${candle.close.toFixed(2)} ` +
               `V:${(candle.volume/1000).toFixed(0)}K`
             );
@@ -236,7 +241,7 @@ export class OkxWebSocketService implements OnModuleDestroy {
             // Notify candle aggregator
             this.candleAggregator.onCandleClose(symbol, timeframe, candle);
           } else {
-            // Update current candle
+            // Update current candle (in progress)
             this.currentCandles.set(key, candle);
           }
         }
