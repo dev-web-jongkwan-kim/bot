@@ -1131,9 +1131,11 @@ export class PositionSyncService {
       const margin = positionValue / leverage;
 
       // ✅ v16: 비정상 마진 체크 - 2가지 조건
-      // 1) 총 자본의 10% 초과
+      // 1) 총 자본의 10% 초과 (단, 마진이 $50 이상일 때만 체크)
       // 2) 절대값 $35 이상 (무조건)
-      const exceedsPercentLimit = margin > maxMargin;
+      // v20: 마진 $50 미만은 퍼센트 체크 스킵 (소액 시드용)
+      const MIN_MARGIN_FOR_PERCENT_CHECK = 50;
+      const exceedsPercentLimit = margin >= MIN_MARGIN_FOR_PERCENT_CHECK && margin > maxMargin;
       const exceedsAbsoluteLimit = margin >= this.ABSOLUTE_MAX_MARGIN;
 
       if (exceedsPercentLimit || exceedsAbsoluteLimit) {

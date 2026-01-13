@@ -176,7 +176,7 @@ export class SimpleTrueOBStrategy implements IStrategy {
       // v10: ATR + CVD 방향 필터
       useATRCVDFilter: true,        // 활성화
       atrFilterMin: 0.5,            // v10 원복 (0.4 → 0.5)
-      atrFilterMax: 0.8,            // v17: ATR% 최대 0.8% (실전 분석: 0.5~0.8% 최고 승률)
+      atrFilterMax: 1.5,            // v20: ATR% 최대 1.5% (0.8% → 1.5% 완화)
       cvdLookback: 20,              // CVD 20캔들 기준
       maxOBSizePercent: 1.5,        // v19: OB 최대 크기 1.5% (0.5% → 1.5% 완화)
       // v18: MTF EMA 배열 필터
@@ -186,7 +186,7 @@ export class SimpleTrueOBStrategy implements IStrategy {
       emaSlowPeriod: 50,            // EMA 장기
       // v18: 15분봉 강화 필터
       use15mStrictFilter: true,     // 15분봉에 더 엄격한 필터 적용
-      strict15mAtrMax: 0.6,         // 15분봉 ATR% 최대 0.6% (5분봉 0.8%보다 엄격)
+      strict15mAtrMax: 1.3,         // v20: 15분봉 ATR% 최대 1.3% (0.6% → 1.3% 완화)
       strict15mOBSizeMax: 1.2,      // v19: 15분봉 OB 크기 최대 1.2% (0.3% → 1.2% 완화)
       // v19: 진입점 위치 (MIDPOINT 0.5 → 0.35로 변경, BOTTOM 쪽으로 이동)
       entryPosition: 0.35,          // LONG: BOTTOM+35%, SHORT: TOP-35%
