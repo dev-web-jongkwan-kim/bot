@@ -1,0 +1,446 @@
+--
+-- PostgreSQL database dump
+--
+
+\restrict ngeRqnvT2Fop7xxv92ezaBQFlmyGM4DRSiTdRboFkLJm6fbhwWimcf4IJH76oZc
+
+-- Dumped from database version 16.11 (Homebrew)
+-- Dumped by pg_dump version 16.11 (Homebrew)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: trader
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+ALTER SCHEMA public OWNER TO trader;
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: trader
+--
+
+COMMENT ON SCHEMA public IS '';
+
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: order_block_history; Type: TABLE; Schema: public; Owner: trader
+--
+
+CREATE TABLE public.order_block_history (
+    id integer NOT NULL,
+    symbol character varying(20) NOT NULL,
+    timeframe character varying(10) NOT NULL,
+    type character varying(10) NOT NULL,
+    method character varying(20) NOT NULL,
+    top numeric(20,8) NOT NULL,
+    bottom numeric(20,8) NOT NULL,
+    midpoint numeric(20,8) NOT NULL,
+    atr numeric(10,6) NOT NULL,
+    "atrPercent" numeric(10,4) NOT NULL,
+    "volRatio" numeric(10,4) NOT NULL,
+    "bodyRatio" numeric(10,4) NOT NULL,
+    "marketRegime" character varying(20),
+    "barsAboveSMA" integer,
+    "barsBelowSMA" integer,
+    "sma50Value" numeric(20,8),
+    "detectedAt" timestamp without time zone NOT NULL,
+    "detectedBarIndex" integer NOT NULL,
+    "priceMovedAwayAt" timestamp without time zone,
+    "signalGeneratedAt" timestamp without time zone,
+    "invalidatedAt" timestamp without time zone,
+    "filledAt" timestamp without time zone,
+    "expiredAt" timestamp without time zone,
+    status character varying(30) DEFAULT 'ACTIVE'::character varying NOT NULL,
+    "invalidationReason" character varying(100),
+    "rejectionReason" character varying(100),
+    "positionId" integer,
+    "filledPrice" numeric(20,8),
+    "realizedPnl" numeric(20,2),
+    "isWin" boolean,
+    metadata jsonb,
+    "createdAt" timestamp without time zone DEFAULT now() NOT NULL,
+    "updatedAt" timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.order_block_history OWNER TO trader;
+
+--
+-- Name: order_block_history_id_seq; Type: SEQUENCE; Schema: public; Owner: trader
+--
+
+CREATE SEQUENCE public.order_block_history_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.order_block_history_id_seq OWNER TO trader;
+
+--
+-- Name: order_block_history_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: trader
+--
+
+ALTER SEQUENCE public.order_block_history_id_seq OWNED BY public.order_block_history.id;
+
+
+--
+-- Name: positions; Type: TABLE; Schema: public; Owner: trader
+--
+
+CREATE TABLE public.positions (
+    id integer NOT NULL,
+    symbol character varying(20) NOT NULL,
+    strategy character varying(50) NOT NULL,
+    timeframe character varying(10),
+    side character varying(10) NOT NULL,
+    "entryPrice" numeric(20,8) NOT NULL,
+    quantity numeric(20,8) NOT NULL,
+    leverage integer NOT NULL,
+    "stopLoss" numeric(20,8) NOT NULL,
+    "takeProfit1" numeric(20,8),
+    "takeProfit2" numeric(20,8),
+    status character varying(20) DEFAULT 'OPEN'::character varying NOT NULL,
+    "openedAt" timestamp without time zone NOT NULL,
+    "closedAt" timestamp without time zone,
+    "realizedPnl" numeric(20,2),
+    metadata jsonb,
+    "createdAt" timestamp without time zone DEFAULT now() NOT NULL,
+    "updatedAt" timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.positions OWNER TO trader;
+
+--
+-- Name: positions_id_seq; Type: SEQUENCE; Schema: public; Owner: trader
+--
+
+CREATE SEQUENCE public.positions_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.positions_id_seq OWNER TO trader;
+
+--
+-- Name: positions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: trader
+--
+
+ALTER SEQUENCE public.positions_id_seq OWNED BY public.positions.id;
+
+
+--
+-- Name: signals; Type: TABLE; Schema: public; Owner: trader
+--
+
+CREATE TABLE public.signals (
+    id integer NOT NULL,
+    strategy character varying(50) NOT NULL,
+    symbol character varying(20) NOT NULL,
+    timeframe character varying(10),
+    side character varying(10) NOT NULL,
+    "entryPrice" numeric(20,8) NOT NULL,
+    "stopLoss" numeric(20,8) NOT NULL,
+    "takeProfit1" numeric(20,8),
+    "takeProfit2" numeric(20,8),
+    leverage integer NOT NULL,
+    score numeric(5,2) NOT NULL,
+    "timestamp" timestamp without time zone NOT NULL,
+    metadata jsonb,
+    status character varying(20) DEFAULT 'PENDING'::character varying NOT NULL,
+    "createdAt" timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.signals OWNER TO trader;
+
+--
+-- Name: signals_id_seq; Type: SEQUENCE; Schema: public; Owner: trader
+--
+
+CREATE SEQUENCE public.signals_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.signals_id_seq OWNER TO trader;
+
+--
+-- Name: signals_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: trader
+--
+
+ALTER SEQUENCE public.signals_id_seq OWNED BY public.signals.id;
+
+
+--
+-- Name: order_block_history id; Type: DEFAULT; Schema: public; Owner: trader
+--
+
+ALTER TABLE ONLY public.order_block_history ALTER COLUMN id SET DEFAULT nextval('public.order_block_history_id_seq'::regclass);
+
+
+--
+-- Name: positions id; Type: DEFAULT; Schema: public; Owner: trader
+--
+
+ALTER TABLE ONLY public.positions ALTER COLUMN id SET DEFAULT nextval('public.positions_id_seq'::regclass);
+
+
+--
+-- Name: signals id; Type: DEFAULT; Schema: public; Owner: trader
+--
+
+ALTER TABLE ONLY public.signals ALTER COLUMN id SET DEFAULT nextval('public.signals_id_seq'::regclass);
+
+
+--
+-- Data for Name: order_block_history; Type: TABLE DATA; Schema: public; Owner: trader
+--
+
+COPY public.order_block_history (id, symbol, timeframe, type, method, top, bottom, midpoint, atr, "atrPercent", "volRatio", "bodyRatio", "marketRegime", "barsAboveSMA", "barsBelowSMA", "sma50Value", "detectedAt", "detectedBarIndex", "priceMovedAwayAt", "signalGeneratedAt", "invalidatedAt", "filledAt", "expiredAt", status, "invalidationReason", "rejectionReason", "positionId", "filledPrice", "realizedPnl", "isWin", metadata, "createdAt", "updatedAt") FROM stdin;
+\.
+
+
+--
+-- Data for Name: positions; Type: TABLE DATA; Schema: public; Owner: trader
+--
+
+COPY public.positions (id, symbol, strategy, timeframe, side, "entryPrice", quantity, leverage, "stopLoss", "takeProfit1", "takeProfit2", status, "openedAt", "closedAt", "realizedPnl", metadata, "createdAt", "updatedAt") FROM stdin;
+4	OGUSDT	SimpleTrueOB	5m	SHORT	4.16200000	48.10000000	10	4.21860260	4.09407688	3.93558960	CLOSED	2026-01-13 11:30:59.061	2026-01-13 11:52:30.474	-0.28	{"obTop": 4.177, "actual": {"exit": 4.164070686070686, "entry": 4.162, "exitTime": 1768272746829, "slAlgoId": 4000000334936595, "stopLoss": 4.2186026, "closeType": "SL", "entryTime": "2026-01-13T02:30:59.061Z", "tpAlgoIds": [4000000334936601], "takeProfit1": 4.09407688, "takeProfit2": 3.935589600000001, "entryOrderId": 855914457, "closeTriggerPrice": 4.2186026}, "margin": 30, "method": "ORB", "result": {"fee": 0.18022278, "pnl": -0.27982276, "win": false, "exitFee": 0.1001459, "entryFee": 0.08007688, "grossPnl": -0.09959997999999999, "pnlPercent": -1.3977705425086493, "expectedPnl": -2.722585059999987, "holdingTime": 1287768}, "signal": {"obTop": 4.177, "score": 80, "obBottom": 4.137, "timeframe": "5m"}, "planned": {"entry": 4.1621673999999995, "stopLoss": 4.218769999999999, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 4.09424428, "takeProfit2": 3.9357570000000006}, "obBottom": 4.137, "slippage": {"exit": 0.05453191392931345, "entry": -0.00016739999999959565, "exitPercent": 1.2926534945318968, "entryPercent": -0.004021942990558133, "totalSlippage": 0.05436451392931385, "totalSlippagePercent": 1.2886315515413387}, "asyncFill": true, "closeTime": 1768272746829, "atrPercent": 0.5718211877602636, "closePrice": 4.164070686070686, "positionSize": 72.07783137218364, "closeTradeIds": [75187326, 75187327, 75187328, 75187329, 75187330], "positionValue": 300, "closeTradeCount": 5}	2026-01-13 11:30:59.063895	2026-01-13 11:52:30.47789
+1	WETUSDT	SimpleTrueOB	\N	SHORT	0.13710000	3282.00000000	15	0.13883460	0.13502414	0.13017447	CLOSED	2026-01-13 06:06:03.16	2026-01-13 06:08:50.472	-5.85	{"actual": {"exit": 0.1387593266301036, "exitTime": 1768252127932, "closeType": "SL", "closeTriggerPrice": 0.1388346}, "result": {"fee": 0.40768893, "pnl": -5.85359893, "win": false, "exitFee": 0.22770405, "entryFee": 0.17998488, "grossPnl": -5.4459100000000005, "pnlPercent": -19.513635578721946, "expectedPnl": -5.692957200000009, "holdingTime": 164772}, "signalId": 1, "slippage": {"exit": 0.00007527336989640587, "exitPercent": 0.05421801906470424, "totalSlippage": 0.00007527336989640587, "totalSlippagePercent": 0.05421801906470424}, "closeTime": 1768252127932, "closePrice": 0.1387593266301036, "closeTradeIds": [39061985, 39061986, 39061987, 39061988], "slWatchdogTime": "2026-01-12T21:06:10.254Z", "closeTradeCount": 4, "signalCreatedAt": "2026-01-12T21:05:01.086Z", "slWatchdogCreated": true, "recoveredFromSignal": true}	2026-01-13 06:06:03.161356	2026-01-13 06:08:50.474832
+2	MONUSDT	SimpleTrueOB	5m	SHORT	0.02260000	8849.00000000	10	0.02291542	0.02222149	0.02133832	CLOSED	2026-01-13 10:58:57.968	2026-01-13 11:04:20.425	-3.01	{"obTop": 0.02269, "actual": {"exit": 0.02292, "entry": 0.0226, "exitTime": 1768269852740, "slAlgoId": 4000000334754500, "stopLoss": 0.022915421199999994, "closeType": "SL", "entryTime": "2026-01-13T01:58:57.968Z", "tpAlgoIds": [4000000334754502], "takeProfit1": 0.022221494560000003, "takeProfit2": 0.021338315200000017, "entryOrderId": 490869372, "closeTriggerPrice": 0.02291542}, "margin": 30, "method": "ORB", "result": {"fee": 0.18140450000000002, "pnl": -3.0130845, "win": false, "exitFee": 0.10140954000000002, "entryFee": 0.07999495999999999, "grossPnl": -2.83168, "pnlPercent": -15.066371681415932, "expectedPnl": -2.7911515800000024, "holdingTime": 314772}, "signal": {"obTop": 0.02269, "score": 80, "obBottom": 0.02245, "timeframe": "5m"}, "planned": {"entry": 0.0226014788, "stopLoss": 0.022916899999999997, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 0.022222973360000006, "takeProfit2": 0.02133979400000002}, "obBottom": 0.02245, "slippage": {"exit": -0.000004580000000000556, "entry": -0.0000014788000000029444, "exitPercent": -0.019986541813331617, "entryPercent": -0.0065429347039139074, "totalSlippage": -0.0000060588000000035, "totalSlippagePercent": -0.026529476517245524}, "asyncFill": true, "closeTime": 1768269852740, "atrPercent": 0.5961228898512851, "closePrice": 0.02292, "positionSize": 13273.467752030454, "closeTradeIds": [45968102, 45968103, 45968104, 45968105], "positionValue": 300, "closeTradeCount": 4}	2026-01-13 10:58:57.972729	2026-01-13 11:04:20.432122
+9	ICNTUSDT	SimpleTrueOB	5m	LONG	0.39550000	759.00000000	15	0.38928892	0.40295330	0.42034432	CLOSED	2026-01-13 16:26:05.23	2026-01-13 16:31:00.499	-5.58	{"obTop": 0.3987, "actual": {"exit": 0.3885, "entry": 0.3955, "exitTime": 1768289456065, "slAlgoId": 4000000336742285, "stopLoss": 0.38928892000000004, "closeType": "SL", "entryTime": "2026-01-13T07:26:05.230Z", "tpAlgoIds": [4000000336742287], "takeProfit1": 0.402953296, "takeProfit2": 0.42034431999999994, "entryOrderId": 854155217, "closeTriggerPrice": 0.38928892}, "margin": 30, "method": "ORB", "result": {"fee": 0.26750955, "pnl": -5.5805095499999995, "win": false, "exitFee": 0.14743575, "entryFee": 0.12007380000000001, "grossPnl": -5.313, "pnlPercent": -27.885398230088494, "expectedPnl": -4.714209720000027, "holdingTime": 290835}, "signal": {"obTop": 0.3987, "score": 80, "obBottom": 0.3932, "timeframe": "5m"}, "planned": {"entry": 0.39547908, "stopLoss": 0.389268, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 0.402932376, "takeProfit2": 0.4203233999999999}, "obBottom": 0.3932, "slippage": {"exit": -0.0007889199999999708, "entry": 0.000020920000000035355, "exitPercent": -0.2026566797739763, "entryPercent": 0.005289786756871022, "totalSlippage": -0.0007679999999999354, "totalSlippagePercent": -0.19736689301710528}, "asyncFill": true, "closeTime": 1768289456065, "atrPercent": 0.7180860411071849, "closePrice": 0.3885, "positionSize": 1137.860440051595, "closeTradeIds": [55725134], "positionValue": 450, "autoClosedTime": "2026-01-13T07:31:00.265Z", "closeTradeCount": 1, "autoClosedReason": "NO_BINANCE_POSITION"}	2026-01-13 16:26:05.231861	2026-01-13 16:31:00.5009
+3	BUSDT	SimpleTrueOB	5m	LONG	0.27570000	725.00000000	10	0.27195287	0.28019655	0.29068852	CLOSED	2026-01-13 11:29:17.831	2026-01-13 11:41:40.537	-3.30	{"obTop": 0.2774, "actual": {"exit": 0.2714, "entry": 0.2757, "exitTime": 1768272094056, "slAlgoId": 4000000334927504, "stopLoss": 0.27195287100000004, "closeType": "SL", "entryTime": "2026-01-13T02:29:17.831Z", "tpAlgoIds": [4000000334927508], "takeProfit1": 0.28019655479999994, "takeProfit2": 0.29068851599999984, "entryOrderId": 746880211, "closeTriggerPrice": 0.27195287}, "margin": 30, "method": "ORB", "result": {"fee": 0.17833549999999998, "pnl": -3.2958355, "win": false, "exitFee": 0.0983825, "entryFee": 0.079953, "grossPnl": -3.1175, "pnlPercent": -16.488864708015956, "expectedPnl": -2.716669249999991, "holdingTime": 736225}, "signal": {"obTop": 0.2774, "score": 80, "obBottom": 0.2747, "timeframe": "5m"}, "planned": {"entry": 0.27570012899999996, "stopLoss": 0.271953, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 0.2801966837999999, "takeProfit2": 0.2906886449999998}, "obBottom": 0.2747, "slippage": {"exit": -0.0005528700000000386, "entry": -0.00000012899999995985567, "exitPercent": -0.2032962549724291, "entryPercent": -0.000046789967211025744, "totalSlippage": -0.0005529989999999985, "totalSlippagePercent": -0.20334304493964012}, "asyncFill": true, "closeTime": 1768272094056, "atrPercent": 0.6893993090272116, "closePrice": 0.2714, "positionSize": 1088.1387726880607, "closeTradeIds": [62763446], "positionValue": 300, "closeTradeCount": 1}	2026-01-13 11:29:17.833161	2026-01-13 11:41:40.540329
+5	XPLUSDT	SimpleTrueOB	5m	SHORT	0.15310000	1307.00000000	10	0.15497962	0.15084446	0.14558153	CLOSED	2026-01-13 12:43:16.074	2026-01-13 12:55:20.444	-0.57	{"obTop": 0.1534, "actual": {"exit": 0.1534, "entry": 0.1531, "exitTime": 1768276510429, "slAlgoId": 4000000335346364, "stopLoss": 0.15497961700000001, "closeType": "SL", "entryTime": "2026-01-13T03:43:16.074Z", "tpAlgoIds": [4000000335346377], "takeProfit1": 0.1508444596, "takeProfit2": 0.145581532, "entryOrderId": 2601926875, "closeTriggerPrice": 0.15497962}, "margin": 30, "method": "ORB", "result": {"fee": 0.18028757, "pnl": -0.5723875700000001, "win": false, "exitFee": 0.10024688999999999, "entryFee": 0.08004068000000002, "grossPnl": -0.3921, "pnlPercent": -2.8604832942448764, "expectedPnl": -2.456663339999998, "holdingTime": 714355}, "signal": {"obTop": 0.1534, "score": 80, "obBottom": 0.1525, "timeframe": "5m"}, "planned": {"entry": 0.15305438300000002, "stopLoss": 0.15493400000000002, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 0.1507988426, "takeProfit2": 0.14553591500000002}, "obBottom": 0.1525, "slippage": {"exit": 0.0015796200000000038, "entry": 0.0000456169999999978, "exitPercent": 1.0192436915253784, "entryPercent": 0.029804438857525428, "totalSlippage": 0.0016252370000000016, "totalSlippagePercent": 1.0490481303829038}, "asyncFill": true, "closeTime": 1768276510429, "atrPercent": 0.5312537333491095, "closePrice": 0.1534, "positionSize": 1960.0876114733674, "closeTradeIds": [206452418, 206452419, 206452420, 206452421, 206452422, 206452423], "positionValue": 300, "tpWatchdogTime": "2026-01-13T03:55:10.845Z", "closeTradeCount": 6, "tpWatchdogCreated": true}	2026-01-13 12:43:16.077531	2026-01-13 12:55:20.447683
+8	AIOUSDT	MANUAL	\N	LONG	0.14228000	166.00000000	15	0.13801160	0.14740208	\N	CLOSED	2026-01-13 16:20:16.612	2026-01-13 16:20:20.517	\N	{"closedByLiquidation": true}	2026-01-13 16:20:16.613712	2026-01-13 16:20:20.519658
+6	ZKUSDT	SimpleTrueOB	5m	LONG	0.03464000	5774.00000000	10	0.03421747	0.03514703	0.03633010	CLOSED	2026-01-13 15:28:49.664	2026-01-13 16:23:30.52	2.59	{"obTop": 0.03476, "actual": {"exit": 0.03512, "entry": 0.03464, "exitTime": 1768289008746, "slAlgoId": 4000000336376024, "stopLoss": 0.034217474, "closeType": "TP1", "entryTime": "2026-01-13T06:28:49.664Z", "tpAlgoIds": [4000000336376032], "takeProfit1": 0.0351470312, "takeProfit2": 0.036330103999999995, "entryOrderId": 3274925292, "closeTriggerPrice": 0.03514703}, "margin": 30, "method": "ORB", "result": {"fee": 0.181395984, "pnl": 2.5901240160000003, "win": true, "exitFee": 0.10139144, "entryFee": 0.080004544, "grossPnl": 2.77152, "pnlPercent": 12.949884526558893, "expectedPnl": 2.927591220000032, "holdingTime": 3279082}, "signal": {"obTop": 0.03476, "score": 80, "obBottom": 0.03456, "timeframe": "5m"}, "planned": {"entry": 0.034636926, "stopLoss": 0.0342144, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 0.0351439572, "takeProfit2": 0.036327029999999996}, "obBottom": 0.03456, "slippage": {"exit": -0.000027030000000004273, "entry": 0.0000030739999999987444, "exitPercent": -0.07690550239950365, "entryPercent": 0.008874921521611775, "totalSlippage": -0.00002395600000000553, "totalSlippagePercent": -0.06803058087789188}, "asyncFill": true, "closeTime": 1768289008746, "atrPercent": 0.5038254729490297, "closePrice": 0.03512, "positionSize": 8661.27669643663, "closeTradeIds": [190400716, 190400717], "positionValue": 300, "tpWatchdogTime": "2026-01-13T07:23:30.349Z", "closeTradeCount": 2, "tpWatchdogCreated": true}	2026-01-13 15:28:49.668172	2026-01-13 16:23:30.523238
+7	ICNTUSDT	SimpleTrueOB	5m	LONG	0.39170000	766.00000000	15	0.38620068	0.39829919	0.41369730	CLOSED	2026-01-13 16:11:29.601	2026-01-13 16:22:30.579	4.48	{"obTop": 0.3939, "actual": {"exit": 0.3978999999999999, "entry": 0.3917, "exitTime": 1768288947057, "slAlgoId": 4000000336647966, "stopLoss": 0.386200676, "closeType": "TP1", "entryTime": "2026-01-13T07:11:29.601Z", "tpAlgoIds": [4000000336647974], "takeProfit1": 0.3982991888, "takeProfit2": 0.4136972959999999, "entryOrderId": 854134399, "closeTriggerPrice": 0.39829919}, "margin": 30, "method": "ORB", "result": {"fee": 0.27241258, "pnl": 4.47678742, "win": true, "exitFee": 0.1523957, "entryFee": 0.12001687999999999, "grossPnl": 4.7492, "pnlPercent": 22.380788869032422, "expectedPnl": 5.054979540000025, "holdingTime": 657456}, "signal": {"obTop": 0.3939, "score": 80, "obBottom": 0.3901, "timeframe": "5m"}, "planned": {"entry": 0.391698324, "stopLoss": 0.386199, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 0.3982975128, "takeProfit2": 0.4136956199999999}, "obBottom": 0.3901, "slippage": {"exit": -0.00039919000000010474, "entry": 0.000001676000000006006, "exitPercent": -0.10022365348021538, "entryPercent": 0.00042788030923665793, "totalSlippage": -0.00039751400000009873, "totalSlippagePercent": -0.09979577317097872}, "asyncFill": true, "closeTime": 1768288947057, "atrPercent": 0.6387921979895362, "closePrice": 0.3978999999999999, "positionSize": 1148.8433123854777, "closeTradeIds": [55722437, 55722438, 55722439], "positionValue": 450, "tpWatchdogTime": "2026-01-13T07:22:30.402Z", "closeTradeCount": 3, "tpWatchdogCreated": true}	2026-01-13 16:11:29.602824	2026-01-13 16:22:30.583733
+11	SAPIENUSDT	MANUAL	\N	LONG	0.14414000	1388.00000000	10	0.13981580	0.14932904	\N	CLOSED	2026-01-13 16:32:16.623	2026-01-13 16:32:20.619	\N	{"autoClosedTime": "2026-01-13T07:32:20.451Z", "autoClosedReason": "NO_BINANCE_POSITION", "closedByLiquidation": true}	2026-01-13 16:32:16.626059	2026-01-13 16:32:20.622134
+10	STORJUSDT	SimpleTrueOB	\N	LONG	0.14400000	2083.00000000	15	0.14196600	0.14650416	0.15228000	CLOSED	2026-01-13 16:28:10.967	2026-01-13 16:54:40.456	-4.64	{"actual": {"exit": 0.1419, "exitTime": 1768290872107, "closeType": "SL", "closeTriggerPrice": 0.141966}, "result": {"fee": 0.26776964999999997, "pnl": -4.64206965, "win": false, "exitFee": 0.14778885, "entryFee": 0.1199808, "grossPnl": -4.3743, "pnlPercent": -23.214062499999997, "expectedPnl": -4.236821999999959, "holdingTime": 1581140}, "signalId": 31, "slippage": {"exit": -0.0000660000000000105, "exitPercent": -0.04649000464900785, "totalSlippage": -0.0000660000000000105, "totalSlippagePercent": -0.04649000464900785}, "closeTime": 1768290872107, "closePrice": 0.1419, "closeTradeIds": [431677729, 431677730, 431677731], "autoClosedTime": "2026-01-13T07:54:40.283Z", "slWatchdogTime": "2026-01-13T07:28:20.330Z", "closeTradeCount": 3, "signalCreatedAt": "2026-01-13T07:15:01.194Z", "autoClosedReason": "NO_BINANCE_POSITION", "slWatchdogCreated": true, "recoveredFromSignal": true}	2026-01-13 16:28:10.96965	2026-01-13 16:54:40.458175
+12	PROMUSDT	MANUAL	\N	LONG	8.23700000	36.40000000	15	7.98989000	8.53353200	\N	CLOSED	2026-01-13 17:04:36.263	2026-01-13 17:04:40.298	\N	{"closedByLiquidation": true}	2026-01-13 17:04:36.265739	2026-01-13 17:04:40.301415
+13	LIGHTUSDT	SimpleTrueOB	\N	SHORT	0.60100000	499.00000000	15	0.60882800	0.59151792	0.56948692	CLOSED	2026-01-13 17:16:03.184	2026-01-13 18:07:40.59	-4.14	{"actual": {"exit": 0.6087501002004008, "exitTime": 1768295251431, "closeType": "SL", "closeTriggerPrice": 0.608828}, "result": {"fee": 0.27184273999999997, "pnl": -4.1391427400000005, "win": false, "exitFee": 0.15188314, "entryFee": 0.1199596, "grossPnl": -3.8673, "pnlPercent": -20.70268360347984, "expectedPnl": -3.9061720000000286, "holdingTime": 3088247}, "signalId": 34, "slippage": {"exit": 0.00007789979959926807, "exitPercent": 0.012795042212130202, "totalSlippage": 0.00007789979959926807, "totalSlippagePercent": 0.012795042212130202}, "closeTime": 1768295251431, "closePrice": 0.6087501002004008, "closeTradeIds": [218079263, 218079264, 218079265, 218079266, 218079267, 218079268, 218079269], "autoClosedTime": "2026-01-13T09:07:40.357Z", "slWatchdogTime": "2026-01-13T08:16:40.381Z", "closeTradeCount": 7, "signalCreatedAt": "2026-01-13T08:00:03.058Z", "autoClosedReason": "NO_BINANCE_POSITION", "slWatchdogCreated": true, "recoveredFromSignal": true}	2026-01-13 17:16:03.188564	2026-01-13 18:07:40.591818
+14	CHZUSDT	SimpleTrueOB	5m	LONG	0.05458000	5496.00000000	15	0.05388479	0.05541426	0.05736086	CLOSED	2026-01-13 17:51:41.435	2026-01-13 18:10:10.552	-4.12	{"obTop": 0.05478, "actual": {"exit": 0.05387982168850072, "entry": 0.05458, "exitTime": 1768295405059, "slAlgoId": 4000000337267703, "stopLoss": 0.053884786, "closeType": "SL", "entryTime": "2026-01-13T08:51:41.435Z", "tpAlgoIds": [4000000337267704], "takeProfit1": 0.0554142568, "takeProfit2": 0.057360855999999995, "entryOrderId": 14655850072, "closeTriggerPrice": 0.05388479}, "margin": 30, "method": "ORB", "result": {"fee": 0.268050422, "pnl": -4.116230422, "win": false, "exitFee": 0.14806175000000002, "entryFee": 0.119988672, "grossPnl": -3.84818, "pnlPercent": -20.58309515418256, "expectedPnl": -3.820874159999971, "holdingTime": 1103624}, "signal": {"obTop": 0.05478, "score": 80, "obBottom": 0.05443, "timeframe": "5m"}, "planned": {"entry": 0.054580914, "stopLoss": 0.0538857, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 0.0554151708, "takeProfit2": 0.05736177}, "obBottom": 0.05443, "slippage": {"exit": -0.000004968311499278788, "entry": -0.0000009140000000046333, "exitPercent": -0.009220248421268392, "entryPercent": -0.0016745780402369836, "totalSlippage": -0.000005882311499283421, "totalSlippagePercent": -0.010894826461505375}, "asyncFill": true, "closeTime": 1768295405059, "atrPercent": 0.7748775686931192, "closePrice": 0.05387982168850072, "positionSize": 8244.640241825191, "closeTradeIds": [681358749, 681358750, 681358751], "positionValue": 450, "autoClosedTime": "2026-01-13T09:10:10.320Z", "closeTradeCount": 3, "autoClosedReason": "NO_BINANCE_POSITION"}	2026-01-13 17:51:41.437737	2026-01-13 18:10:10.554238
+16	ARCUSDT	SimpleTrueOB	5m	LONG	0.05163000	5811.00000000	15	0.05081048	0.05261343	0.05490809	CLOSED	2026-01-13 18:18:27.911	2026-01-13 18:38:20.852	-4.34	{"obTop": 0.05206, "actual": {"exit": 0.05093000000000001, "entry": 0.05163, "exitTime": 1768297093492, "slAlgoId": 4000000337436260, "stopLoss": 0.0508104768, "closeType": "SL", "entryTime": "2026-01-13T09:18:27.911Z", "tpAlgoIds": [4000000337436279], "takeProfit1": 0.05261342784000001, "takeProfit2": 0.05490809280000002, "entryOrderId": 3111422485, "closeTriggerPrice": 0.05081048}, "margin": 30, "method": "ORB", "result": {"fee": 0.267985882, "pnl": -4.335685882, "win": false, "exitFee": 0.14797711, "entryFee": 0.120008772, "grossPnl": -4.0677, "pnlPercent": -21.676844832642733, "expectedPnl": -4.762230720000024, "holdingTime": 1185581}, "signal": {"obTop": 0.05206, "score": 80, "obBottom": 0.05132, "timeframe": "5m"}, "planned": {"entry": 0.051626323200000004, "stopLoss": 0.0508068, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 0.05260975104000001, "takeProfit2": 0.054904416000000025}, "obBottom": 0.05132, "slippage": {"exit": 0.00011952000000001184, "entry": 0.0000036767999999978707, "exitPercent": 0.23522706339324456, "entryPercent": 0.007121948207998415, "totalSlippage": 0.0001231968000000097, "totalSlippagePercent": 0.24234901160124298}, "asyncFill": true, "closeTime": 1768297093492, "atrPercent": 0.7086107632519247, "closePrice": 0.05093000000000001, "positionSize": 8716.483609663683, "closeTradeIds": [216750798, 216750799], "positionValue": 450, "autoClosedTime": "2026-01-13T09:38:20.347Z", "closeTradeCount": 2, "autoClosedReason": "NO_BINANCE_POSITION"}	2026-01-13 18:18:27.914574	2026-01-13 18:38:20.854347
+17	XMRUSDT	SimpleTrueOB	5m	LONG	682.71000000	0.43900000	15	671.96198520	695.60761776	725.70205920	CLOSED	2026-01-13 18:30:15.93	2026-01-13 19:00:20.556	-5.07	{"obTop": 688.31, "actual": {"exit": 671.7801366742598, "entry": 682.71, "exitTime": 1768298418147, "slAlgoId": 4000000337512721, "stopLoss": 671.9619852000001, "closeType": "SL", "entryTime": "2026-01-13T09:30:15.930Z", "tpAlgoIds": [4000000337512729], "takeProfit1": 695.60761776, "takeProfit2": 725.7020591999999, "entryOrderId": 13734037590, "closeTriggerPrice": 671.9619852}, "margin": 30, "method": "ORB", "result": {"fee": 0.267339606, "pnl": -5.065549606, "win": false, "exitFee": 0.14745573, "entryFee": 0.11988387599999999, "grossPnl": -4.79821, "pnlPercent": -25.35228143274247, "expectedPnl": -4.7183784972000336, "holdingTime": 1802217}, "signal": {"obTop": 688.31, "score": 80, "obBottom": 678.75, "timeframe": "5m"}, "planned": {"entry": 682.7105147999999, "stopLoss": 671.9625, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 695.60813256, "takeProfit2": 725.7025739999998}, "obBottom": 678.75, "slippage": {"exit": -0.18184852574017896, "entry": -0.0005147999999053354, "exitPercent": -0.027062323426831108, "entryPercent": -0.00007540531290281153, "totalSlippage": -0.1823633257400843, "totalSlippagePercent": -0.02713772873973392}, "asyncFill": true, "closeTime": 1768298418147, "atrPercent": 0.9588002562424216, "closePrice": 671.7801366742598, "positionSize": 0.6591373506702581, "closeTradeIds": [403844122, 403844123, 403844124, 403844125], "positionValue": 450, "autoClosedTime": "2026-01-13T10:00:20.270Z", "closeTradeCount": 4, "autoClosedReason": "NO_BINANCE_POSITION"}	2026-01-13 18:30:15.933638	2026-01-13 19:00:20.558207
+15	ZENUSDT	SimpleTrueOB	5m	LONG	9.56200000	31.40000000	15	9.43716808	9.71179830	10.06132768	CLOSED	2026-01-13 17:53:56.264	2026-01-13 18:31:20.697	4.33	{"obTop": 9.601, "actual": {"exit": 9.708496815286626, "entry": 9.562, "exitTime": 1768296678164, "slAlgoId": 4000000337282203, "stopLoss": 9.43716808, "closeType": "TP1", "entryTime": "2026-01-13T08:53:56.264Z", "tpAlgoIds": [4000000337282207], "takeProfit1": 9.711798304, "takeProfit2": 10.06132768, "entryOrderId": 8224670992, "closeTriggerPrice": 9.7117983}, "margin": 30, "method": "ORB", "result": {"fee": 0.27252212, "pnl": 4.32747788, "win": true, "exitFee": 0.1524234, "entryFee": 0.12009871999999999, "grossPnl": 4.6, "pnlPercent": 21.619603672711918, "expectedPnl": 4.703666620000015, "holdingTime": 2241900}, "signal": {"obTop": 9.601, "score": 80, "obBottom": 9.532, "timeframe": "5m"}, "planned": {"entry": 9.56151192, "stopLoss": 9.436679999999999, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 9.711310224, "takeProfit2": 10.0608396}, "obBottom": 9.532, "slippage": {"exit": -0.003301484713373881, "entry": 0.0004880800000002239, "exitPercent": -0.03399457661073831, "entryPercent": 0.0051046320297870205, "totalSlippage": -0.0028134047133736573, "totalSlippagePercent": -0.02888994458095129}, "asyncFill": true, "closeTime": 1768296678164, "atrPercent": 0.751626022208495, "closePrice": 9.708496815286626, "positionSize": 47.06368655554633, "closeTradeIds": [451735147, 451735148], "positionValue": 450, "autoClosedTime": "2026-01-13T09:31:20.261Z", "closeTradeCount": 2, "autoClosedReason": "NO_BINANCE_POSITION"}	2026-01-13 17:53:56.265628	2026-01-13 18:31:20.700277
+20	WETUSDT	SimpleTrueOB	15m	SHORT	0.14083000	2130.00000000	15	0.14263437	0.13866475	0.13361252	OPEN	2026-01-13 18:35:02.36	\N	\N	{"obTop": 0.14122, "actual": {"entry": 0.14083, "slAlgoId": 4000000337540945, "stopLoss": 0.14263437120000003, "entryTime": "2026-01-13T09:35:02.360Z", "tpAlgoIds": [4000000337540956], "takeProfit1": 0.13866475456, "takeProfit2": 0.13361251519999995, "entryOrderId": 388663213}, "margin": 30, "method": "ORB", "signal": {"obTop": 0.14122, "score": 80, "obBottom": 0.14031, "timeframe": "15m"}, "planned": {"entry": 0.1408278288, "stopLoss": 0.14263220000000001, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 0.13866258335999998, "takeProfit2": 0.13361034399999994}, "obBottom": 0.14031, "slippage": {"entry": 0.000002171200000011808, "entryPercent": 0.0015417407330019194}, "asyncFill": true, "atrPercent": 0.7159881189187621, "positionSize": 3195.3911654711246, "positionValue": 450}	2026-01-13 18:35:02.360929	2026-01-13 18:35:02.360929
+21	CRVUSDT	SimpleTrueOB	5m	LONG	0.40800000	734.80000000	15	0.40264836	0.41442197	0.42940656	OPEN	2026-01-13 18:55:36.156	\N	\N	{"obTop": 0.41, "actual": {"entry": 0.408, "slAlgoId": 4000000337672638, "stopLoss": 0.40264836, "entryTime": "2026-01-13T09:55:36.156Z", "tpAlgoIds": [4000000337672646], "takeProfit1": 0.414421968, "takeProfit2": 0.42940655999999994, "entryOrderId": 44916390240}, "margin": 30, "method": "ORB", "signal": {"obTop": 0.41, "score": 80, "obBottom": 0.407, "timeframe": "5m"}, "planned": {"entry": 0.40828163999999995, "stopLoss": 0.40292999999999995, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 0.41470360799999995, "takeProfit2": 0.4296881999999999}, "obBottom": 0.407, "slippage": {"entry": -0.0002816399999999719, "entryPercent": -0.0689817940380498}, "asyncFill": true, "atrPercent": 0.5912223141869006, "positionSize": 1102.1803478598745, "positionValue": 450}	2026-01-13 18:55:36.158478	2026-01-13 18:55:36.158478
+18	USELESSUSDT	SimpleTrueOB	\N	LONG	0.10999000	2727.00000000	15	0.10854360	0.11173447	0.11579557	CLOSED	2026-01-13 18:30:33.26	\N	\N	{"signalId": 41, "autoClosedTime": "2026-01-13T09:52:20.439Z", "tpWatchdogTime": "2026-01-13T09:52:10.459Z", "signalCreatedAt": "2026-01-13T09:30:00.162Z", "autoClosedReason": "NO_BINANCE_POSITION", "tpWatchdogCreated": true, "recoveredFromSignal": true}	2026-01-13 18:30:33.260962	2026-01-13 18:52:10.463
+19	USELESSUSDT	SimpleTrueOB	5m	LONG	0.10999000	2727.00000000	15	0.10853961	0.11173047	0.11579158	CLOSED	2026-01-13 18:30:34.397	\N	\N	{"obTop": 0.11047, "actual": {"entry": 0.10999, "slAlgoId": 4000000337514582, "stopLoss": 0.1085396056, "entryTime": "2026-01-13T09:30:34.397Z", "tpAlgoIds": [4000000337514590], "takeProfit1": 0.11173047328, "takeProfit2": 0.1157915776, "entryOrderId": 598276634}, "margin": 30, "method": "ORB", "signal": {"obTop": 0.11047, "score": 80, "obBottom": 0.10964, "timeframe": "5m"}, "planned": {"entry": 0.1099939944, "stopLoss": 0.1085436, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 0.11173446768, "takeProfit2": 0.115795572}, "obBottom": 0.10964, "slippage": {"entry": -0.000003994399999998621, "entryPercent": -0.0036314709923823086}, "asyncFill": true, "atrPercent": 0.6955537471683682, "positionSize": 4091.1324518641172, "positionValue": 450, "autoClosedTime": "2026-01-13T09:52:20.564Z", "autoClosedReason": "NO_BINANCE_POSITION"}	2026-01-13 18:30:34.398634	2026-01-13 18:52:20.566442
+22	ALCHUSDT	SimpleTrueOB	5m	LONG	0.15388000	1950.00000000	15	0.15153453	0.15669456	0.16326188	OPEN	2026-01-13 19:13:08.091	\N	\N	{"obTop": 0.15503, "actual": {"entry": 0.15388, "slAlgoId": 4000000337780486, "stopLoss": 0.1515345292, "entryTime": "2026-01-13T10:13:08.091Z", "tpAlgoIds": [4000000337780494], "takeProfit1": 0.15669456495999998, "takeProfit2": 0.16326188319999999, "entryOrderId": 2131986698}, "margin": 30, "method": "ORB", "signal": {"obTop": 0.15503, "score": 80, "obBottom": 0.15307, "timeframe": "5m"}, "planned": {"entry": 0.15388477080000001, "stopLoss": 0.15153930000000002, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 0.15669933576, "takeProfit2": 0.163266654}, "obBottom": 0.15307, "slippage": {"entry": -0.000004770800000025721, "entryPercent": -0.003100241807700519}, "asyncFill": true, "atrPercent": 0.5895165242123028, "positionSize": 2924.2659794116544, "positionValue": 450}	2026-01-13 19:13:08.09238	2026-01-13 19:13:08.09238
+24	THEUSDT	SimpleTrueOB	5m	LONG	0.24260000	1236.80000000	15	0.23901750	0.24689900	0.25693002	OPEN	2026-01-13 19:28:23.709	\N	\N	{"obTop": 0.2442, "actual": {"entry": 0.2426, "slAlgoId": 4000000337870557, "stopLoss": 0.239017496, "entryTime": "2026-01-13T10:28:23.709Z", "tpAlgoIds": [4000000337870566], "takeProfit1": 0.24689900480000002, "takeProfit2": 0.2569300160000001, "entryOrderId": 1766659439}, "margin": 30, "method": "ORB", "signal": {"obTop": 0.2442, "score": 80, "obBottom": 0.2414, "timeframe": "5m"}, "planned": {"entry": 0.24256850400000002, "stopLoss": 0.238986, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 0.24686750880000002, "takeProfit2": 0.2568985200000001}, "obBottom": 0.2414, "slippage": {"entry": 0.000031495999999991975, "entryPercent": 0.01298437327213428}, "asyncFill": true, "atrPercent": 0.5403179694956988, "positionSize": 1855.146041548741, "positionValue": 450}	2026-01-13 19:28:23.711344	2026-01-13 19:28:23.711344
+25	ICPUSDT	SimpleTrueOB	5m	LONG	3.29000000	91.00000000	15	3.24377204	3.34547355	3.47491184	OPEN	2026-01-13 19:31:22.935	\N	\N	{"obTop": 3.309, "actual": {"entry": 3.29, "slAlgoId": 4000000337887524, "stopLoss": 3.24377204, "entryTime": "2026-01-13T10:31:22.935Z", "tpAlgoIds": [4000000337887528], "takeProfit1": 3.345473552, "takeProfit2": 3.47491184, "entryOrderId": 6391491311}, "margin": 30, "method": "ORB", "signal": {"obTop": 3.309, "score": 80, "obBottom": 3.277, "timeframe": "5m"}, "planned": {"entry": 3.29045796, "stopLoss": 3.24423, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 3.345931512, "takeProfit2": 3.4753697999999997}, "obBottom": 3.277, "slippage": {"entry": -0.00045795999999986847, "entryPercent": -0.01391781951226839}, "asyncFill": true, "atrPercent": 0.5213259083158667, "positionSize": 136.759078970272, "positionValue": 450}	2026-01-13 19:31:22.936144	2026-01-13 19:31:22.936144
+23	RAVEUSDT	SimpleTrueOB	5m	LONG	0.33635000	892.00000000	15	0.33145864	0.34221963	0.35591543	CLOSED	2026-01-13 19:25:08.986	2026-01-13 19:38:10.719	-4.68	{"obTop": 0.3385, "actual": {"exit": 0.3314073430493274, "entry": 0.33635, "exitTime": 1768300681534, "slAlgoId": 4000000337851570, "stopLoss": 0.3314586427999999, "closeType": "SL", "entryTime": "2026-01-13T10:25:08.986Z", "tpAlgoIds": [4000000337851574], "takeProfit1": 0.34221962864000005, "takeProfit2": 0.3559154288000002, "entryOrderId": 836367196, "closeTriggerPrice": 0.33145864}, "margin": 30, "method": "ORB", "result": {"fee": 0.26781735, "pnl": -4.676667349999999, "win": false, "exitFee": 0.14780767, "entryFee": 0.12000968000000001, "grossPnl": -4.408849999999999, "pnlPercent": -23.381450646314523, "expectedPnl": -4.36309311999996, "holdingTime": 772548}, "signal": {"obTop": 0.3385, "score": 80, "obBottom": 0.33481, "timeframe": "5m"}, "planned": {"entry": 0.33635325720000003, "stopLoss": 0.3314619, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 0.3422228858400001, "takeProfit2": 0.35591868600000026}, "obBottom": 0.33481, "slippage": {"exit": -0.00005129695067263018, "entry": -0.0000032572000000508083, "exitPercent": -0.015476124162167013, "entryPercent": -0.0009683866382521857, "totalSlippage": -0.00005455415067268099, "totalSlippagePercent": -0.0164445108004192}, "asyncFill": true, "closeTime": 1768300681534, "atrPercent": 0.9183472494153411, "closePrice": 0.3314073430493274, "positionSize": 1337.8791207377074, "closeTradeIds": [107783431, 107783432, 107783433, 107783434], "positionValue": 450, "autoClosedTime": "2026-01-13T10:38:10.453Z", "closeTradeCount": 4, "autoClosedReason": "NO_BINANCE_POSITION"}	2026-01-13 19:25:08.988458	2026-01-13 19:38:10.721687
+26	TURBOUSDT	SimpleTrueOB	15m	SHORT	0.00186740	160651.00000000	15	0.00189162	0.00183833	0.00177051	OPEN	2026-01-13 19:50:12.579	\N	\N	{"obTop": 0.0018729, "actual": {"entry": 0.0018674, "slAlgoId": 4000000337996029, "stopLoss": 0.0018916225559999999, "entryTime": "2026-01-13T10:50:12.579Z", "tpAlgoIds": [4000000337996035], "takeProfit1": 0.0018383329328, "takeProfit2": 0.0017705097760000003, "entryOrderId": 7695461424}, "margin": 30, "method": "ORB", "signal": {"obTop": 0.0018729, "score": 80, "obBottom": 0.0018601, "timeframe": "15m"}, "planned": {"entry": 0.0018674064440000002, "stopLoss": 0.0018916290000000001, "tp1Percent": 100, "tp2Percent": 0, "takeProfit1": 0.0018383393768000003, "takeProfit2": 0.0017705162200000006}, "obBottom": 0.0018601, "slippage": {"entry": -0.000000006444000000271899, "entryPercent": -0.000345077528300095}, "asyncFill": true, "atrPercent": 0.601837793411424, "positionSize": 240975.92757369747, "positionValue": 450}	2026-01-13 19:50:12.580772	2026-01-13 19:50:12.580772
+\.
+
+
+--
+-- Data for Name: signals; Type: TABLE DATA; Schema: public; Owner: trader
+--
+
+COPY public.signals (id, strategy, symbol, timeframe, side, "entryPrice", "stopLoss", "takeProfit1", "takeProfit2", leverage, score, "timestamp", metadata, status, "createdAt") FROM stdin;
+1	SimpleTrueOB	WETUSDT	5m	SHORT	0.13710257	0.13883460	0.13502414	0.13017447	15	80.00	2026-01-13 06:00:00	{"obTop": 0.13746, "margin": 30, "method": "ORB", "obBottom": 0.1368, "atrPercent": 0.538519348958349, "positionSize": 3282.2140888470844, "positionValue": 450}	FILLED	2026-01-13 06:05:01.086869
+2	SimpleTrueOB	GLMUSDT	5m	LONG	0.31990397	0.31588920	0.32472169	0.33596304	10	80.00	2026-01-13 10:00:00	{"obTop": 0.3206, "margin": 30, "method": "ORB", "obBottom": 0.31908, "atrPercent": 0.5357459953710373, "positionSize": 937.7814282066048, "positionValue": 300}	PENDING	2026-01-13 10:05:00.839857
+4	SimpleTrueOB	MONUSDT	5m	SHORT	0.02260148	0.02291690	0.02222297	0.02133979	10	80.00	2026-01-13 10:40:00	{"obTop": 0.02269, "margin": 30, "method": "ORB", "obBottom": 0.02245, "atrPercent": 0.5961228898512851, "positionSize": 13273.467752030454, "positionValue": 300}	FILLED	2026-01-13 10:45:00.566334
+3	SimpleTrueOB	POLUSDT	5m	SHORT	0.15094930	0.15299480	0.14849471	0.14276732	10	80.00	2026-01-13 10:40:00	{"obTop": 0.15148, "margin": 30, "method": "ORB", "obBottom": 0.15005, "atrPercent": 0.6201437271759934, "positionSize": 1987.4222129653397, "positionValue": 300}	CANCELED	2026-01-13 10:45:00.127408
+5	SimpleTrueOB	GLMUSDT	5m	LONG	0.32567262	0.32115600	0.33109257	0.34373911	10	80.00	2026-01-13 10:50:00	{"obTop": 0.32785, "margin": 30, "method": "ORB", "obBottom": 0.3244, "atrPercent": 0.5608220475737548, "positionSize": 921.1704644321783, "positionValue": 300}	CANCELED	2026-01-13 10:54:59.940079
+6	SimpleTrueOB	IRYSUSDT	5m	LONG	0.05024095	0.04954356	0.05107781	0.05303049	10	80.00	2026-01-13 10:50:00	{"obTop": 0.050578, "margin": 30, "method": "ORB", "obBottom": 0.050044, "atrPercent": 0.6103110592032166, "positionSize": 5971.225122337058, "positionValue": 300}	CANCELED	2026-01-13 10:55:00.325443
+8	SimpleTrueOB	CHZUSDT	5m	LONG	0.05285957	0.05220270	0.05364781	0.05548705	10	80.00	2026-01-13 11:10:00	{"obTop": 0.05307, "margin": 30, "method": "ORB", "obBottom": 0.05273, "atrPercent": 0.7955704038452275, "positionSize": 5675.415088224952, "positionValue": 300}	SKIPPED	2026-01-13 11:15:00.160841
+7	SimpleTrueOB	CHZUSDT	5m	LONG	0.05196989	0.05124240	0.05284288	0.05487986	10	80.00	2026-01-13 11:00:00	{"obTop": 0.05233, "margin": 30, "method": "ORB", "obBottom": 0.05176, "atrPercent": 0.7356931015941135, "positionSize": 5772.573100156863, "positionValue": 300}	CANCELED	2026-01-13 11:04:59.944053
+9	SimpleTrueOB	BUSDT	5m	LONG	0.27570013	0.27195300	0.28019668	0.29068864	10	80.00	2026-01-13 11:10:00	{"obTop": 0.2774, "margin": 30, "method": "ORB", "obBottom": 0.2747, "atrPercent": 0.6893993090272116, "positionSize": 1088.1387726880607, "positionValue": 300}	FILLED	2026-01-13 11:15:00.398918
+10	SimpleTrueOB	OGUSDT	5m	SHORT	4.16216740	4.21877000	4.09424428	3.93575700	10	80.00	2026-01-13 11:20:00	{"obTop": 4.177, "margin": 30, "method": "ORB", "obBottom": 4.137, "atrPercent": 0.5718211877602636, "positionSize": 72.07783137218364, "positionValue": 300}	FILLED	2026-01-13 11:25:00.321539
+11	SimpleTrueOB	COLLECTUSDT	5m	LONG	0.08894128	0.08775360	0.09036651	0.09369202	10	80.00	2026-01-13 11:50:00	{"obTop": 0.08945, "margin": 30, "method": "ORB", "obBottom": 0.08864, "atrPercent": 0.5882551476270994, "positionSize": 3373.0117685156397, "positionValue": 300}	CANCELED	2026-01-13 11:55:00.236867
+12	SimpleTrueOB	VIRTUALUSDT	5m	SHORT	0.96817133	0.98232600	0.95118572	0.91155264	10	80.00	2026-01-13 11:55:00	{"obTop": 0.9726, "margin": 30, "method": "ORB", "obBottom": 0.9605, "atrPercent": 0.5303828277466633, "positionSize": 309.8625125881258, "positionValue": 300}	CANCELED	2026-01-13 12:00:00.348673
+15	SimpleTrueOB	ZENUSDT	5m	LONG	9.05301024	8.93574000	9.19373453	9.52209120	10	80.00	2026-01-13 12:25:00	{"obTop": 9.098, "margin": 30, "method": "ORB", "obBottom": 9.026, "atrPercent": 0.534220631475606, "positionSize": 33.13814875349131, "positionValue": 300}	SKIPPED	2026-01-13 12:30:00.166974
+13	SimpleTrueOB	IRYSUSDT	5m	LONG	0.05142538	0.05073255	0.05225678	0.05419672	10	80.00	2026-01-13 12:15:00	{"obTop": 0.051731, "margin": 30, "method": "ORB", "obBottom": 0.051245, "atrPercent": 0.7929166814922025, "positionSize": 5833.695003950211, "positionValue": 300}	CANCELED	2026-01-13 12:20:00.39874
+14	SimpleTrueOB	ZENUSDT	5m	LONG	8.95013967	8.83080000	9.09334727	9.42749835	10	80.00	2026-01-13 12:15:00	{"obTop": 9.001, "margin": 30, "method": "ORB", "obBottom": 8.92, "atrPercent": 0.5008164798338327, "positionSize": 33.51902998850073, "positionValue": 300}	CANCELED	2026-01-13 12:20:01.248275
+16	SimpleTrueOB	XPLUSDT	5m	SHORT	0.15305438	0.15493400	0.15079884	0.14553592	10	80.00	2026-01-13 12:35:00	{"obTop": 0.1534, "margin": 30, "method": "ORB", "obBottom": 0.1525, "atrPercent": 0.5312537333491095, "positionSize": 1960.0876114733674, "positionValue": 300}	FILLED	2026-01-13 12:40:00.12377
+17	SimpleTrueOB	BEATUSDT	5m	SHORT	0.39046189	0.39571800	0.38415456	0.36943746	10	80.00	2026-01-13 12:50:00	{"obTop": 0.3918, "margin": 30, "method": "ORB", "obBottom": 0.3882, "atrPercent": 0.7879074506663838, "positionSize": 768.3208173359975, "positionValue": 300}	CANCELED	2026-01-13 12:55:00.137135
+18	SimpleTrueOB	ZENUSDT	5m	LONG	9.16013166	9.03969000	9.30466165	9.64189830	10	80.00	2026-01-13 12:50:00	{"obTop": 9.209, "margin": 30, "method": "ORB", "obBottom": 9.131, "atrPercent": 0.6448642344114545, "positionSize": 32.7506209665113, "positionValue": 300}	CANCELED	2026-01-13 12:55:00.624949
+19	SimpleTrueOB	AIOUSDT	5m	LONG	0.14242548	0.14061960	0.14459253	0.14964900	10	80.00	2026-01-13 13:15:00	{"obTop": 0.14306, "margin": 30, "method": "ORB", "obBottom": 0.14204, "atrPercent": 0.5405625311647352, "positionSize": 2106.3646846324045, "positionValue": 300}	CANCELED	2026-01-13 13:20:00.403748
+20	SimpleTrueOB	币安人生USDT	5m	LONG	0.17562962	0.17312130	0.17863960	0.18566289	10	80.00	2026-01-13 14:10:00	{"obTop": 0.17694, "margin": 30, "method": "ORB", "obBottom": 0.17487, "atrPercent": 0.8950553379392832, "positionSize": 1708.1401296601005, "positionValue": 300}	FAILED	2026-01-13 14:15:00.316692
+24	SimpleTrueOB	ZKUSDT	5m	LONG	0.03463693	0.03421440	0.03514396	0.03632703	10	80.00	2026-01-13 15:20:00	{"obTop": 0.03476, "margin": 30, "method": "ORB", "obBottom": 0.03456, "atrPercent": 0.5038254729490297, "positionSize": 8661.27669643663, "positionValue": 300}	FILLED	2026-01-13 15:25:00.255136
+21	SimpleTrueOB	BCHUSDT	15m	SHORT	613.68823780	621.34190000	604.50384316	583.07358900	10	80.00	2026-01-13 14:30:00	{"obTop": 615.19, "margin": 30, "method": "ORB", "obBottom": 611.25, "atrPercent": 0.5167683839270992, "positionSize": 0.488847563830561, "positionValue": 300}	CANCELED	2026-01-13 14:45:00.480361
+23	SimpleTrueOB	ARCUSDT	5m	LONG	0.05016653	0.04951980	0.05094261	0.05275346	10	80.00	2026-01-13 15:10:00	{"obTop": 0.05041, "margin": 30, "method": "ORB", "obBottom": 0.05002, "atrPercent": 0.5476655184567267, "positionSize": 5980.082581472003, "positionValue": 300}	CANCELED	2026-01-13 15:15:00.249713
+22	SimpleTrueOB	SAPIENUSDT	5m	LONG	0.14239097	0.14047110	0.14469482	0.15007046	10	80.00	2026-01-13 15:05:00	{"obTop": 0.14324, "margin": 30, "method": "ORB", "obBottom": 0.14189, "atrPercent": 0.5058657542590477, "positionSize": 2106.8751391525193, "positionValue": 300}	CANCELED	2026-01-13 15:10:00.365043
+25	SimpleTrueOB	SAPIENUSDT	15m	LONG	0.14413832	0.14212440	0.14655503	0.15219401	10	80.00	2026-01-13 15:15:00	{"obTop": 0.14513, "margin": 30, "method": "ORB", "obBottom": 0.14356, "atrPercent": 0.8823224337376296, "positionSize": 2081.334068868468, "positionValue": 300}	PENDING	2026-01-13 15:30:00.359384
+26	SimpleTrueOB	XMRUSDT	5m	LONG	649.53388080	639.89640000	661.09885776	688.08380400	15	80.00	2026-01-13 15:35:00	{"obTop": 653.97, "margin": 30, "method": "ORB", "obBottom": 646.36, "atrPercent": 0.6891879145254844, "positionSize": 0.6928045068961705, "positionValue": 450}	CANCELED	2026-01-13 15:39:59.938649
+28	SimpleTrueOB	ZKUSDT	15m	LONG	0.03462892	0.03408570	0.03528079	0.03680182	15	80.00	2026-01-13 15:45:00	{"obTop": 0.03491, "margin": 30, "method": "ORB", "obBottom": 0.03443, "atrPercent": 0.8890010097779941, "positionSize": 12994.9170468604, "positionValue": 450}	SKIPPED	2026-01-13 16:00:00.291496
+27	SimpleTrueOB	PUMPUSDT	5m	LONG	0.00254311	0.00250767	0.00258563	0.00268486	15	80.00	2026-01-13 15:50:00	{"obTop": 0.002557, "margin": 30, "method": "ORB", "obBottom": 0.002533, "atrPercent": 0.7244994230822557, "positionSize": 176948.799652482, "positionValue": 450}	CANCELED	2026-01-13 15:55:01.023588
+30	SimpleTrueOB	ICNTUSDT	5m	LONG	0.39169832	0.38619900	0.39829751	0.41369562	15	80.00	2026-01-13 16:05:00	{"obTop": 0.3939, "margin": 30, "method": "ORB", "obBottom": 0.3901, "atrPercent": 0.6387921979895362, "positionSize": 1148.8433123854777, "positionValue": 450}	FILLED	2026-01-13 16:10:00.456861
+32	SimpleTrueOB	PROMUSDT	5m	LONG	8.23704708	8.12295000	8.37396358	8.69343540	15	80.00	2026-01-13 16:15:00	{"obTop": 8.281, "margin": 30, "method": "ORB", "obBottom": 8.205, "atrPercent": 0.6320326703322477, "positionSize": 54.63122835519838, "positionValue": 450}	PENDING	2026-01-13 16:20:01.57485
+29	SimpleTrueOB	AIOUSDT	5m	LONG	0.14228045	0.14018400	0.14479619	0.15066625	15	80.00	2026-01-13 16:00:00	{"obTop": 0.14323, "margin": 30, "method": "ORB", "obBottom": 0.1416, "atrPercent": 0.515014291263003, "positionSize": 3162.7676095689394, "positionValue": 450}	CANCELED	2026-01-13 16:05:00.259695
+33	SimpleTrueOB	ICNTUSDT	5m	LONG	0.39547908	0.38926800	0.40293238	0.42032340	15	80.00	2026-01-13 16:20:00	{"obTop": 0.3987, "margin": 30, "method": "ORB", "obBottom": 0.3932, "atrPercent": 0.7180860411071849, "positionSize": 1137.860440051595, "positionValue": 450}	FILLED	2026-01-13 16:25:00.361681
+31	SimpleTrueOB	STORJUSDT	5m	LONG	0.14402880	0.14196600	0.14650416	0.15228000	15	80.00	2026-01-13 16:10:00	{"obTop": 0.1449, "margin": 30, "method": "ORB", "obBottom": 0.1434, "atrPercent": 0.6939774401214642, "positionSize": 3124.3751249750053, "positionValue": 450}	FILLED	2026-01-13 16:15:01.194369
+35	SimpleTrueOB	MYXUSDT	5m	LONG	6.00059988	5.92317000	6.09351574	6.31031940	15	80.00	2026-01-13 17:05:00	{"obTop": 6.024, "margin": 30, "method": "ORB", "obBottom": 5.983, "atrPercent": 0.5966192424591504, "positionSize": 74.99250224962509, "positionValue": 450}	PENDING	2026-01-13 17:10:00.253844
+34	SimpleTrueOB	LIGHTUSDT	15m	SHORT	0.60095978	0.60882800	0.59151792	0.56948692	15	80.00	2026-01-13 16:45:00	{"obTop": 0.6028, "margin": 30, "method": "ORB", "obBottom": 0.5985, "atrPercent": 0.6161293258475679, "positionSize": 748.8021860710732, "positionValue": 450}	FILLED	2026-01-13 17:00:03.058494
+36	SimpleTrueOB	MYXUSDT	5m	LONG	6.21824340	6.12315000	6.33235548	6.59861700	15	80.00	2026-01-13 17:30:00	{"obTop": 6.265, "margin": 30, "method": "ORB", "obBottom": 6.185, "atrPercent": 0.9783702911967769, "positionSize": 72.36770435843667, "positionValue": 450}	SKIPPED	2026-01-13 17:35:00.221668
+37	SimpleTrueOB	CHZUSDT	5m	LONG	0.05458091	0.05388570	0.05541517	0.05736177	15	80.00	2026-01-13 17:45:00	{"obTop": 0.05478, "margin": 30, "method": "ORB", "obBottom": 0.05443, "atrPercent": 0.7748775686931192, "positionSize": 8244.640241825191, "positionValue": 450}	FILLED	2026-01-13 17:50:00.125859
+38	SimpleTrueOB	ZENUSDT	5m	LONG	9.56151192	9.43668000	9.71131022	10.06083960	15	80.00	2026-01-13 17:45:00	{"obTop": 9.601, "margin": 30, "method": "ORB", "obBottom": 9.532, "atrPercent": 0.751626022208495, "positionSize": 47.06368655554633, "positionValue": 450}	FILLED	2026-01-13 17:50:00.439946
+39	SimpleTrueOB	ARCUSDT	5m	LONG	0.05162632	0.05080680	0.05260975	0.05490442	15	80.00	2026-01-13 18:10:00	{"obTop": 0.05206, "margin": 30, "method": "ORB", "obBottom": 0.05132, "atrPercent": 0.7086107632519247, "positionSize": 8716.483609663683, "positionValue": 450}	FILLED	2026-01-13 18:15:00.505007
+42	SimpleTrueOB	FOLKSUSDT	5m	LONG	3.61512288	3.56202000	3.67884634	3.82753440	15	80.00	2026-01-13 18:25:00	{"obTop": 3.639, "margin": 30, "method": "ORB", "obBottom": 3.598, "atrPercent": 0.5790778236581806, "positionSize": 124.47709661255, "positionValue": 450}	PENDING	2026-01-13 18:30:00.39257
+40	SimpleTrueOB	XMRUSDT	5m	LONG	682.71051480	671.96250000	695.60813256	725.70257400	15	80.00	2026-01-13 18:25:00	{"obTop": 688.31, "margin": 30, "method": "ORB", "obBottom": 678.75, "atrPercent": 0.9588002562424216, "positionSize": 0.6591373506702581, "positionValue": 450}	FILLED	2026-01-13 18:30:00.096784
+41	SimpleTrueOB	USELESSUSDT	5m	LONG	0.10999399	0.10854360	0.11173447	0.11579557	15	80.00	2026-01-13 18:25:00	{"obTop": 0.11047, "margin": 30, "method": "ORB", "obBottom": 0.10964, "atrPercent": 0.6955537471683682, "positionSize": 4091.1324518641172, "positionValue": 450}	FILLED	2026-01-13 18:30:00.162936
+43	SimpleTrueOB	WETUSDT	15m	SHORT	0.14082783	0.14263220	0.13866258	0.13361034	15	80.00	2026-01-13 18:15:00	{"obTop": 0.14122, "margin": 30, "method": "ORB", "obBottom": 0.14031, "atrPercent": 0.7159881189187621, "positionSize": 3195.3911654711246, "positionValue": 450}	FILLED	2026-01-13 18:30:01.431279
+44	SimpleTrueOB	CRVUSDT	5m	LONG	0.40828164	0.40293000	0.41470361	0.42968820	15	80.00	2026-01-13 18:45:00	{"obTop": 0.41, "margin": 30, "method": "ORB", "obBottom": 0.407, "atrPercent": 0.5912223141869006, "positionSize": 1102.1803478598745, "positionValue": 450}	FILLED	2026-01-13 18:50:01.281484
+45	SimpleTrueOB	ALCHUSDT	5m	LONG	0.15388477	0.15153930	0.15669934	0.16326665	15	80.00	2026-01-13 18:55:00	{"obTop": 0.15503, "margin": 30, "method": "ORB", "obBottom": 0.15307, "atrPercent": 0.5895165242123028, "positionSize": 2924.2659794116544, "positionValue": 450}	FILLED	2026-01-13 19:00:00.288114
+46	SimpleTrueOB	RAVEUSDT	5m	LONG	0.32587316	0.32091840	0.33181888	0.34569221	15	80.00	2026-01-13 18:55:00	{"obTop": 0.32828, "margin": 30, "method": "ORB", "obBottom": 0.32416, "atrPercent": 0.7411172024987002, "positionSize": 1380.9053737059887, "positionValue": 450}	CANCELED	2026-01-13 19:00:00.419537
+47	SimpleTrueOB	RAVEUSDT	5m	LONG	0.33635326	0.33146190	0.34222289	0.35591869	15	80.00	2026-01-13 19:15:00	{"obTop": 0.3385, "margin": 30, "method": "ORB", "obBottom": 0.33481, "atrPercent": 0.9183472494153411, "positionSize": 1337.8791207377074, "positionValue": 450}	FILLED	2026-01-13 19:20:00.149675
+49	SimpleTrueOB	THEUSDT	5m	LONG	0.24256850	0.23898600	0.24686751	0.25689852	15	80.00	2026-01-13 19:20:00	{"obTop": 0.2442, "margin": 30, "method": "ORB", "obBottom": 0.2414, "atrPercent": 0.5403179694956988, "positionSize": 1855.146041548741, "positionValue": 450}	FILLED	2026-01-13 19:25:00.273524
+50	SimpleTrueOB	ICPUSDT	5m	LONG	3.29045796	3.24423000	3.34593151	3.47536980	15	80.00	2026-01-13 19:25:00	{"obTop": 3.309, "margin": 30, "method": "ORB", "obBottom": 3.277, "atrPercent": 0.5213259083158667, "positionSize": 136.759078970272, "positionValue": 450}	FILLED	2026-01-13 19:30:00.045287
+48	SimpleTrueOB	FARTCOINUSDT	5m	LONG	0.38703739	0.38095200	0.39433986	0.41137896	15	80.00	2026-01-13 19:15:00	{"obTop": 0.3902, "margin": 30, "method": "ORB", "obBottom": 0.3848, "atrPercent": 0.801089747050191, "positionSize": 1162.6783595110626, "positionValue": 450}	CANCELED	2026-01-13 19:20:00.274573
+52	SimpleTrueOB	1000FLOKIUSDT	15m	SHORT	0.05119176	0.05186350	0.05038567	0.04850480	15	80.00	2026-01-13 19:30:00	{"obTop": 0.05135, "margin": 30, "method": "ORB", "obBottom": 0.05098, "atrPercent": 0.5250281791282068, "positionSize": 8790.477286113839, "positionValue": 450}	FAILED	2026-01-13 19:45:01.263033
+51	SimpleTrueOB	TURBOUSDT	15m	SHORT	0.00186741	0.00189163	0.00183834	0.00177052	15	80.00	2026-01-13 19:30:00	{"obTop": 0.0018729, "margin": 30, "method": "ORB", "obBottom": 0.0018601, "atrPercent": 0.601837793411424, "positionSize": 240975.92757369747, "positionValue": 450}	FILLED	2026-01-13 19:45:00.247437
+\.
+
+
+--
+-- Name: order_block_history_id_seq; Type: SEQUENCE SET; Schema: public; Owner: trader
+--
+
+SELECT pg_catalog.setval('public.order_block_history_id_seq', 1, false);
+
+
+--
+-- Name: positions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: trader
+--
+
+SELECT pg_catalog.setval('public.positions_id_seq', 26, true);
+
+
+--
+-- Name: signals_id_seq; Type: SEQUENCE SET; Schema: public; Owner: trader
+--
+
+SELECT pg_catalog.setval('public.signals_id_seq', 52, true);
+
+
+--
+-- Name: signals PK_04eeac09c09b65bc55c628c101d; Type: CONSTRAINT; Schema: public; Owner: trader
+--
+
+ALTER TABLE ONLY public.signals
+    ADD CONSTRAINT "PK_04eeac09c09b65bc55c628c101d" PRIMARY KEY (id);
+
+
+--
+-- Name: positions PK_17e4e62ccd5749b289ae3fae6f3; Type: CONSTRAINT; Schema: public; Owner: trader
+--
+
+ALTER TABLE ONLY public.positions
+    ADD CONSTRAINT "PK_17e4e62ccd5749b289ae3fae6f3" PRIMARY KEY (id);
+
+
+--
+-- Name: order_block_history PK_c76f7c368a60b63442270478356; Type: CONSTRAINT; Schema: public; Owner: trader
+--
+
+ALTER TABLE ONLY public.order_block_history
+    ADD CONSTRAINT "PK_c76f7c368a60b63442270478356" PRIMARY KEY (id);
+
+
+--
+-- Name: IDX_156deeb21544f00f2704cd6b72; Type: INDEX; Schema: public; Owner: trader
+--
+
+CREATE INDEX "IDX_156deeb21544f00f2704cd6b72" ON public.positions USING btree ("openedAt");
+
+
+--
+-- Name: IDX_1794a8dbc027f00c74adc019a2; Type: INDEX; Schema: public; Owner: trader
+--
+
+CREATE INDEX "IDX_1794a8dbc027f00c74adc019a2" ON public.order_block_history USING btree ("detectedAt");
+
+
+--
+-- Name: IDX_3c2b10e963ded29f74b724a1fd; Type: INDEX; Schema: public; Owner: trader
+--
+
+CREATE INDEX "IDX_3c2b10e963ded29f74b724a1fd" ON public.order_block_history USING btree (status);
+
+
+--
+-- Name: IDX_462df7d1e8d193eececcb7eaf7; Type: INDEX; Schema: public; Owner: trader
+--
+
+CREATE INDEX "IDX_462df7d1e8d193eececcb7eaf7" ON public.signals USING btree (symbol);
+
+
+--
+-- Name: IDX_83e85063a0d6acaac65f259ada; Type: INDEX; Schema: public; Owner: trader
+--
+
+CREATE INDEX "IDX_83e85063a0d6acaac65f259ada" ON public.order_block_history USING btree (type);
+
+
+--
+-- Name: IDX_a93efc672c7635dd4f50925af4; Type: INDEX; Schema: public; Owner: trader
+--
+
+CREATE INDEX "IDX_a93efc672c7635dd4f50925af4" ON public.positions USING btree (symbol);
+
+
+--
+-- Name: IDX_d9e79b5f51dc8a5db87e70c5ca; Type: INDEX; Schema: public; Owner: trader
+--
+
+CREATE INDEX "IDX_d9e79b5f51dc8a5db87e70c5ca" ON public.signals USING btree ("timestamp");
+
+
+--
+-- Name: IDX_f6f44ff67b57b0844a0b51eeb1; Type: INDEX; Schema: public; Owner: trader
+--
+
+CREATE INDEX "IDX_f6f44ff67b57b0844a0b51eeb1" ON public.order_block_history USING btree (symbol);
+
+
+--
+-- Name: IDX_fac15950ad2aefd486b6931cbe; Type: INDEX; Schema: public; Owner: trader
+--
+
+CREATE INDEX "IDX_fac15950ad2aefd486b6931cbe" ON public.positions USING btree (status);
+
+
+--
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: trader
+--
+
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict ngeRqnvT2Fop7xxv92ezaBQFlmyGM4DRSiTdRboFkLJm6fbhwWimcf4IJH76oZc
+

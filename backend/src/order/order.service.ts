@@ -9,6 +9,9 @@ import { OrderMonitorService, PendingLimitOrder } from './order-monitor.service'
 export class OrderService {
   private readonly logger = new Logger(OrderService.name);
 
+  // ✅ 리버스 트레이딩 모드 (환경변수에서 읽음)
+  private readonly REVERSE_TRADING = process.env.REVERSE_TRADING === 'true';
+
   // ✅ 중복 포지션 방지: 현재 처리 중인 심볼 추적
   // PositionSyncService에서 확인하여 MANUAL 포지션 중복 생성 방지
   private static pendingSymbols: Set<string> = new Set();
@@ -35,6 +38,68 @@ export class OrderService {
   ) {
     // 1시간마다 통계 로깅
     setInterval(() => this.logOrderStats(), 60 * 60 * 1000);
+
+    // 리버스 트레이딩 모드 로깅
+    if (this.REVERSE_TRADING) {
+      this.logger.warn(`\n🔄🔄🔄 REVERSE TRADING MODE ENABLED 🔄🔄🔄\n  All signals will be executed in OPPOSITE direction!`);
+    }
+  }
+
+  /**
+   * ✅ 리버스 트레이딩: 시그널 방향 및 SL/TP 반전
+   * - LONG → SHORT, SHORT → LONG
+   * - SL ↔ TP 교환
+   */
+  private applyReverseTrading(signal: any): any {
+    if (!this.REVERSE_TRADING) {
+      return signal;
+    }
+
+    const originalSide = signal.side;
+    const originalSL = signal.stopLoss;
+    const originalTP1 = signal.takeProfit1;
+    const originalTP2 = signal.takeProfit2;
+
+    // 방향 반전
+    const reversedSide = originalSide === 'LONG' ? 'SHORT' : 'LONG';
+
+    // SL ↔ TP 교환 (리버스 시 원래 TP가 새 SL, 원래 SL이 새 TP)
+    const reversedSL = originalTP1;  // 원래 TP1 → 새 SL
+    const reversedTP1 = originalSL;  // 원래 SL → 새 TP1
+    const reversedTP2 = originalSL;  // TP2도 원래 SL 방향으로
+
+    this.logger.log(
+      `\n🔄 [REVERSE TRADING] Signal reversed!\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `  Symbol:     ${signal.symbol}\n` +
+      `  ┌─────────────────────────────────────────────────\n` +
+      `  │ Original Signal:\n` +
+      `  │   Side:  ${originalSide}\n` +
+      `  │   SL:    ${originalSL?.toFixed(4)}\n` +
+      `  │   TP1:   ${originalTP1?.toFixed(4)}\n` +
+      `  ├─────────────────────────────────────────────────\n` +
+      `  │ Reversed Signal:\n` +
+      `  │   Side:  ${reversedSide}\n` +
+      `  │   SL:    ${reversedSL?.toFixed(4)} (was TP1)\n` +
+      `  │   TP1:   ${reversedTP1?.toFixed(4)} (was SL)\n` +
+      `  └─────────────────────────────────────────────────\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`
+    );
+
+    return {
+      ...signal,
+      side: reversedSide,
+      stopLoss: reversedSL,
+      takeProfit1: reversedTP1,
+      takeProfit2: reversedTP2,
+      metadata: {
+        ...signal.metadata,
+        reversedFrom: originalSide,
+        originalSL,
+        originalTP1,
+        originalTP2,
+      },
+    };
   }
 
   /**
@@ -197,19 +262,22 @@ export class OrderService {
   }
 
   async executeOrder(signal: any, positionSize: any): Promise<any> {
+    // ✅ 리버스 트레이딩 적용
+    const effectiveSignal = this.applyReverseTrading(signal);
+
     this.logger.log(
-      `\n🚀 [ORDER SERVICE] Received order execution request for ${signal.symbol} ${signal.side}`
+      `\n🚀 [ORDER SERVICE] Received order execution request for ${effectiveSignal.symbol} ${effectiveSignal.side}`
     );
 
     // ✅ [중복 방지] 주문 전 바이낸스에서 기존 포지션/주문 확인
-    const duplicateCheck = await this.checkExistingPositionOrOrder(signal.symbol, signal.side);
+    const duplicateCheck = await this.checkExistingPositionOrOrder(effectiveSignal.symbol, effectiveSignal.side);
     if (duplicateCheck.shouldSkip) {
       this.logger.warn(
         `\n🚫 [DUPLICATE PREVENTION] Skipping order!\n` +
-        `  Symbol: ${signal.symbol} ${signal.side}\n` +
+        `  Symbol: ${effectiveSignal.symbol} ${effectiveSignal.side}\n` +
         `  Reason: ${duplicateCheck.reason}`
       );
-      this.recordOrderResult(signal.symbol, 'SKIPPED', duplicateCheck.reason);
+      this.recordOrderResult(effectiveSignal.symbol, 'SKIPPED', duplicateCheck.reason);
       return {
         status: 'SKIPPED',
         error: duplicateCheck.reason,
@@ -217,20 +285,20 @@ export class OrderService {
     }
 
     // ✅ 중복 포지션 방지: 처리 시작 시 pending 세트에 추가
-    this.addPendingSymbol(signal.symbol);
+    this.addPendingSymbol(effectiveSignal.symbol);
 
     try {
-      const result = await this._executeOrderInternal(signal, positionSize);
+      const result = await this._executeOrderInternal(effectiveSignal, positionSize);
 
       // ✅ 주문 실패 시 바이낸스 포지션 검증 (예상치 못한 체결 감지)
       if (result.status === 'FAILED' || result.status === 'CANCELED') {
-        await this.verifyNoUnexpectedPosition(signal);
+        await this.verifyNoUnexpectedPosition(effectiveSignal);
       }
 
       return result;
     } finally {
       // ✅ 성공/실패 관계없이 pending 세트에서 제거
-      this.removePendingSymbol(signal.symbol);
+      this.removePendingSymbol(effectiveSignal.symbol);
     }
   }
 
@@ -1081,23 +1149,26 @@ export class OrderService {
     orderId?: number;
     error?: string;
   }> {
+    // ✅ 리버스 트레이딩 적용
+    const effectiveSignal = this.applyReverseTrading(signal);
+
     this.logger.log(
-      `\n🚀 [ASYNC ORDER] ${signal.symbol} ${signal.side}\n` +
-      `  Strategy:   ${signal.strategy}\n` +
-      `  Entry:      ${signal.entryPrice}\n` +
+      `\n🚀 [ASYNC ORDER] ${effectiveSignal.symbol} ${effectiveSignal.side}\n` +
+      `  Strategy:   ${effectiveSignal.strategy}\n` +
+      `  Entry:      ${effectiveSignal.entryPrice}\n` +
       `  Quantity:   ${positionSize.quantity}\n` +
       `  Leverage:   ${positionSize.leverage}x`
     );
 
     // ✅ [중복 방지] 주문 전 바이낸스에서 기존 포지션/주문 확인
-    const duplicateCheck = await this.checkExistingPositionOrOrder(signal.symbol, signal.side);
+    const duplicateCheck = await this.checkExistingPositionOrOrder(effectiveSignal.symbol, effectiveSignal.side);
     if (duplicateCheck.shouldSkip) {
       this.logger.warn(
         `\n🚫 [ASYNC DUPLICATE PREVENTION] Skipping order!\n` +
-        `  Symbol: ${signal.symbol} ${signal.side}\n` +
+        `  Symbol: ${effectiveSignal.symbol} ${effectiveSignal.side}\n` +
         `  Reason: ${duplicateCheck.reason}`
       );
-      this.recordOrderResult(signal.symbol, 'SKIPPED', duplicateCheck.reason);
+      this.recordOrderResult(effectiveSignal.symbol, 'SKIPPED', duplicateCheck.reason);
       return {
         status: 'SKIPPED',
         error: duplicateCheck.reason,
@@ -1105,7 +1176,7 @@ export class OrderService {
     }
 
     // 중복 방지
-    this.addPendingSymbol(signal.symbol);
+    this.addPendingSymbol(effectiveSignal.symbol);
 
     try {
       // 1. 레버리지 설정 (v11: 다단계 retry)
@@ -1116,7 +1187,7 @@ export class OrderService {
       let leverageSet = false;
 
       try {
-        await this.binanceService.changeLeverage(signal.symbol, actualLeverage);
+        await this.binanceService.changeLeverage(effectiveSignal.symbol, actualLeverage);
         leverageSet = true;
       } catch (leverageError: any) {
         this.logger.warn(`[ASYNC] Leverage ${actualLeverage}x failed: ${leverageError.message}`);
@@ -1126,7 +1197,7 @@ export class OrderService {
           if (fallback >= actualLeverage) continue;
           try {
             this.logger.log(`[ASYNC] Retrying with fallback leverage ${fallback}x...`);
-            await this.binanceService.changeLeverage(signal.symbol, fallback);
+            await this.binanceService.changeLeverage(effectiveSignal.symbol, fallback);
             this.logger.log(`[ASYNC] ✓ Leverage set to ${fallback}x (fallback)`);
             actualLeverage = fallback;
             leverageSet = true;
@@ -1137,25 +1208,25 @@ export class OrderService {
         }
 
         if (!leverageSet) {
-          throw new Error(`Failed to set leverage for ${signal.symbol} - all fallbacks exhausted`);
+          throw new Error(`Failed to set leverage for ${effectiveSignal.symbol} - all fallbacks exhausted`);
         }
 
         positionSize.leverage = actualLeverage;
       }
 
       // 2. 마진 모드 설정
-      await this.binanceService.changeMarginType(signal.symbol, 'ISOLATED');
+      await this.binanceService.changeMarginType(effectiveSignal.symbol, 'ISOLATED');
 
       // 3. LIMIT 주문 생성
-      const obMidpoint = signal.entryPrice;
-      const limitPrice = parseFloat(this.binanceService.formatPrice(signal.symbol, obMidpoint));
+      const obMidpoint = effectiveSignal.entryPrice;
+      const limitPrice = parseFloat(this.binanceService.formatPrice(effectiveSignal.symbol, obMidpoint));
 
-      const timeframe = signal.metadata?.timeframe || signal.timeframe || '5m';
+      const timeframe = effectiveSignal.metadata?.timeframe || effectiveSignal.timeframe || '5m';
       const maxWaitTime = timeframe === '15m' ? 2700000 : 900000; // 15분봉: 45분, 5분봉: 15분
 
       const mainOrder = await this.binanceService.createOrder({
-        symbol: signal.symbol,
-        side: signal.side === 'LONG' ? 'BUY' : 'SELL',
+        symbol: effectiveSignal.symbol,
+        side: effectiveSignal.side === 'LONG' ? 'BUY' : 'SELL',
         type: 'LIMIT',
         quantity: positionSize.quantity,
         price: limitPrice,
@@ -1179,8 +1250,10 @@ export class OrderService {
         // 동기식으로 SL/TP 생성 필요 - executeOrder로 fallback하거나 여기서 처리
         // OrderMonitorService에 바로 onOrderFilled 호출하는 것보다
         // 직접 처리하는 게 더 안전함 (동기적으로)
-        const result = await this.executeOrder(signal, positionSize);
-        this.removePendingSymbol(signal.symbol);
+        // Note: executeOrder에서 다시 applyReverseTrading이 호출되지만
+        // 이미 reversed된 signal이므로 다시 reverse되지 않도록 원본 사용
+        const result = await this._executeOrderInternal(effectiveSignal, positionSize);
+        this.removePendingSymbol(effectiveSignal.symbol);
         return {
           status: result.status === 'FILLED' ? 'PENDING' : 'FAILED',
           orderId: mainOrder.orderId,
@@ -1191,17 +1264,17 @@ export class OrderService {
       // 대기 중인 경우 - OrderMonitorService에 등록
       if (mainOrder.status === 'NEW') {
         const pendingOrder: PendingLimitOrder = {
-          symbol: signal.symbol,
+          symbol: effectiveSignal.symbol,
           orderId: mainOrder.orderId,
-          side: signal.side,
+          side: effectiveSignal.side,
           quantity: positionSize.quantity,
           price: limitPrice,
-          signal: { ...signal, leverage: actualLeverage },
+          signal: { ...effectiveSignal, leverage: actualLeverage },
           positionSize,
           createdAt: Date.now(),
           expireAt: Date.now() + maxWaitTime,
-          obTop: signal.metadata?.obTop,
-          obBottom: signal.metadata?.obBottom,
+          obTop: effectiveSignal.metadata?.obTop,
+          obBottom: effectiveSignal.metadata?.obBottom,
           timeframe,
           retryCount: 0,
         };
@@ -1210,15 +1283,15 @@ export class OrderService {
 
         this.logger.log(
           `[ASYNC] 📝 Registered for monitoring:\n` +
-          `  Symbol:  ${signal.symbol}\n` +
+          `  Symbol:  ${effectiveSignal.symbol}\n` +
           `  Expire:  ${new Date(pendingOrder.expireAt).toISOString()}`
         );
 
         // pendingSymbol은 유지 (OrderMonitorService가 체결/취소 시 정리)
         // 하지만 SignalProcessor가 다음 시그널 처리할 수 있도록 여기서 제거
-        this.removePendingSymbol(signal.symbol);
+        this.removePendingSymbol(effectiveSignal.symbol);
 
-        this.recordOrderResult(signal.symbol, 'PENDING', 'Async monitoring');
+        this.recordOrderResult(effectiveSignal.symbol, 'PENDING', 'Async monitoring');
 
         return {
           status: 'PENDING',
@@ -1228,7 +1301,7 @@ export class OrderService {
 
       // 기타 상태
       this.logger.warn(`[ASYNC] Unexpected status: ${mainOrder.status}`);
-      this.recordOrderResult(signal.symbol, 'FAILED', `Unexpected: ${mainOrder.status}`);
+      this.recordOrderResult(effectiveSignal.symbol, 'FAILED', `Unexpected: ${mainOrder.status}`);
       return {
         status: 'FAILED',
         error: `Unexpected status: ${mainOrder.status}`,
@@ -1236,13 +1309,13 @@ export class OrderService {
 
     } catch (error: any) {
       this.logger.error(`[ASYNC] ❌ Failed: ${error.message}`);
-      this.recordOrderResult(signal.symbol, 'FAILED', error.message);
+      this.recordOrderResult(effectiveSignal.symbol, 'FAILED', error.message);
       return {
         status: 'FAILED',
         error: error.message,
       };
     } finally {
-      this.removePendingSymbol(signal.symbol);
+      this.removePendingSymbol(effectiveSignal.symbol);
     }
   }
 
