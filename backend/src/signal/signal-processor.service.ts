@@ -203,13 +203,9 @@ export class SignalProcessorService {
         }
         this.logger.log(`[FLOW-5] ✅ PASS | Correlation check`);
 
-        // ✅ 캔들 기반 동시 진입 제한 체크 (상관관계 필터링)
-        this.logger.log(`[FLOW-5] RiskCheck → CandleEntry | Checking ${signal.symbol}...`);
-        if (!this.riskService.checkCandleEntryLimit(signal)) {
-          this.logger.warn(`[FLOW-5] ❌ REJECT | ${signal.symbol} - candle entry limit reached`);
-          continue;
-        }
-        this.logger.log(`[FLOW-5] ✅ PASS | Candle entry limit check`);
+        // v23: 캔들 기반 동시 진입 제한 제거
+        // 기존: 같은 캔들 내 같은 방향 2개 제한
+        // 변경: 제한 없음 (MAX_POSITIONS=20, 방향별 10개만 유지)
 
         // 포지션 크기 계산
         this.logger.log(`[FLOW-5] RiskCheck → PositionSize | Calculating...`);
