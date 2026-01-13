@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { SymbolSelectionService } from './symbol-selection.service';
 import { SymbolUpdateScheduler } from './symbol-update.scheduler';
 import { SymbolSectorService } from './symbol-sector.service';
-import { BinanceModule } from '../binance/binance.module';
+import { OkxModule } from '../okx/okx.module';
 import { CacheModule } from '../cache/cache.module';
 import { WebSocketModule } from '../websocket/websocket.module';
 
 @Module({
-  imports: [BinanceModule, CacheModule, WebSocketModule],
+  imports: [OkxModule, CacheModule, WebSocketModule],
   providers: [SymbolSelectionService, SymbolUpdateScheduler, SymbolSectorService],
   exports: [SymbolSelectionService, SymbolUpdateScheduler, SymbolSectorService],
 })

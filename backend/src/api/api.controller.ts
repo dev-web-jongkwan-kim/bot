@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Position } from '../database/entities/position.entity';
 import { Signal } from '../database/entities/signal.entity';
 import { OrderService } from '../order/order.service';
-import { BinanceService } from '../binance/binance.service';
+import { OkxService } from '../okx/okx.service';
 import { SymbolSelectionService } from '../symbol-selection/symbol-selection.service';
 
 @Controller('api')
@@ -17,7 +17,7 @@ export class ApiController {
     @InjectRepository(Signal)
     private signalRepo: Repository<Signal>,
     private orderService: OrderService,
-    private binanceService: BinanceService,
+    private okxService: OkxService,
     private symbolSelection: SymbolSelectionService,
   ) {}
 
@@ -30,7 +30,7 @@ export class ApiController {
   async getOpenPositions() {
     try {
       // 바이낸스에서 실제 오픈 포지션 가져오기
-      const binancePositions = await this.binanceService.getOpenPositions();
+      const binancePositions = await this.okxService.getOpenPositions();
 
       // 데이터베이스의 오픈 포지션도 가져오기
       const dbPositions = await this.positionRepo.find({
@@ -102,7 +102,7 @@ export class ApiController {
 
     try {
       // 1. 먼저 바이낸스에서 실제 포지션 수량 확인
-      const binancePositions = await this.binanceService.getOpenPositions();
+      const binancePositions = await this.okxService.getOpenPositions();
       const binancePos = binancePositions.find(p => p.symbol === position.symbol);
 
       if (!binancePos || Math.abs(parseFloat(binancePos.positionAmt)) < 0.000001) {
@@ -127,7 +127,7 @@ export class ApiController {
       // 2. 잔여 SL/TP 주문 취소 (먼저 취소해야 청산 주문이 정상 작동)
       try {
         this.logger.log(`[MANUAL CLOSE] Canceling remaining algo orders for ${position.symbol}...`);
-        const cleanup = await this.binanceService.cancelAllAlgoOrders(position.symbol);
+        const cleanup = await this.okxService.cancelAllAlgoOrders(position.symbol);
         if (cleanup.canceled > 0) {
           this.logger.log(`[MANUAL CLOSE] ✓ Canceled ${cleanup.canceled} algo orders`);
         }
@@ -136,7 +136,7 @@ export class ApiController {
       }
 
       // 3. 바이낸스에서 실제 포지션 청산
-      const closeOrder = await this.binanceService.createOrder({
+      const closeOrder = await this.okxService.createOrder({
         symbol: position.symbol,
         side,
         type: 'MARKET',
@@ -145,7 +145,7 @@ export class ApiController {
       });
 
       // 4. 청산 거래에서 실제 PnL 조회
-      const trades = await this.binanceService.getRecentTrades(position.symbol, 10);
+      const trades = await this.okxService.getRecentTrades(position.symbol, 10);
       const closeSide = position.side === 'LONG' ? 'SELL' : 'BUY';
 
       // 방금 실행한 청산 거래 찾기 (가장 최근)
@@ -156,7 +156,7 @@ export class ApiController {
 
       let totalRealizedPnl = 0;
       let totalCommission = 0;
-      let avgClosePrice = parseFloat(closeOrder.avgPrice || closeOrder.price || '0');
+      let avgClosePrice = parseFloat(String(closeOrder.avgPrice || closeOrder.price || '0'));
 
       if (closeTrades.length > 0) {
         for (const trade of closeTrades) {
@@ -313,7 +313,7 @@ export class ApiController {
       const totalPnl = parseFloat(totalPnlResult?.totalPnl || '0');
 
       // 초기 자본 기준 ROI 계산 (바이낸스 잔고 - 총 실현 PnL)
-      const accountInfo = await this.binanceService.getAccountInfo();
+      const accountInfo = await this.okxService.getAccountInfo();
       const currentBalance = parseFloat(accountInfo.totalWalletBalance || '100');
       const initialCapital = currentBalance - totalPnl;
       const roi = initialCapital > 0 ? (totalPnl / initialCapital) * 100 : 0;
@@ -366,7 +366,7 @@ export class ApiController {
   @Get('ticker/:symbol')
   async getTicker(@Param('symbol') symbol: string) {
     try {
-      const tickerData = await this.binanceService.get24hTicker(symbol);
+      const tickerData = await this.okxService.get24hTicker(symbol);
       // futuresDailyStats returns an object when symbol is provided
       const ticker = Array.isArray(tickerData) ? tickerData[0] : tickerData;
 
@@ -393,7 +393,7 @@ export class ApiController {
   @Get('account/balance')
   async getAccountBalance() {
     try {
-      const accountInfo = await this.binanceService.getAccountInfo();
+      const accountInfo = await this.okxService.getAccountInfo();
       return {
         totalWalletBalance: parseFloat(accountInfo.totalWalletBalance || '0'),
         totalUnrealizedProfit: parseFloat(accountInfo.totalUnrealizedProfit || '0'),
@@ -411,7 +411,7 @@ export class ApiController {
   async getBinanceSymbols() {
     try {
       // 바이낸스 선물 거래 가능한 모든 USDT 페어 가져오기
-      const exchangeInfo = await this.binanceService.getExchangeInfo();
+      const exchangeInfo = await this.okxService.getExchangeInfo();
 
       // USDT 선물만 필터링 (거래 가능한 것만)
       const usdtSymbols = exchangeInfo.symbols
@@ -502,7 +502,7 @@ export class ApiController {
   async getDashboardMetrics() {
     try {
       // 바이낸스에서 실제 계정 정보 가져오기
-      const accountInfo = await this.binanceService.getAccountInfo();
+      const accountInfo = await this.okxService.getAccountInfo();
 
       const totalWalletBalance = parseFloat(accountInfo.totalWalletBalance || '0');
       const totalUnrealizedProfit = parseFloat(accountInfo.totalUnrealizedProfit || '0');
@@ -510,7 +510,7 @@ export class ApiController {
       const availableBalance = parseFloat(accountInfo.availableBalance || '0');
 
       // 오픈 포지션 수
-      const openPositions = await this.binanceService.getOpenPositions();
+      const openPositions = await this.okxService.getOpenPositions();
       const openPositionsCount = openPositions.filter(p => Math.abs(parseFloat(p.positionAmt)) > 0).length;
 
       // DB에서 오늘 거래 내역 가져오기
@@ -728,7 +728,7 @@ export class ApiController {
         .getRawMany();
 
       // 시작 잔고 가져오기
-      const accountInfo = await this.binanceService.getAccountInfo();
+      const accountInfo = await this.okxService.getAccountInfo();
       const currentBalance = parseFloat(accountInfo.totalWalletBalance || '100');
 
       // 총 실현 PnL
@@ -792,7 +792,7 @@ export class ApiController {
 
     try {
       // 1. 현재 활성 포지션 심볼 목록
-      const activePositions = await this.binanceService.getOpenPositions();
+      const activePositions = await this.okxService.getOpenPositions();
       const activeSymbols = new Set(
         activePositions
           .filter(p => Math.abs(parseFloat(p.positionAmt)) > 0.000001)
@@ -800,7 +800,7 @@ export class ApiController {
       );
 
       // 2. 모든 열린 Algo Order 조회
-      const allAlgoOrders = await this.binanceService.getOpenAlgoOrders();
+      const allAlgoOrders = await this.okxService.getOpenAlgoOrders();
 
       // 3. 고아 주문 찾기 (포지션 없는 심볼의 주문)
       const orphanOrders = allAlgoOrders.filter(order => !activeSymbols.has(order.symbol));
@@ -824,7 +824,7 @@ export class ApiController {
 
       for (const order of orphanOrders) {
         try {
-          await this.binanceService.cancelAlgoOrder(order.symbol, order.algoId);
+          await this.okxService.cancelAlgoOrder(order.symbol, order.algoId);
           canceled++;
           results.push({
             symbol: order.symbol,

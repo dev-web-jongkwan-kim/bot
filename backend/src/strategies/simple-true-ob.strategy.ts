@@ -148,8 +148,8 @@ export class SimpleTrueOBStrategy implements IStrategy {
       sweepWickMin: 0.6,
       sweepPenMin: 0.1,
       sweepPenMax: 1.0,
-      orbAtr: 1.5,              // v10 원복 (1.0 → 1.5)
-      orbVol: 2.0,              // v10 원복 (1.5 → 2.0)
+      orbAtr: 1.0,              // v11 최적화: 1.5 → 1.0
+      orbVol: 1.5,              // v11 최적화: 2.0 → 1.5
       londonHour: 7,
       nyHour: 14,
       rrRatio: 4.0,             // v4 최적화: 3.0 → 4.0
@@ -158,7 +158,7 @@ export class SimpleTrueOBStrategy implements IStrategy {
       obMaxBars15m: 8,          // v17: 15분봉 OB 최대 수명 8캔들 (2시간)
       makerFee: 0.0004,         // 0.04%
       takerFee: 0.00075,        // 0.075%
-      leverage: 10,             // v19: 10x 고정
+      leverage: 20,             // v11 최적화: 20x
       capitalUsage: 0.1,        // 10%
       slippage: 0.0002,         // 0.02% - 백테스트와 동일하게 추가
       maxHoldingBars: 48,       // v5 최적화: 72 → 48 (4시간)
@@ -175,7 +175,7 @@ export class SimpleTrueOBStrategy implements IStrategy {
       useDynamicLeverage: false,    // v19: 비활성화 (10x 고정)
       // v10: ATR + CVD 방향 필터
       useATRCVDFilter: true,        // 활성화
-      atrFilterMin: 0.5,            // v10 원복 (0.4 → 0.5)
+      atrFilterMin: 0.4,            // v11 최적화: 0.5 → 0.4
       atrFilterMax: 0.8,            // v17: ATR% 최대 0.8% (실전 분석: 0.5~0.8% 최고 승률)
       cvdLookback: 20,              // CVD 20캔들 기준
       maxOBSizePercent: 1.5,        // v19: OB 최대 크기 1.5% (0.5% → 1.5% 완화)
@@ -1111,7 +1111,7 @@ export class SimpleTrueOBStrategy implements IStrategy {
     }
 
     // v19: 진입 시그널 생성 (entryPoint 사용 - 0.35 위치)
-    const slBuffer = 0.01;  // 롤백: 0.5% → 1.0% (0.5%는 너무 타이트함)
+    const slBuffer = 0.005;  // v11 최적화: 1.0% → 0.5%
 
     // 슬리피지 적용 (백테스트와 동일)
     const slippageFactor = activeOB.type === 'LONG'
@@ -1126,12 +1126,12 @@ export class SimpleTrueOBStrategy implements IStrategy {
     if (activeOB.type === 'LONG') {
       stopLoss = activeOB.bottom * (1 - slBuffer);
       const risk = entry - stopLoss;
-      takeProfit1 = entry + (risk * 1.2);  // 롤백: 0.8R → 1.2R
+      takeProfit1 = entry + (risk * 0.8);  // v11 최적화: 0.8R
       takeProfit2 = entry + (risk * this.config.rrRatio);  // rrRatio = 4.0
     } else {
       stopLoss = activeOB.top * (1 + slBuffer);
       const risk = stopLoss - entry;
-      takeProfit1 = entry - (risk * 1.2);  // 롤백: 0.8R → 1.2R
+      takeProfit1 = entry - (risk * 0.8);  // v11 최적화: 0.8R
       takeProfit2 = entry - (risk * this.config.rrRatio);  // rrRatio = 4.0
     }
 

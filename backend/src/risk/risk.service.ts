@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Signal } from '../database/entities/signal.entity';
 import { Position } from '../database/entities/position.entity';
 import { ConfigService } from '@nestjs/config';
-import { BinanceService } from '../binance/binance.service';
+import { OkxService } from '../okx/okx.service';
 import { SymbolSectorService, Sector } from '../symbol-selection/symbol-sector.service';
 import { OrderMonitorService } from '../order/order-monitor.service';
 
@@ -53,7 +53,7 @@ export class RiskService {
     @InjectRepository(Position)
     private positionRepo: Repository<Position>,
     private configService: ConfigService,
-    private binanceService: BinanceService,       // v10: 바이낸스 서비스 주입
+    private okxService: OkxService,               // v10: OKX 서비스 주입
     private symbolSectorService: SymbolSectorService,  // v12: 섹터 관리 서비스
     @Inject(forwardRef(() => OrderMonitorService))
     private orderMonitorService: OrderMonitorService,  // ✅ 대기 주문 추적용
@@ -118,7 +118,7 @@ export class RiskService {
     }
 
     try {
-      const balance = await this.binanceService.getAvailableBalance();
+      const balance = await this.okxService.getAvailableBalance();
 
       if (balance > 0) {
         this.cachedBalance = balance;

@@ -1,5 +1,5 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import { BinanceService } from '../binance/binance.service';
+import { OkxService } from '../okx/okx.service';
 import Redis from 'ioredis';
 
 export interface SelectedSymbol {
@@ -21,7 +21,7 @@ export class SymbolSelectionService {
   private readonly CACHE_TTL = 86400; // 24 hours
 
   constructor(
-    private binanceService: BinanceService,
+    private okxService: OkxService,
     @Inject('REDIS_CLIENT') private redis: Redis,
   ) {}
 
@@ -93,7 +93,7 @@ export class SymbolSelectionService {
    * 모든 영구 USDT 선물 종목 가져오기
    */
   private async getAllPerpetualSymbols(): Promise<any[]> {
-    const exchangeInfo = await this.binanceService.getExchangeInfo();
+    const exchangeInfo = await this.okxService.getExchangeInfo();
 
     return (exchangeInfo.symbols as any[]).filter((s: any) =>
       s.contractType === 'PERPETUAL' &&
@@ -106,7 +106,7 @@ export class SymbolSelectionService {
    * 모든 종목의 24시간 통계 가져오기
    */
   private async getAll24hTickers(): Promise<any[]> {
-    const result = await this.binanceService.getAll24hTickers();
+    const result = await this.okxService.getAll24hTickers();
     // Ensure we always return an array
     return Array.isArray(result) ? result : [result];
   }

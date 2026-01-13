@@ -8,7 +8,7 @@ import { DataPreprocessorService } from './data-preprocessor.service';
 import { ReportGeneratorService } from './report-generator.service';
 import { MarketRegimeFilter } from './filters/market-regime.filter';
 import { DatabaseModule } from '../database/database.module';
-import { BinanceModule } from '../binance/binance.module';
+import { OkxModule } from '../okx/okx.module';
 import { CacheModule } from '../cache/cache.module';
 import { StrategiesModule } from '../strategies/strategies.module';
 
@@ -26,7 +26,7 @@ import { StrategiesModule } from '../strategies/strategies.module';
 @Module({
   imports: [
     DatabaseModule,
-    BinanceModule,
+    OkxModule,
     CacheModule,
     StrategiesModule,
   ],

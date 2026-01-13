@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { WebSocketService } from './websocket/websocket.service';
+import { OkxWebSocketService } from './okx/okx-websocket.service';
 import { SymbolSelectionService } from './symbol-selection/symbol-selection.service';
 
 /**
@@ -15,7 +15,7 @@ export class AppService {
   private isTrading = false;
 
   constructor(
-    private wsService: WebSocketService,
+    private wsService: OkxWebSocketService,
     private symbolSelection: SymbolSelectionService,
   ) {}
 

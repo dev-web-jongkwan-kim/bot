@@ -2,7 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { RiskService } from './risk.service';
 import { DatabaseModule } from '../database/database.module';
 import { ConfigModule } from '@nestjs/config';
-import { BinanceModule } from '../binance/binance.module';
+import { OkxModule } from '../okx/okx.module';
 import { SymbolSelectionModule } from '../symbol-selection/symbol-selection.module';
 import { OrderModule } from '../order/order.module';
 
@@ -10,7 +10,7 @@ import { OrderModule } from '../order/order.module';
   imports: [
     DatabaseModule,
     ConfigModule,
-    BinanceModule,              // v10: Dynamic balance
+    OkxModule,                  // v10: Dynamic balance (OKX)
     SymbolSelectionModule,      // v12: Sector management
     forwardRef(() => OrderModule),  // ✅ 통합 슬롯 체크용
   ],

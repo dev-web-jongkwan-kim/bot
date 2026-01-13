@@ -5,7 +5,7 @@ import { Position } from '../database/entities/position.entity';
 import { OrderBlockHistory } from '../database/entities/order-block-history.entity';
 import { WebSocketModule } from '../websocket/websocket.module';
 import { CacheModule } from '../cache/cache.module';
-import { BinanceModule } from '../binance/binance.module';
+import { OkxModule } from '../okx/okx.module';
 import { SimpleTrueOBStrategy } from './simple-true-ob.strategy';
 import { OrderBlockHistoryService } from './order-block-history.service';
 
@@ -28,7 +28,7 @@ import { OrderBlockHistoryService } from './order-block-history.service';
     TypeOrmModule.forFeature([Signal, Position, OrderBlockHistory]),
     WebSocketModule,
     CacheModule,
-    BinanceModule,
+    OkxModule,
   ],
   providers: [
     SimpleTrueOBStrategy,

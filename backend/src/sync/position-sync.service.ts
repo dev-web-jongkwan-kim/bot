@@ -4,7 +4,7 @@ import { Repository, MoreThan } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Position } from '../database/entities/position.entity';
 import { Signal } from '../database/entities/signal.entity';
-import { BinanceService } from '../binance/binance.service';
+import { OkxService } from '../okx/okx.service';
 import { SimpleTrueOBStrategy } from '../strategies/simple-true-ob.strategy';
 import { OrderService } from '../order/order.service';
 import { RiskService } from '../risk/risk.service';
@@ -45,7 +45,7 @@ export class PositionSyncService {
     private positionRepo: Repository<Position>,
     @InjectRepository(Signal)
     private signalRepo: Repository<Signal>,
-    private binanceService: BinanceService,
+    private okxService: OkxService,
     @Inject(forwardRef(() => SimpleTrueOBStrategy))
     private simpleTrueOBStrategy: SimpleTrueOBStrategy,
     private riskService: RiskService,  // v13: 블랙리스트 기록용
@@ -72,7 +72,7 @@ export class PositionSyncService {
     this.isSyncing = true;
     try {
       // 1. 바이낸스에서 실제 오픈 포지션 가져오기
-      const binancePositions = await this.binanceService.getOpenPositions();
+      const binancePositions = await this.okxService.getOpenPositions();
       const activePositions = binancePositions.filter(
         p => Math.abs(parseFloat(p.positionAmt)) > 0.000001
       );
@@ -247,10 +247,10 @@ export class PositionSyncService {
             this.logger.log(`[RECOVERY] Creating TP order for ${symbol}...`);
 
             try {
-              const formattedTP1 = parseFloat(this.binanceService.formatPrice(symbol, takeProfit1));
-              const formattedQty = parseFloat(this.binanceService.formatQuantity(symbol, Math.abs(positionAmt)));
+              const formattedTP1 = parseFloat(this.okxService.formatPrice(symbol, takeProfit1));
+              const formattedQty = parseFloat(this.okxService.formatQuantity(symbol, Math.abs(positionAmt)));
 
-              await this.binanceService.createAlgoOrder({
+              await this.okxService.createAlgoOrder({
                 symbol,
                 side: positionAmt > 0 ? 'SELL' : 'BUY',
                 type: 'TAKE_PROFIT_MARKET',
@@ -288,7 +288,7 @@ export class PositionSyncService {
           // 바이낸스에서 최근 거래 내역 조회하여 실현 PnL 확인
           // v10: 더 많은 거래 조회 + 모든 관련 거래 합산 (슬리피지/부분 체결 반영)
           try {
-            const trades = await this.binanceService.getRecentTrades(dbPos.symbol, 50);  // 50개로 증가
+            const trades = await this.okxService.getRecentTrades(dbPos.symbol, 50);  // 50개로 증가
 
             // 청산 거래 찾기 (반대 방향, 포지션 오픈 이후)
             const closeSide = dbPos.side === 'LONG' ? 'SELL' : 'BUY';
@@ -476,7 +476,7 @@ export class PositionSyncService {
           // ✅ 남은 조건 주문(SL/TP) 정리 - 포지션 청산 후 잔여 주문 취소
           try {
             this.logger.log(`  → Cleaning up remaining algo orders for ${dbPos.symbol}...`);
-            const cleanup = await this.binanceService.cancelAllAlgoOrders(dbPos.symbol);
+            const cleanup = await this.okxService.cancelAllAlgoOrders(dbPos.symbol);
             if (cleanup.canceled > 0) {
               this.logger.log(`  ✅ Cleaned up ${cleanup.canceled} remaining algo orders`);
             }
@@ -574,11 +574,11 @@ export class PositionSyncService {
 
         try {
           // 현재 열린 Algo 주문에서 SL 주문 ID 찾기 (2025-12-09 Algo Order API 변경)
-          const algoOrders = await this.binanceService.getOpenAlgoOrders(dbPos.symbol);
+          const algoOrders = await this.okxService.getOpenAlgoOrders(dbPos.symbol);
           const slAlgoOrder = algoOrders.find(o => o.type === 'STOP_MARKET');
 
           // SL을 본전(진입가)으로 이동
-          await this.binanceService.modifyStopLoss(
+          await this.okxService.modifyStopLoss(
             dbPos.symbol,
             dbPos.side as 'LONG' | 'SHORT',
             entryPrice,
@@ -669,11 +669,11 @@ export class PositionSyncService {
 
       try {
         // 1. 모든 SL/TP 주문 취소
-        await this.binanceService.cancelAllAlgoOrders(dbPos.symbol);
+        await this.okxService.cancelAllAlgoOrders(dbPos.symbol);
 
         // 2. 시장가로 강제 청산
         const closeSide = dbPos.side === 'LONG' ? 'SELL' : 'BUY';
-        const closeOrder = await this.binanceService.createOrder({
+        const closeOrder = await this.okxService.createOrder({
           symbol: dbPos.symbol,
           side: closeSide,
           type: 'MARKET',
@@ -713,12 +713,12 @@ export class PositionSyncService {
     for (const dbPos of dbPositions) {
       try {
         // Algo Order에서 SL/TP 주문 찾기
-        const algoOrders = await this.binanceService.getOpenAlgoOrders(dbPos.symbol);
+        const algoOrders = await this.okxService.getOpenAlgoOrders(dbPos.symbol);
 
         // SL 체크: closePosition=true인 STOP_MARKET
         const existingSL = algoOrders.find(o =>
           o.type === 'STOP_MARKET' &&
-          (o.closePosition === true || o.closePosition === 'true')
+          o.closePosition === true
         );
 
         // TP 체크: TAKE_PROFIT_MARKET (quantity 또는 closePosition)
@@ -756,16 +756,16 @@ export class PositionSyncService {
               );
 
               try {
-                const binancePositions = await this.binanceService.getOpenPositions();
+                const binancePositions = await this.okxService.getOpenPositions();
                 const binancePos = binancePositions.find(p => p.symbol === dbPos.symbol);
 
                 if (binancePos) {
                   const currentQty = Math.abs(parseFloat(binancePos.positionAmt));
                   if (currentQty > 0) {
-                    await this.binanceService.cancelAllAlgoOrders(dbPos.symbol);
+                    await this.okxService.cancelAllAlgoOrders(dbPos.symbol);
 
                     const closeSide = dbPos.side === 'LONG' ? 'SELL' : 'BUY';
-                    await this.binanceService.createOrder({
+                    await this.okxService.createOrder({
                       symbol: dbPos.symbol,
                       side: closeSide,
                       type: 'MARKET',
@@ -811,16 +811,16 @@ export class PositionSyncService {
 
           try {
             // 시장가로 강제 청산
-            const binancePositions = await this.binanceService.getOpenPositions();
+            const binancePositions = await this.okxService.getOpenPositions();
             const binancePos = binancePositions.find(p => p.symbol === dbPos.symbol);
 
             if (binancePos) {
               const currentQty = Math.abs(parseFloat(binancePos.positionAmt));
               if (currentQty > 0) {
-                await this.binanceService.cancelAllAlgoOrders(dbPos.symbol);
+                await this.okxService.cancelAllAlgoOrders(dbPos.symbol);
 
                 const closeSide = dbPos.side === 'LONG' ? 'SELL' : 'BUY';
-                await this.binanceService.createOrder({
+                await this.okxService.createOrder({
                   symbol: dbPos.symbol,
                   side: closeSide,
                   type: 'MARKET',
@@ -873,10 +873,10 @@ export class PositionSyncService {
             this.logger.warn(`  ⚠️ No SL price in DB, using 3%: ${slPrice.toFixed(4)}`);
           }
 
-          const formattedSL = parseFloat(this.binanceService.formatPrice(dbPos.symbol, slPrice));
+          const formattedSL = parseFloat(this.okxService.formatPrice(dbPos.symbol, slPrice));
 
           try {
-            const slOrder = await this.binanceService.createAlgoOrder({
+            const slOrder = await this.okxService.createAlgoOrder({
               symbol: dbPos.symbol,
               side: dbPos.side === 'LONG' ? 'SELL' : 'BUY',
               type: 'STOP_MARKET',
@@ -933,13 +933,13 @@ export class PositionSyncService {
               `  → Creating emergency TP order at ${tpPrice.toFixed(4)}...`
             );
 
-            const formattedTP = parseFloat(this.binanceService.formatPrice(dbPos.symbol, tpPrice));
+            const formattedTP = parseFloat(this.okxService.formatPrice(dbPos.symbol, tpPrice));
             const quantity = typeof dbPos.quantity === 'string'
               ? parseFloat(dbPos.quantity) : dbPos.quantity;
-            const formattedQty = parseFloat(this.binanceService.formatQuantity(dbPos.symbol, quantity));
+            const formattedQty = parseFloat(this.okxService.formatQuantity(dbPos.symbol, quantity));
 
             try {
-              const tpOrder = await this.binanceService.createAlgoOrder({
+              const tpOrder = await this.okxService.createAlgoOrder({
                 symbol: dbPos.symbol,
                 side: dbPos.side === 'LONG' ? 'SELL' : 'BUY',
                 type: 'TAKE_PROFIT_MARKET',
@@ -1069,11 +1069,11 @@ export class PositionSyncService {
 
       try {
         // 1. 모든 관련 주문 취소
-        await this.binanceService.cancelAllAlgoOrders(symbol);
+        await this.okxService.cancelAllAlgoOrders(symbol);
 
         // 2. 시장가로 즉시 청산
         const closeSide = positionAmt > 0 ? 'SELL' : 'BUY';
-        const closeOrder = await this.binanceService.createOrder({
+        const closeOrder = await this.okxService.createOrder({
           symbol,
           side: closeSide,
           type: 'MARKET',
@@ -1104,7 +1104,7 @@ export class PositionSyncService {
     // ✅ 총 자본 조회 (Available Balance + Unrealized PnL)
     let totalCapital: number;
     try {
-      const availableBalance = await this.binanceService.getAvailableBalance();
+      const availableBalance = await this.okxService.getAvailableBalance();
       // 미실현 손익 포함한 총 자본 계산
       const totalUnrealizedPnl = binancePositions.reduce((sum, p) => {
         return sum + parseFloat(p.unRealizedProfit || '0');
@@ -1158,11 +1158,11 @@ export class PositionSyncService {
 
         try {
           // 1. 모든 관련 주문 취소
-          await this.binanceService.cancelAllAlgoOrders(symbol);
+          await this.okxService.cancelAllAlgoOrders(symbol);
 
           // 2. 시장가로 즉시 청산
           const closeSide = positionAmt > 0 ? 'SELL' : 'BUY';
-          const closeOrder = await this.binanceService.createOrder({
+          const closeOrder = await this.okxService.createOrder({
             symbol,
             side: closeSide,
             type: 'MARKET',

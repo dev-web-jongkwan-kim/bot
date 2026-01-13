@@ -1,7 +1,7 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BinanceService } from '../binance/binance.service';
+import { OkxService } from '../okx/okx.service';
 import { Position } from '../database/entities/position.entity';
 import { OrderMonitorService, PendingLimitOrder } from './order-monitor.service';
 
@@ -27,7 +27,7 @@ export class OrderService {
   };
 
   constructor(
-    private binanceService: BinanceService,
+    private okxService: OkxService,
     @InjectRepository(Position)
     private positionRepo: Repository<Position>,
     @Inject(forwardRef(() => OrderMonitorService))
@@ -146,7 +146,7 @@ export class OrderService {
    */
   private async verifyNoUnexpectedPosition(signal: any): Promise<void> {
     try {
-      const positions = await this.binanceService.getOpenPositions();
+      const positions = await this.okxService.getOpenPositions();
       const binancePosition = positions.find(
         (p: any) => p.symbol === signal.symbol && parseFloat(p.positionAmt) !== 0
       );
@@ -173,10 +173,10 @@ export class OrderService {
           const slPrice = side === 'LONG'
             ? entryPrice * (1 - EMERGENCY_SL_PERCENT)
             : entryPrice * (1 + EMERGENCY_SL_PERCENT);
-          const formattedSL = parseFloat(this.binanceService.formatPrice(signal.symbol, slPrice));
+          const formattedSL = parseFloat(this.okxService.formatPrice(signal.symbol, slPrice));
 
           try {
-            await this.binanceService.createAlgoOrder({
+            await this.okxService.createAlgoOrder({
               symbol: signal.symbol,
               side: side === 'LONG' ? 'SELL' : 'BUY',
               type: 'STOP_MARKET',
@@ -268,7 +268,7 @@ export class OrderService {
 
       // 먼저 요청된 레버리지 시도
       try {
-        await this.binanceService.changeLeverage(signal.symbol, actualLeverage);
+        await this.okxService.changeLeverage(signal.symbol, actualLeverage);
         this.logger.log(`[ORDER] ✓ Leverage set to ${actualLeverage}x successfully`);
         leverageSet = true;
       } catch (leverageError: any) {
@@ -279,7 +279,7 @@ export class OrderService {
           if (fallback >= actualLeverage) continue; // 이미 시도한 것보다 높은 레버리지는 스킵
           try {
             this.logger.log(`[ORDER] Retrying with fallback leverage ${fallback}x...`);
-            await this.binanceService.changeLeverage(signal.symbol, fallback);
+            await this.okxService.changeLeverage(signal.symbol, fallback);
             this.logger.log(`[ORDER] ✓ Leverage set to ${fallback}x (fallback) successfully`);
             actualLeverage = fallback;
             leverageSet = true;
@@ -299,7 +299,7 @@ export class OrderService {
 
       // 2. 마진 모드 설정
       this.logger.log(`[ORDER] Step 2/6: Setting margin type to ISOLATED for ${signal.symbol}...`);
-      await this.binanceService.changeMarginType(signal.symbol, 'ISOLATED');
+      await this.okxService.changeMarginType(signal.symbol, 'ISOLATED');
       this.logger.log(`[ORDER] ✓ Margin type set successfully`);
 
       let mainOrder: any;
@@ -310,10 +310,10 @@ export class OrderService {
       this.logger.log(`[ORDER] Step 3/6: Preparing LIMIT order...`);
 
         // Binance API에서 틱 사이즈 조회
-        const tickSize = this.binanceService.getTickSize(signal.symbol);
+        const tickSize = this.okxService.getTickSize(signal.symbol);
 
         // 현재 시장가 조회
-        const currentMarketPrice = await this.binanceService.getSymbolPrice(signal.symbol);
+        const currentMarketPrice = await this.okxService.getSymbolPrice(signal.symbol);
         const obMidpoint = signal.entryPrice;
         const obTop = signal.metadata?.obTop || obMidpoint * 1.005;
         const obBottom = signal.metadata?.obBottom || obMidpoint * 0.995;
@@ -333,7 +333,7 @@ export class OrderService {
         const maxWaitTime = timeframe === '15m' ? 2700000 : 900000; // ms
 
         // MIDPOINT 지정가 설정
-        const limitPrice = parseFloat(this.binanceService.formatPrice(signal.symbol, obMidpoint));
+        const limitPrice = parseFloat(this.okxService.formatPrice(signal.symbol, obMidpoint));
 
         this.logger.log(
           `📊 [LIMIT ORDER] Price Analysis:\n` +
@@ -350,7 +350,7 @@ export class OrderService {
         // 지정가 주문 (MIDPOINT만 사용)
         this.logger.log(`[LIMIT ORDER] Placing MIDPOINT limit order at ${limitPrice}...`);
 
-        mainOrder = await this.binanceService.createOrder({
+        mainOrder = await this.okxService.createOrder({
           symbol: signal.symbol,
           side: signal.side === 'LONG' ? 'BUY' : 'SELL',
           type: 'LIMIT',
@@ -394,7 +394,7 @@ export class OrderService {
 
             try {
               // 1. 주문 상태 확인
-              const orderStatus = await this.binanceService.queryOrder(signal.symbol, mainOrder.orderId);
+              const orderStatus = await this.okxService.queryOrder(signal.symbol, mainOrder.orderId);
 
               if (orderStatus.status === 'FILLED') {
                 this.logger.log(`✅ [MAKER ORDER] Order filled!`);
@@ -412,7 +412,7 @@ export class OrderService {
 
               // 2. 현재 가격이 OB 영역 이탈했는지 확인
               if (obTop && obBottom) {
-                const currentPrice = await this.binanceService.getSymbolPrice(signal.symbol);
+                const currentPrice = await this.okxService.getSymbolPrice(signal.symbol);
 
                 // OB 영역 이탈 체크 (버퍼 0.5% 추가)
                 const buffer = (obTop - obBottom) * 0.5;
@@ -428,7 +428,7 @@ export class OrderService {
                     `  Side:          ${signal.side}`
                   );
 
-                  await this.binanceService.cancelOrder(signal.symbol, mainOrder.orderId);
+                  await this.okxService.cancelOrder(signal.symbol, mainOrder.orderId);
                   orderCanceled = true;
                   break;
                 }
@@ -451,12 +451,12 @@ export class OrderService {
             );
 
             try {
-              await this.binanceService.cancelOrder(signal.symbol, mainOrder.orderId);
+              await this.okxService.cancelOrder(signal.symbol, mainOrder.orderId);
             } catch (cancelError) {
               this.logger.warn(`[TIMEOUT] Cancel error (may already be filled):`, cancelError.message);
 
               // 취소 실패 시 주문 상태 재확인
-              const finalStatus = await this.binanceService.queryOrder(signal.symbol, mainOrder.orderId);
+              const finalStatus = await this.okxService.queryOrder(signal.symbol, mainOrder.orderId);
               if (finalStatus.status === 'FILLED') {
                 entryPrice = parseFloat(finalStatus.avgPrice || finalStatus.price);
                 executedQty = parseFloat(finalStatus.executedQty);
@@ -569,15 +569,15 @@ export class OrderService {
 
       // 4. Stop Loss 주문 (Algo Order API 사용 - 2025-12-09 바이낸스 변경)
       // ✅ 틱 사이즈에 맞게 가격 포맷팅 (실제 계산된 SL 사용)
-      const formattedSL = parseFloat(this.binanceService.formatPrice(signal.symbol, actualStopLoss));
+      const formattedSL = parseFloat(this.okxService.formatPrice(signal.symbol, actualStopLoss));
       this.logger.log(`[ORDER] Step 4/6: Placing Stop Loss order at ${formattedSL} (adjusted from planned: ${signal.stopLoss.toFixed(4)})...`);
 
       // ✅ 기존 algo order 정리 (closePosition=true 충돌 방지 - Error -4130)
       try {
-        const existingAlgoOrders = await this.binanceService.getOpenAlgoOrders(signal.symbol);
+        const existingAlgoOrders = await this.okxService.getOpenAlgoOrders(signal.symbol);
         const conflictingOrders = existingAlgoOrders.filter(o =>
           (o.type === 'STOP_MARKET' || o.type === 'TAKE_PROFIT_MARKET') &&
-          (o.closePosition === true || o.closePosition === 'true')  // boolean 또는 string 모두 처리
+          o.closePosition === true
         );
 
         if (conflictingOrders.length > 0) {
@@ -587,7 +587,7 @@ export class OrderService {
 
           for (const order of conflictingOrders) {
             try {
-              await this.binanceService.cancelAlgoOrder(signal.symbol, order.algoId);
+              await this.okxService.cancelAlgoOrder(signal.symbol, order.algoId);
               this.logger.log(`[ORDER] ✓ Canceled conflicting algo order: ${order.algoId} (${order.type})`);
             } catch (cancelErr: any) {
               this.logger.warn(`[ORDER] Failed to cancel algo ${order.algoId}: ${cancelErr.message}`);
@@ -605,7 +605,7 @@ export class OrderService {
       try {
         // ✅ NEW: Algo Order API 사용 (기존 createOrder의 STOP_MARKET은 -4120 에러 발생)
         // closePosition: true 사용 - TP 부분 청산 후에도 남은 전체 포지션 청산 보장
-        slOrder = await this.binanceService.createAlgoOrder({
+        slOrder = await this.okxService.createAlgoOrder({
           symbol: signal.symbol,
           side: signal.side === 'LONG' ? 'SELL' : 'BUY',
           type: 'STOP_MARKET',
@@ -622,14 +622,14 @@ export class OrderService {
 
         // ✅ SL 주문 검증: 실제로 생성되었는지 확인 (1초 대기 후)
         await new Promise(resolve => setTimeout(resolve, 1000));
-        const verifyAlgoOrders = await this.binanceService.getOpenAlgoOrders(signal.symbol);
+        const verifyAlgoOrders = await this.okxService.getOpenAlgoOrders(signal.symbol);
         const verifiedSL = verifyAlgoOrders.find(o => o.type === 'STOP_MARKET');
 
         if (!verifiedSL) {
           this.logger.warn(`[ORDER] ⚠️ SL verification failed - retrying...`);
           // 재시도 (단, 이미 존재하면 성공으로 처리)
           try {
-            slOrder = await this.binanceService.createAlgoOrder({
+            slOrder = await this.okxService.createAlgoOrder({
               symbol: signal.symbol,
               side: signal.side === 'LONG' ? 'SELL' : 'BUY',
               type: 'STOP_MARKET',
@@ -661,7 +661,7 @@ export class OrderService {
 
         try {
           // 시장가로 즉시 청산
-          const closeOrder = await this.binanceService.createOrder({
+          const closeOrder = await this.okxService.createOrder({
             symbol: signal.symbol,
             side: signal.side === 'LONG' ? 'SELL' : 'BUY',
             type: 'MARKET',
@@ -734,8 +734,8 @@ export class OrderService {
 
         // 단일 TP 주문 (전체 포지션) - 검증 및 재시도 포함
         if (signal.takeProfit1 && totalPositionNotional >= MIN_TP_NOTIONAL) {
-          const formattedTP1 = parseFloat(this.binanceService.formatPrice(signal.symbol, signal.takeProfit1));
-          const formattedQty = parseFloat(this.binanceService.formatQuantity(signal.symbol, executedQty));
+          const formattedTP1 = parseFloat(this.okxService.formatPrice(signal.symbol, signal.takeProfit1));
+          const formattedQty = parseFloat(this.okxService.formatQuantity(signal.symbol, executedQty));
 
           let tpCreated = false;
           let retryCount = 0;
@@ -745,7 +745,7 @@ export class OrderService {
             try {
               this.logger.log(`[TP] Placing single TP order (Algo): 100% at ${formattedTP1}${retryCount > 0 ? ` (retry ${retryCount})` : ''}`);
 
-              const tpOrder = await this.binanceService.createAlgoOrder({
+              const tpOrder = await this.okxService.createAlgoOrder({
                 symbol: signal.symbol,
                 side: signal.side === 'LONG' ? 'SELL' : 'BUY',
                 type: 'TAKE_PROFIT_MARKET',
@@ -755,7 +755,7 @@ export class OrderService {
 
               // ✅ TP 검증: 1초 후 존재 여부 확인
               await new Promise(resolve => setTimeout(resolve, 1000));
-              const verifyAlgoOrders = await this.binanceService.getOpenAlgoOrders(signal.symbol);
+              const verifyAlgoOrders = await this.okxService.getOpenAlgoOrders(signal.symbol);
               const verifiedTP = verifyAlgoOrders.find(o => o.type === 'TAKE_PROFIT_MARKET');
 
               if (verifiedTP) {
@@ -786,11 +786,11 @@ export class OrderService {
         }
       } else {
         // 정상적인 분할 TP 주문 (검증 및 재시도 포함)
-        const formattedTp1Qty = parseFloat(this.binanceService.formatQuantity(signal.symbol, tp1Qty));
-        const formattedTp2Qty = parseFloat(this.binanceService.formatQuantity(signal.symbol, tp2Qty));
+        const formattedTp1Qty = parseFloat(this.okxService.formatQuantity(signal.symbol, tp1Qty));
+        const formattedTp2Qty = parseFloat(this.okxService.formatQuantity(signal.symbol, tp2Qty));
 
         if (signal.tp1Percent > 0 && signal.takeProfit1) {
-          const formattedTP1 = parseFloat(this.binanceService.formatPrice(signal.symbol, signal.takeProfit1));
+          const formattedTP1 = parseFloat(this.okxService.formatPrice(signal.symbol, signal.takeProfit1));
           let tp1Created = false;
           let retryCount = 0;
 
@@ -798,7 +798,7 @@ export class OrderService {
             try {
               this.logger.log(`[TP1] Placing TP1 order (Algo): ${signal.tp1Percent}% at ${formattedTP1}${retryCount > 0 ? ` (retry ${retryCount})` : ''}`);
 
-              const tp1Order = await this.binanceService.createAlgoOrder({
+              const tp1Order = await this.okxService.createAlgoOrder({
                 symbol: signal.symbol,
                 side: signal.side === 'LONG' ? 'SELL' : 'BUY',
                 type: 'TAKE_PROFIT_MARKET',
@@ -808,7 +808,7 @@ export class OrderService {
 
               // 검증
               await new Promise(resolve => setTimeout(resolve, 500));
-              const verifyOrders = await this.binanceService.getOpenAlgoOrders(signal.symbol);
+              const verifyOrders = await this.okxService.getOpenAlgoOrders(signal.symbol);
               if (verifyOrders.find(o => o.type === 'TAKE_PROFIT_MARKET')) {
                 this.logger.log(`[TP1] ✓ Order placed & verified: ${tp1Order.algoId}`);
                 tpOrders.push(tp1Order);
@@ -824,7 +824,7 @@ export class OrderService {
         }
 
         if (signal.tp2Percent > 0 && signal.takeProfit2) {
-          const formattedTP2 = parseFloat(this.binanceService.formatPrice(signal.symbol, signal.takeProfit2));
+          const formattedTP2 = parseFloat(this.okxService.formatPrice(signal.symbol, signal.takeProfit2));
           let tp2Created = false;
           let retryCount = 0;
 
@@ -832,7 +832,7 @@ export class OrderService {
             try {
               this.logger.log(`[TP2] Placing TP2 order (Algo): ${signal.tp2Percent}% at ${formattedTP2}${retryCount > 0 ? ` (retry ${retryCount})` : ''}`);
 
-              const tp2Order = await this.binanceService.createAlgoOrder({
+              const tp2Order = await this.okxService.createAlgoOrder({
                 symbol: signal.symbol,
                 side: signal.side === 'LONG' ? 'SELL' : 'BUY',
                 type: 'TAKE_PROFIT_MARKET',
@@ -842,7 +842,7 @@ export class OrderService {
 
               // 검증
               await new Promise(resolve => setTimeout(resolve, 500));
-              const verifyOrders = await this.binanceService.getOpenAlgoOrders(signal.symbol);
+              const verifyOrders = await this.okxService.getOpenAlgoOrders(signal.symbol);
               // TP2는 두 번째 TP이므로 개수로 확인
               const tpCount = verifyOrders.filter(o => o.type === 'TAKE_PROFIT_MARKET').length;
               if (tpCount >= 2) {
@@ -1055,7 +1055,7 @@ export class OrderService {
     }
 
     // 가격을 심볼의 precision에 맞게 포맷팅
-    const formattedPrice = this.binanceService.formatPrice(signal.symbol, limitPrice);
+    const formattedPrice = this.okxService.formatPrice(signal.symbol, limitPrice);
 
     this.logger.debug(
       `[MAKER PRICE CALC] ${signal.side} order:\n` +
@@ -1116,7 +1116,7 @@ export class OrderService {
       let leverageSet = false;
 
       try {
-        await this.binanceService.changeLeverage(signal.symbol, actualLeverage);
+        await this.okxService.changeLeverage(signal.symbol, actualLeverage);
         leverageSet = true;
       } catch (leverageError: any) {
         this.logger.warn(`[ASYNC] Leverage ${actualLeverage}x failed: ${leverageError.message}`);
@@ -1126,7 +1126,7 @@ export class OrderService {
           if (fallback >= actualLeverage) continue;
           try {
             this.logger.log(`[ASYNC] Retrying with fallback leverage ${fallback}x...`);
-            await this.binanceService.changeLeverage(signal.symbol, fallback);
+            await this.okxService.changeLeverage(signal.symbol, fallback);
             this.logger.log(`[ASYNC] ✓ Leverage set to ${fallback}x (fallback)`);
             actualLeverage = fallback;
             leverageSet = true;
@@ -1144,16 +1144,16 @@ export class OrderService {
       }
 
       // 2. 마진 모드 설정
-      await this.binanceService.changeMarginType(signal.symbol, 'ISOLATED');
+      await this.okxService.changeMarginType(signal.symbol, 'ISOLATED');
 
       // 3. LIMIT 주문 생성
       const obMidpoint = signal.entryPrice;
-      const limitPrice = parseFloat(this.binanceService.formatPrice(signal.symbol, obMidpoint));
+      const limitPrice = parseFloat(this.okxService.formatPrice(signal.symbol, obMidpoint));
 
       const timeframe = signal.metadata?.timeframe || signal.timeframe || '5m';
       const maxWaitTime = timeframe === '15m' ? 2700000 : 900000; // 15분봉: 45분, 5분봉: 15분
 
-      const mainOrder = await this.binanceService.createOrder({
+      const mainOrder = await this.okxService.createOrder({
         symbol: signal.symbol,
         side: signal.side === 'LONG' ? 'BUY' : 'SELL',
         type: 'LIMIT',
@@ -1171,8 +1171,8 @@ export class OrderService {
 
       // 즉시 체결된 경우
       if (mainOrder.status === 'FILLED') {
-        const entryPrice = parseFloat(mainOrder.avgPrice || mainOrder.price);
-        const executedQty = parseFloat(mainOrder.executedQty || mainOrder.origQty);
+        const entryPrice = parseFloat(String(mainOrder.avgPrice || mainOrder.price));
+        const executedQty = parseFloat(String(mainOrder.executedQty || mainOrder.origQty));
 
         this.logger.log(`[ASYNC] ⚡ Immediately filled! Entry: ${entryPrice}`);
 
@@ -1273,7 +1273,7 @@ export class OrderService {
   }> {
     try {
       // 1. 바이낸스에서 현재 포지션 확인
-      const positions = await this.binanceService.getOpenPositions();
+      const positions = await this.okxService.getOpenPositions();
       const existingPosition = positions.find(
         (p: any) => p.symbol === symbol && Math.abs(parseFloat(p.positionAmt)) > 0.000001
       );
@@ -1309,7 +1309,7 @@ export class OrderService {
       }
 
       // 2. 바이낸스에서 대기 중인 LIMIT 주문 확인
-      const openOrders = await this.binanceService.getOpenOrders(symbol);
+      const openOrders = await this.okxService.getOpenOrders(symbol);
       const limitOrder = openOrders.find((o: any) => {
         const orderSide = o.side === 'BUY' ? 'LONG' : 'SHORT';
         return o.type === 'LIMIT' && orderSide === side;
