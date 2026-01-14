@@ -386,30 +386,10 @@ export class ScalpingOrderService {
         const currentPrice = await this.binance.getSymbolPrice(position.symbol);
         const pnlPercent = this.calculatePnlPercent(position, currentPrice);
 
-        // 1. 시간 기반 TP 축소 (20분 경과)
-        if (
-          elapsedSec >= SCALPING_CONFIG.position.tpReduceTimeSec &&
-          !position.tpReduced
-        ) {
-          this.logger.log(
-            `[MANAGE] ⏰ ${position.symbol}: 20분 경과 - TP 축소`,
-          );
-          await this.reduceTp(position);
-        }
+        // v2: TP 축소 로직 제거 (수익 보호)
+        // v2: 본전 청산 로직 제거 (TP 도달 기회 확대)
 
-        // 2. 본전 청산 (25분 경과)
-        if (
-          elapsedSec >= SCALPING_CONFIG.position.breakevenTimeSec &&
-          pnlPercent >= 0
-        ) {
-          this.logger.log(
-            `[MANAGE] 💰 ${position.symbol}: 25분 경과 + 본전 이상 - 청산`,
-          );
-          await this.closePosition(position, 'BREAKEVEN_TIMEOUT');
-          continue;
-        }
-
-        // 3. 강제 청산 (30분 경과)
+        // 강제 청산 (30분 경과)
         if (elapsedSec >= SCALPING_CONFIG.position.maxHoldTimeSec) {
           this.logger.log(
             `[MANAGE] ⏱️ ${position.symbol}: 30분 경과 - 강제 청산`,
@@ -545,17 +525,26 @@ export class ScalpingOrderService {
   }
 
   /**
-   * PnL 퍼센트 계산
+   * PnL 퍼센트 계산 (v2: 수수료 반영)
+   * - 진입 수수료: 0.04% (Maker)
+   * - 청산 수수료: 0.075% (Taker)
+   * - 총 수수료: 0.115%
    */
   private calculatePnlPercent(
     position: ScalpingPosition,
     currentPrice: number,
   ): number {
+    const FEE_RATE = 0.00115; // 0.115% (진입 0.04% + 청산 0.075%)
+    
+    let grossPnlPercent: number;
     if (position.direction === 'LONG') {
-      return (currentPrice - position.entryPrice) / position.entryPrice;
+      grossPnlPercent = (currentPrice - position.entryPrice) / position.entryPrice;
     } else {
-      return (position.entryPrice - currentPrice) / position.entryPrice;
+      grossPnlPercent = (position.entryPrice - currentPrice) / position.entryPrice;
     }
+    
+    // 수수료 차감 (순수익)
+    return grossPnlPercent - FEE_RATE;
   }
 
   /**

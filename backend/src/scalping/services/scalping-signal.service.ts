@@ -204,12 +204,31 @@ export class ScalpingSignalService {
         return { symbol, passed: false, rejectReason: '추세 없음', step: 3 };
       }
 
+      // 추세 강도 최소값 체크
+      if (trend.strength < SCALPING_CONFIG.filter2.minTrendStrength) {
+        this.logger.debug(
+          `[${symbol}] ❌ 추세 강도 부족: ${(trend.strength * 100).toFixed(1)}% < ${(SCALPING_CONFIG.filter2.minTrendStrength * 100).toFixed(1)}%`,
+        );
+        return { symbol, passed: false, rejectReason: '추세 강도 부족', step: 3 };
+      }
+
       this.logger.debug(
         `[${symbol}] [STEP 3] ✓ 추세: ${trend.direction} (강도: ${(trend.strength * 100).toFixed(1)}%)`,
       );
 
-      // OI 방향 로깅 (참고용)
-      if (oiData) {
+      // OI 증가 필수 조건 체크
+      if (SCALPING_CONFIG.filter2.oiRequired) {
+        if (!oiData || oiData.oiChangePercent < SCALPING_CONFIG.filter2.oiChangeThreshold) {
+          const oiChange = oiData?.oiChangePercent || 0;
+          this.logger.debug(
+            `[${symbol}] ❌ OI 증가 부족: ${(oiChange * 100).toFixed(2)}% < ${(SCALPING_CONFIG.filter2.oiChangeThreshold * 100).toFixed(2)}%`,
+          );
+          return { symbol, passed: false, rejectReason: 'OI 증가 부족', step: 3 };
+        }
+        this.logger.debug(
+          `[${symbol}] [STEP 3] ✓ OI 증가: ${(oiData.oiChangePercent * 100).toFixed(2)}%`,
+        );
+      } else if (oiData) {
         this.logger.debug(
           `[${symbol}] [STEP 3] OI 방향: ${oiData.direction} (${(oiData.oiChangePercent * 100).toFixed(2)}%)`,
         );
@@ -228,16 +247,24 @@ export class ScalpingSignalService {
         return { symbol, passed: false, rejectReason: '모멘텀 소진', step: 4 };
       }
 
-      // 모멘텀 진행 중이면 대기
+      // 모멘텀 진행 중일 때: bodySizeRatio가 2.5 이하면 통과
       if (momentum.state === 'MOMENTUM') {
-        this.logger.debug(`[${symbol}] ❌ 모멘텀 진행 중 (대기 필요)`);
-        return { symbol, passed: false, rejectReason: '모멘텀 진행 중', step: 4 };
+        const maxMomentumRatio = SCALPING_CONFIG.filter3.bodySizeRatio.maxMomentumForEntry;
+        if (momentum.bodySizeRatio > maxMomentumRatio) {
+          this.logger.debug(
+            `[${symbol}] ❌ 모멘텀 과열: bodySizeRatio ${momentum.bodySizeRatio.toFixed(2)} > ${maxMomentumRatio}`,
+          );
+          return { symbol, passed: false, rejectReason: '모멘텀 과열', step: 4 };
+        }
+        this.logger.debug(
+          `[${symbol}] [STEP 4] ✓ MOMENTUM 통과: bodySizeRatio ${momentum.bodySizeRatio.toFixed(2)} <= ${maxMomentumRatio}`,
+        );
       }
 
-      // PULLBACK 상태만 통과
-      if (momentum.state !== 'PULLBACK') {
-        this.logger.debug(`[${symbol}] ❌ 풀백 아님 (${momentum.state})`);
-        return { symbol, passed: false, rejectReason: `풀백 아님: ${momentum.state}`, step: 4 };
+      // PULLBACK 또는 적정 MOMENTUM만 통과
+      if (momentum.state !== 'PULLBACK' && momentum.state !== 'MOMENTUM') {
+        this.logger.debug(`[${symbol}] ❌ 유효하지 않은 상태 (${momentum.state})`);
+        return { symbol, passed: false, rejectReason: `유효하지 않은 상태: ${momentum.state}`, step: 4 };
       }
 
       // CVD 계산
@@ -313,12 +340,14 @@ export class ScalpingSignalService {
       const currentPrice =
         priceData?.price || parseFloat(candles5m[candles5m.length - 1][4]);
 
-      // 진입가 계산
+      // 진입가 계산 (v2 개선: 체결 확률 향상)
+      // LONG: 현재가보다 약간 높게 (즉시 체결 가능)
+      // SHORT: 현재가보다 약간 낮게 (즉시 체결 가능)
       const entryOffset = atr * SCALPING_CONFIG.order.entryOffsetAtr;
       const entryPrice =
         direction === 'LONG'
-          ? currentPrice - entryOffset
-          : currentPrice + entryOffset;
+          ? currentPrice + entryOffset  // LONG: 현재가 + offset (체결 확률 ↑)
+          : currentPrice - entryOffset;  // SHORT: 현재가 - offset (체결 확률 ↑)
 
       // TP/SL 계산
       const tpDistance = atr * SCALPING_CONFIG.order.tpAtr;
