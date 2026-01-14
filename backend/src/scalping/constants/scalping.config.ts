@@ -142,6 +142,8 @@ export const SCALPING_CONFIG = {
       exhausted: 0.5,
       /** 모멘텀 기준 @range 0.7 - 1.0 */
       momentum: 0.8,
+      /** MOMENTUM 진입 제한 기준 (이 이상이면 진입 금지) @range 1.0 - 2.0 */
+      momentumMax: 1.5,
     },
 
     /**
@@ -172,31 +174,48 @@ export const SCALPING_CONFIG = {
      * 진입 오프셋 (ATR 배수)
      *
      * Limit 주문 가격 = 현재가 ± (ATR × offset)
-     * - 0.15 = ATR의 15% 정도 유리하게 진입 시도
+     * - 0.08 = ATR의 8% 정도 유리하게 진입 시도 (체결률 향상)
      * - 너무 크면 체결 안 됨, 너무 작으면 의미 없음
-     * @range 0.1 - 0.25
+     * @range 0.05 - 0.15
      */
-    entryOffsetAtr: 0.15,
+    entryOffsetAtr: 0.08,
 
     /**
-     * TP (Take Profit) 거리 (ATR 배수)
+     * TP1 (Take Profit 1) 거리 (ATR 배수) - 부분 청산 50%
      *
-     * TP 가격 = 진입가 ± (ATR × tpAtr)
-     * - 0.8 = ATR의 80%
-     * - TP:SL = 1:1 비율
+     * TP1 가격 = 진입가 ± (ATR × tp1Atr)
+     * - 0.8 = ATR의 80% (50% 청산)
      * @range 0.4 - 1.0
      */
-    tpAtr: 0.8,
+    tp1Atr: 0.8,
+
+    /**
+     * TP2 (Take Profit 2) 거리 (ATR 배수) - 나머지 50% 청산
+     *
+     * TP2 가격 = 진입가 ± (ATR × tp2Atr)
+     * - 1.5 = ATR의 150% (나머지 50% 청산)
+     * @range 1.0 - 2.0
+     */
+    tp2Atr: 1.5,
+
+    /**
+     * TP (Take Profit) 거리 (ATR 배수) - 단일 TP 사용 시
+     *
+     * TP 가격 = 진입가 ± (ATR × tpAtr)
+     * - 1.2 = ATR의 120% (TP:SL = 2:1)
+     * @range 0.8 - 1.5
+     */
+    tpAtr: 1.2,
 
     /**
      * SL (Stop Loss) 거리 (ATR 배수)
      *
      * SL 가격 = 진입가 ∓ (ATR × slAtr)
-     * - 0.8 = ATR의 80%
-     * - TP:SL = 1:1 비율 (넓은 범위)
-     * @range 0.2 - 1.0
+     * - 0.6 = ATR의 60%
+     * - TP:SL = 2:1 비율 (수익 극대화)
+     * @range 0.3 - 0.8
      */
-    slAtr: 0.8,
+    slAtr: 0.6,
 
     /**
      * ATR 계산 기간
@@ -255,6 +274,15 @@ export const SCALPING_CONFIG = {
      * @range 1200 - 1800
      */
     breakevenTimeSec: 1500,
+
+    /**
+     * 본전 청산 최소 수익률 (%)
+     *
+     * - 0.003 = 0.3% 이상 수익일 때만 청산
+     * - 작은 수익으로 인한 조기 청산 방지
+     * @range 0.001 - 0.005
+     */
+    breakevenMinProfit: 0.003, // 0.3%
   },
 
   // ============================================

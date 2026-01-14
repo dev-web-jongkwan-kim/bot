@@ -276,19 +276,37 @@ export class ScalpingSignalService {
           ? currentPrice - entryOffset
           : currentPrice + entryOffset;
 
-      // ATR 기반 거리 계산
-      const atrTpDistance = atrResult.atr * SCALPING_CONFIG.order.tpAtr;
+      // ATR 기반 거리 계산 (부분 청산: TP1, TP2)
+      const atrTp1Distance = atrResult.atr * SCALPING_CONFIG.order.tp1Atr;
+      const atrTp2Distance = atrResult.atr * SCALPING_CONFIG.order.tp2Atr;
+      const atrTpDistance = atrResult.atr * SCALPING_CONFIG.order.tpAtr; // 단일 TP (fallback)
       const atrSlDistance = atrResult.atr * SCALPING_CONFIG.order.slAtr;
 
-      // 최소 TP/SL 거리 (0.65%)
-      const minTpSlPercent = 0.0065; // 0.65%
+      // 최소 TP/SL 거리 (0.3%로 낮춤)
+      const minTpSlPercent = 0.003; // 0.3%
+      const minTp1Distance = entryPrice * minTpSlPercent;
+      const minTp2Distance = entryPrice * (minTpSlPercent * 1.5); // TP2는 더 크게
       const minTpDistance = entryPrice * minTpSlPercent;
       const minSlDistance = entryPrice * minTpSlPercent;
 
       // ATR 기반과 최소값 중 큰 값 사용
+      const tp1Distance = Math.max(atrTp1Distance, minTp1Distance);
+      const tp2Distance = Math.max(atrTp2Distance, minTp2Distance);
       const tpDistance = Math.max(atrTpDistance, minTpDistance);
       const slDistance = Math.max(atrSlDistance, minSlDistance);
 
+      // TP1, TP2 가격 계산 (부분 청산)
+      const tp1Price =
+        direction === 'LONG'
+          ? entryPrice + tp1Distance
+          : entryPrice - tp1Distance;
+
+      const tp2Price =
+        direction === 'LONG'
+          ? entryPrice + tp2Distance
+          : entryPrice - tp2Distance;
+
+      // 단일 TP 가격 (fallback)
       const tpPrice =
         direction === 'LONG'
           ? entryPrice + tpDistance
@@ -320,7 +338,9 @@ export class ScalpingSignalService {
         // 가격 정보
         currentPrice,
         entryPrice,
-        tpPrice,
+        tpPrice, // 단일 TP (fallback)
+        tp1Price, // 부분 청산 TP1 (50%)
+        tp2Price, // 부분 청산 TP2 (나머지 50%)
         slPrice,
 
         // ATR 정보
@@ -354,7 +374,7 @@ export class ScalpingSignalService {
         `[ScalpingSignal] [${symbol}] STEP 5: ⭐ Signal generated - ${direction}`,
       );
       this.logger.log(
-        `[ScalpingSignal] [${symbol}]   Entry: ${entryPrice.toFixed(4)}, TP: ${tpPrice.toFixed(4)} (+${((tpPrice / entryPrice - 1) * 100).toFixed(2)}%), SL: ${slPrice.toFixed(4)} (${((slPrice / entryPrice - 1) * 100).toFixed(2)}%)`,
+        `[ScalpingSignal] [${symbol}]   Entry: ${entryPrice.toFixed(4)}, TP1: ${tp1Price.toFixed(4)} (+${((tp1Price / entryPrice - 1) * 100).toFixed(2)}%), TP2: ${tp2Price.toFixed(4)} (+${((tp2Price / entryPrice - 1) * 100).toFixed(2)}%), SL: ${slPrice.toFixed(4)} (${((slPrice / entryPrice - 1) * 100).toFixed(2)}%)`,
       );
       this.logger.log(
         `[ScalpingSignal] [${symbol}]   ATR: ${atrResult.atr.toFixed(4)} (${(atrResult.atrPercent * 100).toFixed(2)}%), Strength: ${strength.toFixed(0)}/100`,
@@ -492,13 +512,14 @@ export class ScalpingSignalService {
       };
     }
 
-    // MOMENTUM 상태일 때 추가 검증: 극단적 과열만 방지
+    // MOMENTUM 상태일 때 추가 검증: 강한 모멘텀 진입 제한
     if (momentumResult.state === 'MOMENTUM') {
-      // 봉 크기 비율이 극단적으로 크면 과열 (2.5배 이상)
-      if (momentumResult.bodySizeRatio > 2.5) {
+      const config = SCALPING_CONFIG.filter3.bodySizeRatio;
+      // 봉 크기 비율이 1.5배 이상이면 진입 금지 (이미 많이 움직인 후)
+      if (momentumResult.bodySizeRatio > config.momentumMax) {
         return {
           passed: false,
-          reason: `Momentum overheated: bodySizeRatio=${momentumResult.bodySizeRatio.toFixed(2)} > 2.5`,
+          reason: `Momentum too strong: bodySizeRatio=${momentumResult.bodySizeRatio.toFixed(2)} > ${config.momentumMax}`,
           details,
         };
       }

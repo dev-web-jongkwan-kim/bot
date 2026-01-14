@@ -411,24 +411,77 @@ export class ScalpingOrderService {
       `[ScalpingOrder] [${pending.symbol}] ✅ ORDER FILLED @ ${filledPrice.toFixed(4)}`,
     );
 
-    // TP/SL 주문 설정 (OKX는 closeFraction="1" 주문을 하나만 허용하므로 결합)
+    // TP1/SL 주문 설정 (부분 청산: TP1에서 50% 청산)
     const tpSide = pending.direction === 'LONG' ? 'SELL' : 'BUY';
+    const tp1Price = pending.signal.tp1Price || pending.tpPrice;
+    const tp2Price = pending.signal.tp2Price;
 
     try {
-      await this.okxService.createTpSlOrder({
-        symbol: pending.symbol,
-        side: tpSide,
-        quantity: filledQty,  // ✅ 수량 추가
-        tpTriggerPrice: pending.tpPrice,
-        slTriggerPrice: pending.slPrice,
-        isStrategyPosition: false, // 스캘핑은 직접 매매, 반전 없음
-      });
+      // TP1과 SL 설정 (TP1에서 50% 청산)
+      // OKX는 부분 청산을 지원하므로 TP1에 50% 수량 설정
+      const tp1QuantityRaw = filledQty * 0.5; // 50% 청산
+      
+      // Lot size로 반올림
+      const lotSizeInfo = this.okxService.getLotSizeInfo(pending.symbol);
+      const lotSz = lotSizeInfo.stepSize;
+      const tp1Quantity = Math.floor(tp1QuantityRaw / lotSz) * lotSz;
+      
+      // 최소 수량 체크
+      if (tp1Quantity < lotSz) {
+        this.logger.warn(
+          `[ScalpingOrder] [${pending.symbol}] TP1 quantity too small: ${tp1Quantity} < ${lotSz}, using full quantity`,
+        );
+        // 전체 수량 사용
+        await this.okxService.createTpSlOrder({
+          symbol: pending.symbol,
+          side: tpSide,
+          quantity: filledQty,
+          tpTriggerPrice: tp1Price,
+          slTriggerPrice: pending.slPrice,
+          isStrategyPosition: false,
+        });
+      } else {
+        // SL 가격 검증 (롱일 때 SL < 현재가, 숏일 때 SL > 현재가)
+        const currentPrice = parseFloat(orderStatus.avgPx || orderStatus.avgPrice || orderStatus.price || filledPrice);
+        const slPrice = pending.slPrice;
+        
+        let validSlPrice = slPrice;
+        if (pending.direction === 'LONG' && slPrice >= currentPrice) {
+          // 롱 포지션: SL은 현재가보다 낮아야 함
+          validSlPrice = currentPrice * 0.999; // 현재가의 99.9%로 조정
+          this.logger.warn(
+            `[ScalpingOrder] [${pending.symbol}] SL price adjusted: ${slPrice.toFixed(4)} → ${validSlPrice.toFixed(4)} (LONG position)`,
+          );
+        } else if (pending.direction === 'SHORT' && slPrice <= currentPrice) {
+          // 숏 포지션: SL은 현재가보다 높아야 함
+          validSlPrice = currentPrice * 1.001; // 현재가의 100.1%로 조정
+          this.logger.warn(
+            `[ScalpingOrder] [${pending.symbol}] SL price adjusted: ${slPrice.toFixed(4)} → ${validSlPrice.toFixed(4)} (SHORT position)`,
+          );
+        }
+        
+        await this.okxService.createTpSlOrder({
+          symbol: pending.symbol,
+          side: tpSide,
+          quantity: tp1Quantity,  // TP1: 50% 청산 (lot size 반올림)
+          tpTriggerPrice: tp1Price,
+          slTriggerPrice: validSlPrice,
+          isStrategyPosition: false, // 스캘핑은 직접 매매, 반전 없음
+        });
+      }
+      
       this.logger.log(
-        `[ScalpingOrder] [${pending.symbol}] ✅ TP/SL set | TP: ${pending.tpPrice.toFixed(4)}, SL: ${pending.slPrice.toFixed(4)}, Qty: ${filledQty}`,
+        `[ScalpingOrder] [${pending.symbol}] ✅ TP1/SL set | TP1: ${tp1Price.toFixed(4)} (50%), SL: ${pending.slPrice.toFixed(4)}, Qty: ${tp1Quantity}`,
       );
+      
+      // TP2가 있으면 별도 주문으로 설정 (나머지 50%)
+      if (tp2Price) {
+        // TP2는 TP1 도달 후 수동으로 설정하거나, 별도 알고 주문으로 설정
+        // 여기서는 포지션 관리 로직에서 처리
+      }
     } catch (e: any) {
       this.logger.error(
-        `[ScalpingOrder] [${pending.symbol}] ✗ Failed to set TP/SL: ${e.message}`,
+        `[ScalpingOrder] [${pending.symbol}] ✗ Failed to set TP1/SL: ${e.message}`,
       );
     }
 
@@ -438,10 +491,13 @@ export class ScalpingOrderService {
       direction: pending.direction,
       entryPrice: filledPrice,
       quantity: filledQty,
-      tpPrice: pending.tpPrice,
+      tpPrice: pending.tpPrice, // 단일 TP (fallback)
+      tp1Price: tp1Price, // 부분 청산 TP1
+      tp2Price: tp2Price, // 부분 청산 TP2
       slPrice: pending.slPrice,
       originalTpPrice: pending.tpPrice,
       tpReduced: false,
+      tp1Filled: false, // TP1 청산 완료 여부
       status: 'OPEN',
       mainOrderId: pending.orderId,
       enteredAt: Date.now(),
@@ -460,7 +516,8 @@ export class ScalpingOrderService {
       quantity: filledQty,
       leverage: SCALPING_CONFIG.risk.leverage,
       stopLoss: pending.slPrice,
-      takeProfit1: pending.tpPrice,
+      takeProfit1: tp1Price, // TP1 가격
+      takeProfit2: tp2Price, // TP2 가격 (있을 경우)
       status: 'OPEN',
       openedAt: new Date(),
       metadata: {
@@ -529,12 +586,43 @@ export class ScalpingOrderService {
 
         const pnlPercent = this.calculatePnlPercent(position, currentPrice);
 
+        // 부분 청산 체크: TP1 도달 시 50% 청산
+        if (position.tp1Price && !position.tp1Filled) {
+          const tp1Hit = position.direction === 'LONG'
+            ? currentPrice >= position.tp1Price
+            : currentPrice <= position.tp1Price;
+
+          if (tp1Hit) {
+            this.logger.log(
+              `[ScalpingOrder] [${position.symbol}] 🎯 TP1 HIT @ ${currentPrice.toFixed(4)} - Partial closing 50%`,
+            );
+            await this.partialClosePosition(position, currentPrice, 0.5, 'TP1_HIT');
+            continue;
+          }
+        }
+
+        // TP2 체크 (TP1 청산 후)
+        if (position.tp2Price && position.tp1Filled) {
+          const tp2Hit = position.direction === 'LONG'
+            ? currentPrice >= position.tp2Price
+            : currentPrice <= position.tp2Price;
+
+          if (tp2Hit) {
+            this.logger.log(
+              `[ScalpingOrder] [${position.symbol}] 🎯 TP2 HIT @ ${currentPrice.toFixed(4)} - Closing remaining 50%`,
+            );
+            await this.closePosition(position, currentPrice, 'TP2_HIT');
+            continue;
+          }
+        }
+
         // 상세 로깅 (5분마다)
         if (Math.floor(elapsedSec) % 300 < 10) {
           this.logger.log(
             `[ScalpingOrder] [${position.symbol}] ${position.direction} | ` +
               `Elapsed: ${elapsedMinutes}m ${elapsedSeconds}s | ` +
-              `PnL: ${pnlPercent >= 0 ? '+' : ''}${(pnlPercent * 100).toFixed(2)}%`,
+              `PnL: ${pnlPercent >= 0 ? '+' : ''}${(pnlPercent * 100).toFixed(2)}%` +
+              (position.tp1Filled ? ' | TP1 Filled' : ''),
           );
         }
 
@@ -546,13 +634,13 @@ export class ScalpingOrderService {
           await this.reduceTp(position);
         }
 
-        // 2. 본전 청산 (25분 경과)
+        // 2. 본전 청산 (25분 경과) - 조건부 청산 (최소 수익률 이상일 때만)
         if (
           elapsedSec >= SCALPING_CONFIG.position.breakevenTimeSec &&
-          pnlPercent >= 0
+          pnlPercent >= SCALPING_CONFIG.position.breakevenMinProfit
         ) {
           this.logger.log(
-            `[ScalpingOrder] [${position.symbol}] ⏰ Breakeven timeout (${elapsedMinutes}m) - closing at profit`,
+            `[ScalpingOrder] [${position.symbol}] ⏰ Breakeven timeout (${elapsedMinutes}m) - closing at +${(pnlPercent * 100).toFixed(2)}%`,
           );
           await this.closePosition(position, currentPrice, 'BREAKEVEN_TIMEOUT');
           continue;
@@ -642,6 +730,111 @@ export class ScalpingOrderService {
       return position.entryPrice + reducedDistance;
     } else {
       return position.entryPrice - reducedDistance;
+    }
+  }
+
+  /**
+   * 부분 청산 (TP1 도달 시 50% 청산)
+   */
+  private async partialClosePosition(
+    position: ScalpingPosition,
+    currentPrice: number,
+    closeRatio: number, // 0.5 = 50%
+    reason: CloseReason,
+  ): Promise<void> {
+    try {
+      this.logger.log(
+        `[ScalpingOrder] [${position.symbol}] 🔒 Partial closing ${(closeRatio * 100).toFixed(0)}% (${reason})...`,
+      );
+
+      // 알고 주문 취소
+      await this.okxService.cancelAllAlgoOrders(position.symbol);
+
+      // 부분 청산 수량 계산 (lot size 반올림)
+      const closeQuantityRaw = position.quantity * closeRatio;
+      const lotSizeInfo = this.okxService.getLotSizeInfo(position.symbol);
+      const lotSz = lotSizeInfo.stepSize;
+      const closeQuantity = Math.floor(closeQuantityRaw / lotSz) * lotSz;
+      const remainingQuantity = position.quantity - closeQuantity;
+      
+      // 최소 수량 체크
+      if (closeQuantity < lotSz) {
+        this.logger.warn(
+          `[ScalpingOrder] [${position.symbol}] Close quantity too small: ${closeQuantity} < ${lotSz}, skipping partial close`,
+        );
+        return;
+      }
+
+      // 시장가 부분 청산
+      const closeSide = position.direction === 'LONG' ? 'SELL' : 'BUY';
+
+      await this.okxService.createOrder({
+        symbol: position.symbol,
+        side: closeSide,
+        type: 'MARKET',
+        quantity: closeQuantity,
+        reduceOnly: true,
+        reverseEntry: false,
+      });
+
+      // 부분 청산 손익 계산
+      const pnlPercent = this.calculatePnlPercent(position, currentPrice);
+      const realizedPnl = pnlPercent * closeQuantity * position.entryPrice;
+
+      // 포지션 수량 업데이트
+      this.positionService.updatePosition(position.symbol, {
+        quantity: remainingQuantity,
+        tp1Filled: true, // TP1 청산 완료
+      });
+
+      // TP2가 있으면 TP2 주문 설정 (나머지 수량도 lot size 반올림)
+      if (position.tp2Price && remainingQuantity >= lotSz) {
+        const tpSide = position.direction === 'LONG' ? 'SELL' : 'BUY';
+        const remainingQtyRounded = Math.floor(remainingQuantity / lotSz) * lotSz;
+        
+        if (remainingQtyRounded >= lotSz) {
+          await this.okxService.createTpSlOrder({
+            symbol: position.symbol,
+            side: tpSide,
+            quantity: remainingQtyRounded, // 나머지 50% (lot size 반올림)
+            tpTriggerPrice: position.tp2Price,
+            slTriggerPrice: position.slPrice,
+            isStrategyPosition: false,
+          });
+          this.logger.log(
+            `[ScalpingOrder] [${position.symbol}] ✅ TP2/SL set for remaining 50% | TP2: ${position.tp2Price.toFixed(4)}, Qty: ${remainingQtyRounded}`,
+          );
+        } else {
+          this.logger.warn(
+            `[ScalpingOrder] [${position.symbol}] Remaining quantity too small for TP2: ${remainingQuantity} < ${lotSz}`,
+          );
+        }
+      }
+
+      // DB 업데이트 (부분 청산 기록)
+      const positionId = this.positionIdMap.get(position.symbol);
+      if (positionId) {
+        await this.positionRepository
+          .createQueryBuilder()
+          .update(Position)
+          .set({
+            quantity: remainingQuantity,
+            metadata: () => `metadata || '${JSON.stringify({ tp1Filled: true, partialClose: { reason, pnlPercent, quantity: closeQuantity } })}'::jsonb`,
+          })
+          .where('id = :id', { id: positionId })
+          .execute();
+      }
+
+      this.logger.log(
+        `[ScalpingOrder] [${position.symbol}] ✅ Partial closed ${(closeRatio * 100).toFixed(0)}% | ` +
+          `PnL: ${pnlPercent >= 0 ? '+' : ''}${(pnlPercent * 100).toFixed(2)}% | ` +
+          `Remaining: ${remainingQuantity.toFixed(6)}`,
+      );
+    } catch (error: any) {
+      this.logger.error(
+        `[ScalpingOrder] [${position.symbol}] ✗ Partial close failed`,
+        error,
+      );
     }
   }
 

@@ -30,14 +30,23 @@ export interface ScalpingPosition {
   /** 포지션 수량 */
   quantity: number;
 
-  /** 현재 TP 가격 */
+  /** 현재 TP 가격 (단일 TP 사용 시) */
   tpPrice: number;
+
+  /** TP1 가격 (부분 청산 50%) */
+  tp1Price?: number;
+
+  /** TP2 가격 (나머지 50% 청산) */
+  tp2Price?: number;
 
   /** 현재 SL 가격 */
   slPrice: number;
 
   /** 원래 TP 가격 (축소 전) */
   originalTpPrice: number;
+
+  /** TP1 청산 완료 여부 */
+  tp1Filled?: boolean;
 
   // ============================
   // 상태
@@ -98,6 +107,8 @@ export interface ScalpingPosition {
  */
 export type CloseReason =
   | 'TP_HIT' // TP 도달
+  | 'TP1_HIT' // TP1 도달 (50% 청산)
+  | 'TP2_HIT' // TP2 도달 (나머지 50% 청산)
   | 'SL_HIT' // SL 도달
   | 'TP_REDUCED_HIT' // 축소된 TP 도달
   | 'BREAKEVEN_TIMEOUT' // 본전 청산 (시간 초과)

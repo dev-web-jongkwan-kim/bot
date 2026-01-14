@@ -33,8 +33,14 @@ export interface ScalpingSignal {
   /** 진입가 (Limit 주문 가격) */
   entryPrice: number;
 
-  /** TP 가격 */
+  /** TP 가격 (단일 TP 사용 시) */
   tpPrice: number;
+
+  /** TP1 가격 (부분 청산 50%) */
+  tp1Price?: number;
+
+  /** TP2 가격 (나머지 50% 청산) */
+  tp2Price?: number;
 
   /** SL 가격 */
   slPrice: number;
