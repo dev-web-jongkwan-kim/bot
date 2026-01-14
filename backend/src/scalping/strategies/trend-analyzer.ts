@@ -121,8 +121,8 @@ export class TrendAnalyzer {
   /**
    * Higher Highs 체크 (과반수 패턴)
    *
-   * 고점이 높아지는 비율이 75% 이상이면 통과
-   * 예: 4개 봉 중 3개 이상이 이전보다 높으면 true
+   * 4개 봉 중 3개 이상이 이전보다 높으면 true
+   * → 3번 비교 중 2번 이상 일치 (66%)
    */
   private isHigherHighs(highs: number[]): boolean {
     let count = 0;
@@ -132,8 +132,8 @@ export class TrendAnalyzer {
         count++;
       }
     }
-    // 75% 이상 (3/4, 2/3 등)
-    return count >= Math.ceil(total * 0.75);
+    // 4개 봉 → 3번 비교 → 2번 이상 일치 (ceil(3 * 0.5) = 2)
+    return count >= Math.ceil(total * 0.5);
   }
 
   /**
@@ -147,7 +147,7 @@ export class TrendAnalyzer {
         count++;
       }
     }
-    return count >= Math.ceil(total * 0.75);
+    return count >= Math.ceil(total * 0.5);
   }
 
   /**
@@ -161,7 +161,7 @@ export class TrendAnalyzer {
         count++;
       }
     }
-    return count >= Math.ceil(total * 0.75);
+    return count >= Math.ceil(total * 0.5);
   }
 
   /**
@@ -175,7 +175,7 @@ export class TrendAnalyzer {
         count++;
       }
     }
-    return count >= Math.ceil(total * 0.75);
+    return count >= Math.ceil(total * 0.5);
   }
 
   /**
