@@ -558,13 +558,23 @@ export class ScalpingOrderService {
           continue;
         }
 
-        // 3. 강제 청산 (30분 경과)
+        // 3. 강제 청산 (30분 경과) - 수익 중일 때만
+        // 손실 중이면 SL까지 대기 (강제 청산으로 큰 손실 방지)
         if (elapsedSec >= SCALPING_CONFIG.position.maxHoldTimeSec) {
-          this.logger.warn(
-            `[ScalpingOrder] [${position.symbol}] ⏰ MAX TIME exceeded (${elapsedMinutes}m) - force closing`,
-          );
-          await this.closePosition(position, currentPrice, 'MAX_TIME_TIMEOUT');
-          continue;
+          if (pnlPercent >= 0) {
+            this.logger.warn(
+              `[ScalpingOrder] [${position.symbol}] ⏰ MAX TIME (${elapsedMinutes}m) - closing at +${(pnlPercent * 100).toFixed(2)}%`,
+            );
+            await this.closePosition(position, currentPrice, 'MAX_TIME_TIMEOUT');
+            continue;
+          } else {
+            // 손실 중이면 SL까지 대기 (로깅만)
+            if (Math.floor(elapsedSec) % 60 < 10) {
+              this.logger.log(
+                `[ScalpingOrder] [${position.symbol}] ⏰ MAX TIME exceeded but in loss (${(pnlPercent * 100).toFixed(2)}%) - waiting for SL`,
+              );
+            }
+          }
         }
       } catch (error) {
         this.logger.error(

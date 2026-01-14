@@ -276,8 +276,18 @@ export class ScalpingSignalService {
           ? currentPrice - entryOffset
           : currentPrice + entryOffset;
 
-      const tpDistance = atrResult.atr * SCALPING_CONFIG.order.tpAtr;
-      const slDistance = atrResult.atr * SCALPING_CONFIG.order.slAtr;
+      // ATR 기반 거리 계산
+      const atrTpDistance = atrResult.atr * SCALPING_CONFIG.order.tpAtr;
+      const atrSlDistance = atrResult.atr * SCALPING_CONFIG.order.slAtr;
+
+      // 최소 TP/SL 거리 (0.65%)
+      const minTpSlPercent = 0.0065; // 0.65%
+      const minTpDistance = entryPrice * minTpSlPercent;
+      const minSlDistance = entryPrice * minTpSlPercent;
+
+      // ATR 기반과 최소값 중 큰 값 사용
+      const tpDistance = Math.max(atrTpDistance, minTpDistance);
+      const slDistance = Math.max(atrSlDistance, minSlDistance);
 
       const tpPrice =
         direction === 'LONG'
