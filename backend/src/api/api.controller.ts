@@ -43,7 +43,8 @@ export class ApiController {
         const positionAmt = parseFloat(p.positionAmt);
         const entryPrice = parseFloat(p.entryPrice);
         const markPrice = parseFloat(p.markPrice);
-        const unrealizedProfit = parseFloat(p.unRealizedProfit);
+        // OKX: unrealizedProfit (lowercase), Binance: unRealizedProfit (uppercase R)
+        const unrealizedProfit = parseFloat(p.unrealizedProfit || p.unRealizedProfit || '0');
         const leverage = parseInt(p.leverage);
 
         // DB에서 해당 포지션 찾기
@@ -410,29 +411,31 @@ export class ApiController {
   @Get('binance/symbols')
   async getBinanceSymbols() {
     try {
-      // 바이낸스 선물 거래 가능한 모든 USDT 페어 가져오기
-      const exchangeInfo = await this.okxService.getExchangeInfo();
+      // ✅ OKX 선물 거래 가능한 모든 USDT 페어 가져오기
+      const instruments = await this.okxService.getExchangeInfo();
 
-      // USDT 선물만 필터링 (거래 가능한 것만)
-      const usdtSymbols = exchangeInfo.symbols
-        .filter((s: any) =>
-          s.symbol.endsWith('USDT') &&
-          s.status === 'TRADING' &&
-          s.contractType === 'PERPETUAL'
-        )
-        .map(s => ({
-          symbol: s.symbol,
-          baseAsset: s.baseAsset,
-          quoteAsset: s.quoteAsset,
-        }))
-        .sort((a, b) => a.symbol.localeCompare(b.symbol));
+      // OKX 형식: instId = "BTC-USDT-SWAP" → symbol = "BTCUSDT"
+      const usdtSymbols = instruments
+        .map((inst: any) => {
+          // BTC-USDT-SWAP -> BTCUSDT
+          const parts = inst.instId.split('-');
+          const baseAsset = parts[0];
+          const quoteAsset = parts[1] || 'USDT';
+          return {
+            symbol: `${baseAsset}${quoteAsset}`,
+            baseAsset,
+            quoteAsset,
+          };
+        })
+        .filter((s: any) => s.quoteAsset === 'USDT')
+        .sort((a: any, b: any) => a.symbol.localeCompare(b.symbol));
 
       return {
         total: usdtSymbols.length,
         symbols: usdtSymbols,
       };
     } catch (error) {
-      this.logger.error('Error fetching Binance symbols:', error);
+      this.logger.error('Error fetching symbols:', error);
       // 에러 시 기본 목록 반환
       const defaultSymbols = [
         'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT',

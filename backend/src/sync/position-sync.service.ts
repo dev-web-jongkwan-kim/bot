@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -8,6 +8,7 @@ import { OkxService } from '../okx/okx.service';
 import { SimpleTrueOBStrategy } from '../strategies/simple-true-ob.strategy';
 import { OrderService } from '../order/order.service';
 import { RiskService } from '../risk/risk.service';
+import { ScalpingPositionService } from '../scalping/services/scalping-position.service';
 
 @Injectable()
 export class PositionSyncService {
@@ -49,6 +50,8 @@ export class PositionSyncService {
     @Inject(forwardRef(() => SimpleTrueOBStrategy))
     private simpleTrueOBStrategy: SimpleTrueOBStrategy,
     private riskService: RiskService,  // v13: 블랙리스트 기록용
+    @Optional() @Inject(forwardRef(() => ScalpingPositionService))
+    private scalpingPositionService: ScalpingPositionService,  // 스캘핑 포지션 서비스
   ) {}
 
   async onModuleInit() {
@@ -324,60 +327,27 @@ export class PositionSyncService {
             `  Side:       ${dbPos.side}\n` +
             `  Entry:      ${dbPos.entryPrice}\n` +
             `  Quantity:   ${dbPos.quantity}\n` +
-            `  → Fetching trade history for PnL...`
+            `  → Fetching OKX Position History for accurate PnL...`
           );
 
-          // 바이낸스에서 최근 거래 내역 조회하여 실현 PnL 확인
-          // v10: 더 많은 거래 조회 + 모든 관련 거래 합산 (슬리피지/부분 체결 반영)
+          // ✅ OKX Position History API 사용 - 정확한 PnL 조회
           try {
-            const trades = await this.okxService.getRecentTrades(dbPos.symbol, 50);  // 50개로 증가
+            const closedPosition = await this.okxService.getLastClosedPosition(dbPos.symbol);
 
-            // 청산 거래 찾기 (반대 방향, 포지션 오픈 이후)
-            const closeSide = dbPos.side === 'LONG' ? 'SELL' : 'BUY';
-            const positionOpenTime = new Date(dbPos.openedAt).getTime();
+            if (closedPosition) {
+              // OKX에서 정확한 PnL 데이터 가져오기
+              const realizedPnl = closedPosition.realizedPnl;
+              const fee = closedPosition.fee;
+              const fundingFee = closedPosition.fundingFee;
+              const avgClosePrice = closedPosition.closePrice;
+              const entryPriceOkx = closedPosition.entryPrice;
 
-            // v10: 모든 관련 청산 거래 수집 (부분 체결 포함)
-            const closeTrades = trades.filter((t: any) =>
-              t.side === closeSide &&
-              new Date(t.time).getTime() > positionOpenTime
-            );
+              // 총 비용 = 수수료 + 펀딩비
+              const totalFee = Math.abs(fee) + Math.abs(fundingFee);
 
-            if (closeTrades.length > 0) {
-              // v10: 모든 청산 거래의 PnL 합산 (실제 슬리피지 반영)
-              let totalRealizedPnl = 0;  // 바이낸스 realizedPnl (수수료 미포함)
-              let totalCommission = 0;   // 청산 거래 수수료
-              let totalQuantity = 0;
-              let weightedPriceSum = 0;
+              // 순 PnL = 실현 PnL (OKX가 이미 수수료 포함)
+              const netPnl = realizedPnl;
 
-              for (const trade of closeTrades) {
-                const qty = parseFloat(trade.qty || '0');
-                const price = parseFloat(trade.price || '0');
-                const pnl = parseFloat(trade.realizedPnl || '0');
-                const commission = parseFloat(trade.commission || '0');
-
-                totalRealizedPnl += pnl;
-                totalCommission += commission;
-                totalQuantity += qty;
-                weightedPriceSum += price * qty;
-              }
-
-              // 진입 수수료 계산 (진입가 * 수량 * taker fee 0.04%)
-              const entryCommission = (typeof dbPos.entryPrice === 'string'
-                ? parseFloat(dbPos.entryPrice) : dbPos.entryPrice)
-                * totalQuantity * 0.0004;
-
-              // 총 수수료 = 진입 + 청산
-              const totalFee = entryCommission + totalCommission;
-
-              // 순수익 = 실현손익 - 총 수수료
-              const netPnl = totalRealizedPnl - totalFee;
-
-              // 가중 평균 청산가
-              const avgClosePrice = totalQuantity > 0 ? weightedPriceSum / totalQuantity : 0;
-
-              // ═══════════════════════════════════════════════════════════
-              // 📊 청산 타입 감지 (SL/TP1/TP2/MANUAL)
-              // ═══════════════════════════════════════════════════════════
               const entryPrice = typeof dbPos.entryPrice === 'string'
                 ? parseFloat(dbPos.entryPrice) : dbPos.entryPrice;
               const plannedSL = typeof dbPos.stopLoss === 'string'
@@ -387,20 +357,22 @@ export class PositionSyncService {
               const plannedTP2 = typeof dbPos.takeProfit2 === 'string'
                 ? parseFloat(dbPos.takeProfit2) : dbPos.takeProfit2;
 
-              // 청산 타입 결정 (가장 가까운 목표가 기준)
+              // 청산 타입 결정
               let closeType: 'SL' | 'TP1' | 'TP2' | 'MANUAL' | 'LIQUIDATION' = 'MANUAL';
               let closeTriggerPrice = 0;
               let closeSlippage = 0;
               let closeSlippagePercent = 0;
 
-              if (plannedSL && plannedTP1) {
+              // OKX closeType: 1=full, 2=partial, 3=liquidation, 4=ADL
+              if (closedPosition.closeType === '3' || closedPosition.closeType === '4') {
+                closeType = 'LIQUIDATION';
+              } else if (plannedSL && plannedTP1) {
                 const slDistance = Math.abs(avgClosePrice - plannedSL);
                 const tp1Distance = Math.abs(avgClosePrice - plannedTP1);
                 const tp2Distance = plannedTP2 ? Math.abs(avgClosePrice - plannedTP2) : Infinity;
 
-                // 가장 가까운 목표가로 청산 타입 결정 (5% 오차 허용)
                 const minDistance = Math.min(slDistance, tp1Distance, tp2Distance);
-                const tolerance = entryPrice * 0.05; // 5% 허용 오차
+                const tolerance = entryPrice * 0.05;
 
                 if (minDistance < tolerance) {
                   if (minDistance === slDistance) {
@@ -426,93 +398,80 @@ export class PositionSyncService {
                 }
               }
 
+              // 보유 시간 계산
+              const holdingTime = dbPos.openedAt
+                ? closedPosition.closeTime - new Date(dbPos.openedAt).getTime()
+                : 0;
+              const holdingMinutes = Math.round(holdingTime / 60000);
+
               // ═══════════════════════════════════════════════════════════
-              // 💾 상세 청산 정보 저장
+              // 💾 상세 청산 정보 저장 (OKX Position History 기반)
               // ═══════════════════════════════════════════════════════════
-              // ✅ 순수익(수수료 차감) 저장 - 바이낸스 표시와 동일하게
               dbPos.realizedPnl = netPnl;
               dbPos.metadata = {
                 ...dbPos.metadata,
-                // 기존 필드 (하위 호환)
+                // OKX Position History 데이터
                 closePrice: avgClosePrice,
-                closeTradeIds: closeTrades.map((t: any) => t.id),
-                closeTradeCount: closeTrades.length,
-                closeTime: closeTrades[closeTrades.length - 1].time,
+                closeTime: closedPosition.closeTime,
+                okxPositionHistory: closedPosition.raw,
 
-                // 📊 실제 청산 정보 (actual 객체 업데이트)
+                // 📊 실제 청산 정보
                 actual: {
                   ...(dbPos.metadata?.actual || {}),
-                  exit: avgClosePrice,           // 실제 청산가
-                  exitTime: closeTrades[closeTrades.length - 1].time,
-                  closeType: closeType,          // SL/TP1/TP2/MANUAL
-                  closeTriggerPrice: closeTriggerPrice, // 트리거된 목표가
+                  entry: entryPriceOkx,          // OKX 실제 진입가
+                  exit: avgClosePrice,           // OKX 실제 청산가
+                  exitTime: closedPosition.closeTime,
+                  closeType: closeType,
+                  closeTriggerPrice: closeTriggerPrice,
                 },
 
-                // 📈 청산 슬리피지 분석
+                // 📈 슬리피지
                 slippage: {
                   ...(dbPos.metadata?.slippage || {}),
-                  exit: closeSlippage,           // 청산 슬리피지 (USDT)
-                  exitPercent: closeSlippagePercent, // 청산 슬리피지 (%)
+                  exit: closeSlippage,
+                  exitPercent: closeSlippagePercent,
                   totalSlippage: (dbPos.metadata?.slippage?.entry || 0) + closeSlippage,
                   totalSlippagePercent: (dbPos.metadata?.slippage?.entryPercent || 0) + closeSlippagePercent,
                 },
 
-                // 📊 거래 결과 분석
+                // 📊 거래 결과 (OKX 기준)
                 result: {
                   win: netPnl > 0,
-                  grossPnl: totalRealizedPnl,   // 수수료 미포함 손익
-                  fee: totalFee,                 // 총 수수료 (진입 + 청산)
-                  entryFee: entryCommission,     // 진입 수수료
-                  exitFee: totalCommission,      // 청산 수수료
-                  pnl: netPnl,                   // 순수익 (수수료 차감)
+                  pnl: netPnl,                   // OKX 실현 PnL (수수료 포함)
+                  fee: totalFee,                 // 총 수수료
+                  fundingFee: fundingFee,        // 펀딩비
                   pnlPercent: entryPrice > 0
-                    ? (netPnl / (entryPrice * totalQuantity / (dbPos.leverage || 10))) * 100
+                    ? (netPnl / (entryPrice * closedPosition.quantity / (dbPos.leverage || 10))) * 100
                     : 0,
-                  holdingTime: dbPos.openedAt
-                    ? new Date(closeTrades[closeTrades.length - 1].time).getTime() - new Date(dbPos.openedAt).getTime()
-                    : 0,
-                  expectedPnl: closeType === 'SL'
-                    ? -Math.abs(entryPrice - plannedSL) * totalQuantity
-                    : closeType === 'TP1'
-                      ? Math.abs(plannedTP1 - entryPrice) * totalQuantity
-                      : closeType === 'TP2'
-                        ? Math.abs(plannedTP2! - entryPrice) * totalQuantity
-                        : 0,
+                  holdingTime: holdingTime,
                 },
               };
 
-              const holdingMinutes = dbPos.metadata.result?.holdingTime
-                ? Math.round(dbPos.metadata.result.holdingTime / 60000)
-                : 0;
-
               this.logger.log(
-                `  ✅ Trades found: ${closeTrades.length} fill(s)\n` +
+                `  ✅ OKX Position History found\n` +
                 `    ┌─────────────────────────────────────────────────────\n` +
-                `    │ 📊 청산 분석\n` +
-                `    │   Close Type:     ${closeType} ${closeType === 'SL' ? '🔴' : closeType.startsWith('TP') ? '🟢' : '⚪'}\n` +
-                `    │   Planned Trigger: ${closeTriggerPrice > 0 ? closeTriggerPrice.toFixed(4) : 'N/A'}\n` +
-                `    │   Actual Close:   ${avgClosePrice.toFixed(4)}\n` +
+                `    │ 📊 청산 분석 (OKX 기준)\n` +
+                `    │   Close Type:     ${closeType} ${closeType === 'SL' ? '🔴' : closeType.startsWith('TP') ? '🟢' : closeType === 'LIQUIDATION' ? '💀' : '⚪'}\n` +
+                `    │   Entry Price:    ${entryPriceOkx.toFixed(4)} (OKX)\n` +
+                `    │   Close Price:    ${avgClosePrice.toFixed(4)} (OKX)\n` +
                 `    ├─────────────────────────────────────────────────────\n` +
-                `    │ 📈 슬리피지\n` +
-                `    │   Exit Slippage:  ${closeSlippage >= 0 ? '+' : ''}${closeSlippage.toFixed(4)} (${closeSlippagePercent >= 0 ? '+' : ''}${closeSlippagePercent.toFixed(3)}%)\n` +
-                `    │   Total Slippage: ${dbPos.metadata.slippage?.totalSlippage >= 0 ? '+' : ''}${(dbPos.metadata.slippage?.totalSlippage || 0).toFixed(4)}\n` +
-                `    ├─────────────────────────────────────────────────────\n` +
-                `    │ 💰 결과\n` +
-                `    │   Gross PnL:      $${totalRealizedPnl.toFixed(2)}\n` +
-                `    │   Trading Fee:    -$${totalFee.toFixed(2)} (entry: $${entryCommission.toFixed(2)}, exit: $${totalCommission.toFixed(2)})\n` +
-                `    │   Net PnL:        $${netPnl.toFixed(2)} ${netPnl >= 0 ? '🟢 WIN' : '🔴 LOSS'}\n` +
+                `    │ 💰 결과 (OKX 정확값)\n` +
+                `    │   Realized PnL:   $${realizedPnl.toFixed(4)}\n` +
+                `    │   Fee:            $${Math.abs(fee).toFixed(4)}\n` +
+                `    │   Funding Fee:    $${Math.abs(fundingFee).toFixed(4)}\n` +
+                `    │   Net PnL:        $${netPnl.toFixed(4)} ${netPnl >= 0 ? '🟢 WIN' : '🔴 LOSS'}\n` +
                 `    │   Holding Time:   ${holdingMinutes} minutes\n` +
                 `    └─────────────────────────────────────────────────────`
               );
             } else {
-              this.logger.warn(`  ⚠️ No matching close trade found - may be liquidation`);
+              this.logger.warn(`  ⚠️ No OKX position history found - position may still be active`);
               dbPos.metadata = {
                 ...dbPos.metadata,
-                closedByLiquidation: true,
+                closedByUnknown: true,
               };
             }
           } catch (tradeError: any) {
-            this.logger.warn(`  ⚠️ Failed to fetch trade history: ${tradeError.message}`);
+            this.logger.warn(`  ⚠️ Failed to fetch OKX position history: ${tradeError.message}`);
           }
 
           // ✅ 남은 조건 주문(SL/TP) 정리 - 포지션 청산 후 잔여 주문 취소
@@ -578,7 +537,7 @@ export class PositionSyncService {
   @Cron('*/60 * * * * *')
   async cleanupOrphanOrders(): Promise<void> {
     try {
-      // 1. 활성 포지션 심볼 수집 (OKX + DB)
+      // 1. 활성 포지션 심볼 수집 (OKX + DB + 스캘핑 대기 주문)
       const okxPositions = await this.okxService.getOpenPositions();
       const activeSymbols = new Set<string>();
 
@@ -593,6 +552,19 @@ export class PositionSyncService {
       });
       for (const dbPos of dbPositions) {
         activeSymbols.add(dbPos.symbol);
+      }
+
+      // ✅ 스캘핑 대기 주문 심볼도 활성으로 처리 (고아 취소 방지)
+      if (this.scalpingPositionService) {
+        const scalpingPendingOrders = this.scalpingPositionService.getAllPendingOrders();
+        for (const order of scalpingPendingOrders) {
+          activeSymbols.add(order.symbol);
+        }
+        // 스캘핑 활성 포지션도 추가
+        const scalpingPositions = this.scalpingPositionService.getActivePositions();
+        for (const pos of scalpingPositions) {
+          activeSymbols.add(pos.symbol);
+        }
       }
 
       let totalCanceled = 0;
@@ -875,9 +847,10 @@ export class PositionSyncService {
                       type: 'MARKET',
                       quantity: currentQty,
                       reduceOnly: true,
+                      quantityInContracts: true,  // ✅ positionAmt는 이미 계약 단위
                     });
 
-                    this.logger.log(`  ✅ Position force closed due to SL absence`);
+                    this.logger.log(`  ✅ Position force closed due to SL absence (${currentQty} contracts)`);
 
                     dbPos.metadata = {
                       ...dbPos.metadata,
@@ -930,9 +903,10 @@ export class PositionSyncService {
                   type: 'MARKET',
                   quantity: currentQty,
                   reduceOnly: true,
+                  quantityInContracts: true,  // ✅ positionAmt는 이미 계약 단위
                 });
 
-                this.logger.log(`  ✅ Position force closed due to SL/TP failure`);
+                this.logger.log(`  ✅ Position force closed due to SL/TP failure (${currentQty} contracts)`);
 
                 dbPos.metadata = {
                   ...dbPos.metadata,
@@ -1057,17 +1031,67 @@ export class PositionSyncService {
           }
 
           if (tpPrice && tpPrice > 0) {
+            // ✅ 현재가 확인 - TP 가격이 이미 도달했는지 체크
+            const binancePositions = await this.okxService.getOpenPositions();
+            const binancePos = binancePositions.find(p => p.symbol === dbPos.symbol);
+            const currentPrice = binancePos ? parseFloat(binancePos.markPrice) : 0;
+
+            // 디버깅 로그 추가
+            this.logger.debug(
+              `[TP WATCHDOG] ${dbPos.symbol}: markPrice=${binancePos?.markPrice}, currentPrice=${currentPrice}, tpPrice=${tpPrice}`
+            );
+
+            // TP 방향 검증: LONG은 TP > current, SHORT는 TP < current
+            // LONG: TP is above entry, price going UP triggers TP → tpAlreadyPassed when currentPrice >= tpPrice
+            // SHORT: TP is below entry, price going DOWN triggers TP → tpAlreadyPassed when currentPrice <= tpPrice
+            const tpAlreadyPassed = dbPos.side === 'LONG'
+              ? (currentPrice > 0 && currentPrice >= tpPrice)   // LONG: current >= TP means TP reached
+              : (currentPrice > 0 && currentPrice <= tpPrice);  // SHORT: current <= TP means TP reached
+
+            if (tpAlreadyPassed) {
+              this.logger.warn(
+                `\n💰 [TP WATCHDOG] Price already passed TP!\n` +
+                `  Symbol: ${dbPos.symbol} ${dbPos.side}\n` +
+                `  TP Target: ${tpPrice.toFixed(4)}\n` +
+                `  Current:   ${currentPrice.toFixed(4)}\n` +
+                `  → Price is ${dbPos.side === 'LONG' ? 'above' : 'below'} TP, closing at market...`
+              );
+
+              // 시장가로 즉시 청산
+              try {
+                const currentQty = binancePos ? Math.abs(parseFloat(binancePos.positionAmt)) : 0;
+                if (currentQty > 0) {
+                  await this.okxService.cancelAllAlgoOrders(dbPos.symbol);
+                  const closeSide = dbPos.side === 'LONG' ? 'SELL' : 'BUY';
+                  await this.okxService.createOrder({
+                    symbol: dbPos.symbol,
+                    side: closeSide,
+                    type: 'MARKET',
+                    quantity: currentQty,
+                    reduceOnly: true,
+                    quantityInContracts: true,  // ✅ positionAmt는 이미 계약 단위
+                  });
+                  this.logger.log(`  ✅ Position closed at market (TP already reached, ${currentQty} contracts)`);
+                }
+              } catch (closeError: any) {
+                this.logger.error(`  ❌ Market close failed: ${closeError.message}`);
+              }
+              this.slTpRetryCount.delete(dbPos.symbol);
+              continue;  // 다음 포지션으로
+            }
+
+            // ✅ OKX에서 실제 포지션 수량 확인 (계약 단위)
+            const currentQtyForTp = binancePos ? Math.abs(parseFloat(binancePos.positionAmt)) : 0;
+
             this.logger.warn(
               `\n🚨 [TP WATCHDOG] Missing TP detected!\n` +
               `  Symbol: ${dbPos.symbol} ${dbPos.side}\n` +
               `  Entry:  ${entryPrice}\n` +
+              `  Qty:    ${currentQtyForTp} contracts\n` +
               `  → Creating emergency TP order at ${tpPrice.toFixed(4)}...`
             );
 
             const formattedTP = parseFloat(this.okxService.formatPrice(dbPos.symbol, tpPrice));
-            const quantity = typeof dbPos.quantity === 'string'
-              ? parseFloat(dbPos.quantity) : dbPos.quantity;
-            const formattedQty = parseFloat(this.okxService.formatQuantity(dbPos.symbol, quantity));
 
             try {
               // ✅ DB 포지션의 side는 이미 실제 포지션 방향이므로 추가 반전 불필요
@@ -1076,7 +1100,8 @@ export class PositionSyncService {
                 side: dbPos.side === 'LONG' ? 'SELL' : 'BUY',
                 type: 'TAKE_PROFIT_MARKET',
                 triggerPrice: formattedTP,
-                quantity: formattedQty,
+                quantity: currentQtyForTp,
+                quantityInContracts: true,  // ✅ positionAmt는 이미 계약 단위
                 isStrategyPosition: false,  // ✅ DB side는 실제 포지션 방향 - 반전 불필요
               });
 

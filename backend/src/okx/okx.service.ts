@@ -404,36 +404,67 @@ export class OkxService {
   }
 
   /**
-   * Set leverage for a symbol
+   * Set leverage for a symbol (with fallback support)
+   * @param symbol - Trading symbol (e.g., BTCUSDT)
+   * @param leverage - Target leverage or array of fallback values [15, 10, 5]
    */
-  async changeLeverage(symbol: string, leverage: number) {
+  async changeLeverage(symbol: string, leverage: number | number[]) {
+    const leverageList = Array.isArray(leverage) ? leverage : [leverage];
+    const instId = this.toOkxInstId(symbol);
+    const path = '/api/v5/account/set-leverage';
+
+    for (const lev of leverageList) {
+      try {
+        const body = JSON.stringify({
+          instId,
+          lever: lev.toString(),
+          mgnMode: 'isolated', // isolated margin
+        });
+        const headers = this.getHeaders('POST', path, body);
+
+        const response = await fetch(`${this.baseUrl}${path}`, {
+          method: 'POST',
+          headers,
+          body,
+        });
+        const data = await response.json();
+
+        if (data.code === '0') {
+          this.logger.log(`[LEVERAGE] ${symbol} set to ${lev}x`);
+          return { leverage: lev, data: data.data };
+        }
+
+        // 레버리지가 지원되지 않는 경우 다음 값 시도
+        this.logger.warn(`[LEVERAGE] ${symbol} ${lev}x failed: ${data.msg}, trying next...`);
+      } catch (error: any) {
+        this.logger.warn(`[LEVERAGE] ${symbol} ${lev}x error: ${error.message}, trying next...`);
+      }
+    }
+
+    // 모든 폴백 실패 시 기본값 5x로 시도
+    this.logger.error(`[LEVERAGE] ${symbol} all leverage attempts failed, using 5x as last resort`);
     try {
-      const instId = this.toOkxInstId(symbol);
-      const path = '/api/v5/account/set-leverage';
       const body = JSON.stringify({
         instId,
-        lever: leverage.toString(),
-        mgnMode: 'cross', // cross margin
+        lever: '5',
+        mgnMode: 'isolated',
       });
       const headers = this.getHeaders('POST', path, body);
-
       const response = await fetch(`${this.baseUrl}${path}`, {
         method: 'POST',
         headers,
         body,
       });
       const data = await response.json();
-
-      if (data.code !== '0') {
-        throw new Error(`OKX API error: ${data.msg}`);
+      if (data.code === '0') {
+        this.logger.log(`[LEVERAGE] ${symbol} set to 5x (fallback)`);
+        return { leverage: 5, data: data.data };
       }
-
-      this.logger.log(`[LEVERAGE] ${symbol} set to ${leverage}x`);
-      return data.data;
-    } catch (error: any) {
-      this.logger.error(`Error changing leverage for ${symbol}:`, error.message);
-      throw error;
+    } catch (e) {
+      // ignore
     }
+
+    throw new Error(`Failed to set leverage for ${symbol}`);
   }
 
   /**
@@ -491,6 +522,7 @@ export class OkxService {
   /**
    * Create order on OKX
    * ✅ 방향 반전 로직 포함: LONG 신호 → SELL/short, SHORT 신호 → BUY/long
+   * ✅ reverseEntry 옵션으로 반전 여부 제어 (스캘핑은 false)
    */
   async createOrder(params: {
     symbol: string;
@@ -503,38 +535,61 @@ export class OkxService {
     reduceOnly?: boolean;
     posSide?: 'long' | 'short';  // OKX position side
     timeInForce?: 'GTC' | 'IOC' | 'FOK' | 'GTX';  // Binance compatibility
+    reverseEntry?: boolean;  // 진입 방향 반전 여부 (기본: true = SimpleTrueOB용)
+    quantityInContracts?: boolean;  // true면 quantity가 이미 계약 단위 (formatQuantity 스킵)
   }) {
     try {
       const instId = this.toOkxInstId(params.symbol);
       const path = '/api/v5/trade/order';
 
       // ✅ 전략 방향 반전 로직 (우리 전략 특성)
-      // - LONG 신호 → OKX SELL 주문 (숏 포지션 오픈)
-      // - SHORT 신호 → OKX BUY 주문 (롱 포지션 오픈)
-      // - reduceOnly 주문은 반전하지 않음 (포지션 청산용)
+      // - SimpleTrueOB: reverseEntry=true (기본값)
+      //   - LONG 신호 → OKX SELL 주문 (숏 포지션 오픈)
+      //   - SHORT 신호 → OKX BUY 주문 (롱 포지션 오픈)
+      // - 스캘핑: reverseEntry=false
+      //   - LONG 신호 → OKX BUY 주문 (롱 포지션 오픈)
+      //   - SHORT 신호 → OKX SELL 주문 (숏 포지션 오픈)
+      // - reduceOnly 주문은 항상 반전하지 않음 (포지션 청산용)
+      const shouldReverse = params.reverseEntry !== false; // 기본값 true
       let finalSide: 'buy' | 'sell';
 
       if (params.reduceOnly) {
         // 포지션 청산: 반전 없음
         finalSide = params.side === 'BUY' ? 'buy' : 'sell';
         this.logger.log(`[ORDER] Close: ${params.side} → ${finalSide.toUpperCase()}`);
-      } else {
-        // 신규 진입: 방향 반전 (전략 특성)
+      } else if (shouldReverse) {
+        // SimpleTrueOB: 방향 반전
         finalSide = params.side === 'BUY' ? 'sell' : 'buy';
         this.logger.log(`[ORDER] Entry REVERSED: ${params.side} → ${finalSide.toUpperCase()}`);
+      } else {
+        // 스캘핑: 직접 실행 (반전 없음)
+        finalSide = params.side === 'BUY' ? 'buy' : 'sell';
+        this.logger.log(`[ORDER] Entry DIRECT: ${params.side} → ${finalSide.toUpperCase()}`);
       }
 
       // OKX order type mapping
       let ordType = 'market';
       if (params.type === 'LIMIT') ordType = 'limit';
 
+      // ✅ quantityInContracts: positionAmt는 이미 계약 단위이므로 변환 불필요
+      let sz: string | undefined;
+      if (params.quantity) {
+        if (params.quantityInContracts) {
+          // 이미 계약 단위 - 직접 사용
+          sz = String(Math.round(params.quantity));  // 정수로 변환
+        } else {
+          // base currency 단위 - 계약으로 변환
+          sz = this.formatQuantity(params.symbol, params.quantity);
+        }
+      }
+
       const orderBody: any = {
         instId,
-        tdMode: 'cross',  // ✅ cross margin (matches leverage setting mgnMode)
+        tdMode: 'isolated',  // ✅ isolated margin (matches leverage setting mgnMode)
         side: finalSide,
         posSide: 'net',   // ✅ OKX one-way mode
         ordType,
-        sz: params.quantity ? this.formatQuantity(params.symbol, params.quantity) : undefined,
+        sz,
       };
 
       if (params.type === 'LIMIT' && params.price) {
@@ -607,6 +662,7 @@ export class OkxService {
     quantity?: number;
     closePosition?: boolean;
     isStrategyPosition?: boolean;  // 전략 포지션 여부 (true면 반전 필요)
+    quantityInContracts?: boolean;  // true면 quantity가 이미 계약 단위 (formatQuantity 스킵)
   }): Promise<AlgoOrderResponse> {
     const instId = this.toOkxInstId(params.symbol);
     const path = '/api/v5/trade/order-algo';
@@ -637,7 +693,7 @@ export class OkxService {
     // ✅ OKX one-way mode: posSide는 'net'으로 설정 (또는 생략)
     const orderBody: any = {
       instId,
-      tdMode: 'cross',
+      tdMode: 'isolated',  // ✅ isolated margin
       side: finalSide,  // ✅ 최종 방향
       posSide: 'net',   // ✅ One-way mode에서는 'net' 사용
       ordType: 'conditional',
@@ -648,7 +704,12 @@ export class OkxService {
       orderBody.closeFraction = '1';  // Close 100%
       orderBody.reduceOnly = true;
     } else if (params.quantity) {
-      orderBody.sz = this.formatQuantity(params.symbol, params.quantity);
+      // ✅ quantityInContracts: positionAmt는 이미 계약 단위
+      if (params.quantityInContracts) {
+        orderBody.sz = String(Math.round(params.quantity));
+      } else {
+        orderBody.sz = this.formatQuantity(params.symbol, params.quantity);
+      }
     }
 
     // SL uses slTriggerPx, TP uses tpTriggerPx
@@ -686,13 +747,19 @@ export class OkxService {
       }) as any;
 
       if (response.code !== '0') {
-        // 더 자세한 에러 정보 출력
         const errorMsg = response.msg || response.data?.[0]?.sMsg || JSON.stringify(response);
-        this.logger.error(`[ALGO ORDER] OKX Response Error:`, JSON.stringify(response, null, 2));
+        this.logger.error(`[ALGO ORDER] OKX API Error: ${errorMsg}`, JSON.stringify(response, null, 2));
         throw new Error(`OKX algo order error: ${errorMsg}`);
       }
 
+      // ✅ OKX 개별 주문 에러 체크 (code='0'이지만 data[0].sCode에 에러)
       const order = response.data[0];
+      if (order.sCode !== '0') {
+        const errorMsg = order.sMsg || 'Unknown order error';
+        this.logger.error(`[ALGO ORDER] OKX Order Error: ${errorMsg}`, JSON.stringify(order, null, 2));
+        throw new Error(`OKX algo order error: ${errorMsg}`);
+      }
+
       this.logger.log(`[ALGO ORDER] ✓ Created: ${order.algoId}`);
 
       return {
@@ -713,6 +780,106 @@ export class OkxService {
       };
     } catch (error: any) {
       this.logger.error(`[ALGO ORDER] Error:`, error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Create Combined TP/SL Algo Order
+   * OKX allows ONLY ONE algo order with closeFraction="1" per position.
+   * This method creates a single order with both TP and SL triggers.
+   */
+  async createTpSlOrder(params: {
+    symbol: string;
+    side: 'BUY' | 'SELL';
+    quantity: number;  // ✅ 수량 추가
+    tpTriggerPrice: number;
+    slTriggerPrice: number;
+    isStrategyPosition?: boolean;  // 전략 포지션 여부 (true면 반전 필요)
+  }): Promise<{ tpAlgoId: string; slAlgoId: string }> {
+    const instId = this.toOkxInstId(params.symbol);
+    const path = '/api/v5/trade/order-algo';
+
+    // 방향 결정
+    const needReversal = params.isStrategyPosition !== false;
+    let finalSide: 'buy' | 'sell';
+
+    if (needReversal) {
+      finalSide = params.side === 'BUY' ? 'sell' : 'buy';
+      this.logger.log(
+        `[TP/SL ORDER] Strategy position: ${params.side} → ${finalSide.toUpperCase()}`
+      );
+    } else {
+      finalSide = params.side === 'BUY' ? 'buy' : 'sell';
+      this.logger.log(
+        `[TP/SL ORDER] Scalping - No reversal: ${params.side} → ${finalSide.toUpperCase()}`
+      );
+    }
+
+    // Combined TP/SL order body
+    // OKX conditional order: sz 사용 (closeFraction은 호환성 문제 있음)
+    const orderBody: any = {
+      instId,
+      tdMode: 'isolated',
+      side: finalSide,
+      posSide: 'net',
+      ordType: 'conditional',
+      sz: String(params.quantity),  // 수량 직접 지정
+      reduceOnly: true,
+      // TP settings
+      tpTriggerPx: this.formatPrice(params.symbol, params.tpTriggerPrice),
+      tpTriggerPxType: 'last',
+      tpOrdPx: '-1',  // Market order
+      // SL settings
+      slTriggerPx: this.formatPrice(params.symbol, params.slTriggerPrice),
+      slTriggerPxType: 'last',
+      slOrdPx: '-1',  // Market order
+    };
+
+    const body = JSON.stringify(orderBody);
+    const headers = this.getHeaders('POST', path, body);
+
+    this.logger.log(
+      `[TP/SL ORDER] Creating combined TP/SL:\n` +
+      `  Symbol: ${params.symbol}\n` +
+      `  Side: ${finalSide.toUpperCase()}\n` +
+      `  TP: ${orderBody.tpTriggerPx}\n` +
+      `  SL: ${orderBody.slTriggerPx}\n` +
+      `  Order Body: ${JSON.stringify(orderBody)}`
+    );
+
+    try {
+      const response = await this.orderBreaker.fire(async () => {
+        const res = await fetch(`${this.baseUrl}${path}`, {
+          method: 'POST',
+          headers,
+          body,
+        });
+        return res.json();
+      }) as any;
+
+      if (response.code !== '0') {
+        const errorMsg = response.msg || response.data?.[0]?.sMsg || 'Unknown error';
+        const errorCode = response.code || response.data?.[0]?.sCode || 'N/A';
+        this.logger.error(
+          `[TP/SL ORDER] OKX Response Error:\n` +
+          `  Code: ${errorCode}\n` +
+          `  Message: ${errorMsg}\n` +
+          `  Full Response: ${JSON.stringify(response)}`
+        );
+        throw new Error(`OKX TP/SL order error [${errorCode}]: ${errorMsg}`);
+      }
+
+      const order = response.data[0];
+      this.logger.log(`[TP/SL ORDER] ✓ Created: algoId=${order.algoId}`);
+
+      // Return same algoId for both (they're in one order)
+      return {
+        tpAlgoId: order.algoId,
+        slAlgoId: order.algoId,
+      };
+    } catch (error: any) {
+      this.logger.error(`[TP/SL ORDER] Error:`, error.message);
       throw error;
     }
   }
@@ -779,6 +946,7 @@ export class OkxService {
             leverage: p.lever,
             liquidationPrice: p.liqPx,
             positionSide: p.posSide,
+            markPrice: p.markPx,  // ✅ 마크 가격 추가 (TP/SL 체크용)
           }));
       },
       'getOpenPositions',
@@ -1200,5 +1368,61 @@ export class OkxService {
       price: entryPrice,
       executedQty: executedQty.toString(),
     };
+  }
+
+  /**
+   * ✅ OKX Position History API - 청산된 포지션의 정확한 PnL 조회
+   *
+   * @param symbol - 심볼 (예: BTCUSDT)
+   * @param limit - 조회 개수 (기본 20)
+   * @returns 청산된 포지션 내역 (정확한 PnL 포함)
+   */
+  async getPositionHistory(symbol?: string, limit: number = 20): Promise<any[]> {
+    return this.retryOperation(
+      async () => {
+        let path = `/api/v5/account/positions-history?instType=SWAP&limit=${limit}`;
+
+        if (symbol) {
+          const instId = this.toOkxInstId(symbol);
+          path += `&instId=${instId}`;
+        }
+
+        const headers = this.getHeaders('GET', path);
+        const response = await fetch(`${this.baseUrl}${path}`, { headers });
+        const data = await response.json();
+
+        if (data.code !== '0') {
+          throw new Error(`OKX API error: ${data.msg}`);
+        }
+
+        this.logger.debug(`[POSITION HISTORY] Found ${data.data.length} closed positions`);
+
+        return data.data.map((p: any) => ({
+          symbol: this.fromOkxInstId(p.instId),
+          instId: p.instId,
+          side: p.direction?.toUpperCase() || (parseFloat(p.openAvgPx) > 0 ? 'LONG' : 'SHORT'),
+          entryPrice: parseFloat(p.openAvgPx || '0'),
+          closePrice: parseFloat(p.closeAvgPx || '0'),
+          quantity: parseFloat(p.closeTotalPos || '0'),
+          realizedPnl: parseFloat(p.pnl || '0'),
+          fee: parseFloat(p.fee || '0'),
+          fundingFee: parseFloat(p.fundingFee || '0'),
+          lever: p.lever,
+          openTime: parseInt(p.cTime || '0'),
+          closeTime: parseInt(p.uTime || '0'),
+          closeType: p.type,  // 1: full close, 2: partial close, 3: liquidation, 4: ADL
+          raw: p,  // 원본 데이터
+        }));
+      },
+      `getPositionHistory(${symbol || 'all'})`,
+    );
+  }
+
+  /**
+   * ✅ 특정 심볼의 가장 최근 청산 포지션 조회
+   */
+  async getLastClosedPosition(symbol: string): Promise<any | null> {
+    const history = await this.getPositionHistory(symbol, 1);
+    return history.length > 0 ? history[0] : null;
   }
 }

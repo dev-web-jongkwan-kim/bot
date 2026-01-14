@@ -88,9 +88,29 @@ export class TradingControlService {
       await appService.startTrading();
 
       // 2. StrategyRunnerService - 전략 초기화 + 히스토리 로딩
+      const { SCALPING_CONFIG } = await import('../scalping/constants/scalping.config');
       const { StrategyRunnerService } = await import('../signal/strategy-runner.service');
       const strategyRunner = this.moduleRef.get(StrategyRunnerService, { strict: false });
-      await strategyRunner.startTrading();
+
+      // 3. 전략 활성화
+      const { ScalpingOrderService } = await import('../scalping/services/scalping-order.service');
+      const scalpingOrderService = this.moduleRef.get(ScalpingOrderService, { strict: false });
+
+      if (SCALPING_CONFIG.strategy.disableSimpleTrueOB) {
+        // 스캘핑만 사용 (기본)
+        this.logger.log('════════════════════════════════════════════════════════════');
+        this.logger.log('📈 전략: 스캘핑 (기본)');
+        this.logger.log('   - SimpleTrueOB: 비활성화');
+        this.logger.log('   - 스캘핑 스캔: 매 1분 (30초 오프셋)');
+        this.logger.log('   - 주문 실행: 매 10초');
+        this.logger.log('════════════════════════════════════════════════════════════');
+        scalpingOrderService.enable();
+      } else {
+        // 둘 다 사용
+        this.logger.log('📈 전략: SimpleTrueOB + 스캘핑');
+        await strategyRunner.startTrading();
+        scalpingOrderService.enable();
+      }
 
       // 시작 완료
       this.state.status = 'RUNNING';
@@ -125,12 +145,20 @@ export class TradingControlService {
     this.state.status = 'STOPPING';
 
     try {
-      // 1. StrategyRunnerService - 전략 중지
-      const { StrategyRunnerService } = await import('../signal/strategy-runner.service');
-      const strategyRunner = this.moduleRef.get(StrategyRunnerService, { strict: false });
-      await strategyRunner.stopTrading();
+      // 1. ScalpingOrderService - 스캘핑 전략 비활성화
+      const { ScalpingOrderService } = await import('../scalping/services/scalping-order.service');
+      const scalpingOrderService = this.moduleRef.get(ScalpingOrderService, { strict: false });
+      scalpingOrderService.disable();
 
-      // 2. AppService - WebSocket 연결 해제
+      // 2. StrategyRunnerService - 전략 중지 (활성화된 경우만)
+      const { SCALPING_CONFIG } = await import('../scalping/constants/scalping.config');
+      if (!SCALPING_CONFIG.strategy.disableSimpleTrueOB) {
+        const { StrategyRunnerService } = await import('../signal/strategy-runner.service');
+        const strategyRunner = this.moduleRef.get(StrategyRunnerService, { strict: false });
+        await strategyRunner.stopTrading();
+      }
+
+      // 3. AppService - WebSocket 연결 해제
       const { AppService } = await import('../app.service');
       const appService = this.moduleRef.get(AppService, { strict: false });
       await appService.stopTrading();
