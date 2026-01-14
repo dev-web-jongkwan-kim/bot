@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WebSocketService } from './websocket/websocket.service';
 import { SymbolSelectionService } from './symbol-selection/symbol-selection.service';
+import { ScalpingDataService } from './scalping/services/scalping-data.service';
 
 /**
  * AppService
@@ -17,6 +18,7 @@ export class AppService {
   constructor(
     private wsService: WebSocketService,
     private symbolSelection: SymbolSelectionService,
+    private scalpingDataService: ScalpingDataService,
   ) {}
 
   /**
@@ -56,6 +58,10 @@ export class AppService {
 
     try {
       const symbols = await this.symbolSelection.selectHybridSymbols(170);
+
+      // 과거 캔들 데이터 로드 (스캘핑 전략용)
+      this.logger.log(`\n📥 Loading historical candle data for scalping...`);
+      await this.scalpingDataService.loadHistoricalCandles(symbols);
 
       this.logger.log(`\nStarting WebSocket subscriptions...`);
       await this.wsService.subscribeAll(symbols, ['5m', '15m']);

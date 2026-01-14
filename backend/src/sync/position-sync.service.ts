@@ -1,11 +1,12 @@
-import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Position } from '../database/entities/position.entity';
 import { Signal } from '../database/entities/signal.entity';
 import { BinanceService } from '../binance/binance.service';
-import { SimpleTrueOBStrategy } from '../strategies/simple-true-ob.strategy';
+// SimpleTrueOBStrategy - DISABLED for ScalpingModule
+// import { SimpleTrueOBStrategy } from '../strategies/simple-true-ob.strategy';
 import { OrderService } from '../order/order.service';
 import { RiskService } from '../risk/risk.service';
 
@@ -49,8 +50,6 @@ export class PositionSyncService {
     @InjectRepository(Signal)
     private signalRepo: Repository<Signal>,
     private binanceService: BinanceService,
-    @Inject(forwardRef(() => SimpleTrueOBStrategy))
-    private simpleTrueOBStrategy: SimpleTrueOBStrategy,
     private riskService: RiskService,  // v13: 블랙리스트 기록용
   ) {}
 
@@ -509,12 +508,8 @@ export class PositionSyncService {
           // TP1 추적에서 제거
           this.tp1TriggeredPositions.delete(dbPos.symbol);
 
-          // v8: 재진입 쿨다운 시작 (5분봉, 15분봉 모두)
-          if (dbPos.strategy === 'SIMPLE_TRUE_OB') {
-            this.simpleTrueOBStrategy.onPositionClosed(dbPos.symbol, '5m');
-            this.simpleTrueOBStrategy.onPositionClosed(dbPos.symbol, '15m');
-            this.logger.log(`  → [v8] Reentry cooldown started for ${dbPos.symbol} (12 bars)`);
-          }
+          // v8: 재진입 쿨다운 (SimpleTrueOB 비활성화로 제거)
+          // Scalping 전략은 자체적으로 쿨다운 관리
 
           this.logger.log(`  → Position marked as CLOSED in DB`);
         }

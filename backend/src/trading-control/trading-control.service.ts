@@ -20,11 +20,10 @@ export interface TradingState {
  *
  * Start Flow:
  * 1. AppService.startTrading() - 심볼 선택 + WebSocket 연결
- * 2. StrategyRunnerService.startTrading() - 전략 초기화 + 히스토리 로딩
+ * 2. ScalpingModule은 @Cron으로 자동 실행됨
  *
  * Stop Flow:
- * 1. StrategyRunnerService.stopTrading() - 전략 중지
- * 2. AppService.stopTrading() - WebSocket 연결 해제
+ * 1. AppService.stopTrading() - WebSocket 연결 해제
  */
 @Injectable()
 export class TradingControlService {
@@ -87,10 +86,7 @@ export class TradingControlService {
       const appService = this.moduleRef.get(AppService, { strict: false });
       await appService.startTrading();
 
-      // 2. StrategyRunnerService - 전략 초기화 + 히스토리 로딩
-      const { StrategyRunnerService } = await import('../signal/strategy-runner.service');
-      const strategyRunner = this.moduleRef.get(StrategyRunnerService, { strict: false });
-      await strategyRunner.startTrading();
+      // ScalpingModule은 @Cron으로 자동 실행됨
 
       // 시작 완료
       this.state.status = 'RUNNING';
@@ -98,7 +94,7 @@ export class TradingControlService {
       this.state.stoppedAt = null;
       this.state.reason = undefined;
 
-      this.logger.log('✅ Live trading STARTED');
+      this.logger.log('✅ Live trading STARTED (Scalping Module active via @Cron)');
       return { success: true, message: 'Trading started successfully' };
 
     } catch (error: any) {
@@ -125,12 +121,9 @@ export class TradingControlService {
     this.state.status = 'STOPPING';
 
     try {
-      // 1. StrategyRunnerService - 전략 중지
-      const { StrategyRunnerService } = await import('../signal/strategy-runner.service');
-      const strategyRunner = this.moduleRef.get(StrategyRunnerService, { strict: false });
-      await strategyRunner.stopTrading();
+      // ScalpingModule은 @Cron으로 동작하므로 별도 중지 불필요
 
-      // 2. AppService - WebSocket 연결 해제
+      // AppService - WebSocket 연결 해제
       const { AppService } = await import('../app.service');
       const appService = this.moduleRef.get(AppService, { strict: false });
       await appService.stopTrading();

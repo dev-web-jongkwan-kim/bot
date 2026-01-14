@@ -139,14 +139,26 @@ export class PositionTimeManagerService {
         quantity,
       });
 
-      const exitPrice = parseFloat(closeOrder.avgPrice || closeOrder.price || '0');
+      // 시장가 주문은 avgPrice가 즉시 채워지지 않을 수 있음
+      // 현재 가격으로 대체하거나 주문 상세 조회
+      let exitPrice = parseFloat(closeOrder.avgPrice || closeOrder.price || '0');
+
+      if (exitPrice === 0) {
+        // 현재 가격으로 대체
+        try {
+          exitPrice = await this.binanceService.getSymbolPrice(position.symbol);
+        } catch (e) {
+          this.logger.warn(`[FORCE CLOSE] Could not get current price for ${position.symbol}`);
+        }
+      }
+
       const pnl = position.side === 'LONG'
         ? (exitPrice - position.entryPrice) * quantity
         : (position.entryPrice - exitPrice) * quantity;
 
       this.logger.log(
         `  ✅ Position closed:\n` +
-        `  Exit Price: ${exitPrice}\n` +
+        `  Exit Price: ${exitPrice.toFixed(6)}\n` +
         `  PnL: ${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}`
       );
 

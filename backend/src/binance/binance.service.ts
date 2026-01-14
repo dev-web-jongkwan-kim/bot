@@ -1037,6 +1037,105 @@ export class BinanceService {
       return { canceled, failed };
     }
   }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ✅ Scalping Strategy APIs (Funding Rate, Open Interest, Book Ticker)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Premium Index (Funding Rate 포함) 조회
+   * GET /fapi/v1/premiumIndex
+   */
+  async getPremiumIndex(symbol?: string): Promise<any[]> {
+    return this.retryOperation(
+      async () => {
+        const params: Record<string, string> = {};
+        if (symbol) params.symbol = symbol;
+
+        const queryString = Object.entries(params)
+          .map(([key, value]) => `${key}=${value}`)
+          .join('&');
+
+        const url = `${this.baseUrl}/fapi/v1/premiumIndex${queryString ? '?' + queryString : ''}`;
+
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: { 'X-MBX-APIKEY': this.apiKey },
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.msg || `getPremiumIndex failed: ${res.status}`);
+        }
+
+        // 단일 심볼인 경우 배열로 감싸기
+        return Array.isArray(data) ? data : [data];
+      },
+      `getPremiumIndex(${symbol || 'all'})`,
+    );
+  }
+
+  /**
+   * Open Interest 조회
+   * GET /fapi/v1/openInterest
+   */
+  async getOpenInterest(symbol: string): Promise<any> {
+    return this.retryOperation(
+      async () => {
+        const url = `${this.baseUrl}/fapi/v1/openInterest?symbol=${symbol}`;
+
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: { 'X-MBX-APIKEY': this.apiKey },
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.msg || `getOpenInterest failed: ${res.status}`);
+        }
+
+        return data;
+      },
+      `getOpenInterest(${symbol})`,
+    );
+  }
+
+  /**
+   * Book Ticker (스프레드) 조회
+   * GET /fapi/v1/ticker/bookTicker
+   */
+  async getBookTickers(symbol?: string): Promise<any[]> {
+    return this.retryOperation(
+      async () => {
+        const params: Record<string, string> = {};
+        if (symbol) params.symbol = symbol;
+
+        const queryString = Object.entries(params)
+          .map(([key, value]) => `${key}=${value}`)
+          .join('&');
+
+        const url = `${this.baseUrl}/fapi/v1/ticker/bookTicker${queryString ? '?' + queryString : ''}`;
+
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: { 'X-MBX-APIKEY': this.apiKey },
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.msg || `getBookTickers failed: ${res.status}`);
+        }
+
+        // 단일 심볼인 경우 배열로 감싸기
+        return Array.isArray(data) ? data : [data];
+      },
+      `getBookTickers(${symbol || 'all'})`,
+    );
+  }
+
 }
 
 // ✅ Algo Order API 응답 타입 (Binance 공식 문서 기준)

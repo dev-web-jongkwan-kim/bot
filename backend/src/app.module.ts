@@ -15,6 +15,7 @@ import { ApiModule } from './api/api.module';
 import { SyncModule } from './sync/sync.module';
 import { SymbolSelectionModule } from './symbol-selection/symbol-selection.module';
 import { TradingControlModule } from './trading-control/trading-control.module';
+import { ScalpingModule } from './scalping/scalping.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Position } from './database/entities/position.entity';
@@ -59,6 +60,7 @@ import { Signal } from './database/entities/signal.entity';
     BacktestModule,
     ApiModule,
     SyncModule, // 포지션 동기화 모듈
+    ScalpingModule, // 스캘핑 전략 모듈
     TypeOrmModule.forFeature([Position, Signal]),
   ],
   controllers: [AppController],
