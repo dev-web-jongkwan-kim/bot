@@ -1,22 +1,31 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SCALPING_CONFIG } from '../constants/scalping.config';
-import { TrendDirection } from '../interfaces/signal.interface';
+import { CandleData } from '../interfaces';
 
+/**
+ * 추세 분석 결과
+ */
 export interface TrendResult {
-  direction: TrendDirection;
-  strength: number; // 0-1
+  /** 추세 방향 */
+  direction: 'UP' | 'DOWN' | 'NEUTRAL';
+  /** 추세 강도 (0-1) */
+  strength: number;
+  /** Higher Highs 여부 */
   higherHighs: boolean;
+  /** Higher Lows 여부 */
   higherLows: boolean;
+  /** Lower Highs 여부 */
   lowerHighs: boolean;
+  /** Lower Lows 여부 */
   lowerLows: boolean;
-  priceChange: number; // 가격 변화율
-  details: string; // 상세 설명
+  /** 분석에 사용된 봉 수 */
+  barsAnalyzed: number;
 }
 
 /**
  * 15분봉 추세 분석기
  *
- * 고저점 구조로 추세 판단:
+ * 고저점 구조로 추세 판단
  * - Higher Highs + Higher Lows = 상승 추세
  * - Lower Highs + Lower Lows = 하락 추세
  * - Mixed = 중립 (횡보)
@@ -28,41 +37,28 @@ export class TrendAnalyzer {
   /**
    * 추세 분석 메인 함수
    *
-   * @param candles - 15분봉 캔들 배열 (최소 4개)
-   * @param symbol - 심볼명 (로깅용)
+   * @param candles - 15분봉 캔들 배열 (오래된 것부터)
+   * @param symbol - 심볼 (로깅용)
    * @returns TrendResult - 추세 방향과 강도
    */
-  analyzeTrend(candles: any[], symbol: string = ''): TrendResult {
+  analyzeTrend(candles: CandleData[], symbol: string = ''): TrendResult {
     const barsToAnalyze = SCALPING_CONFIG.filter2.trendBars;
-    const prefix = symbol ? `[${symbol}]` : '';
 
-    this.logger.debug(
-      `${prefix} [TREND] ──────────────────────────────────────`,
-    );
-    this.logger.debug(
-      `${prefix} [TREND] 분석 시작 | 캔들 수: ${candles.length}, 필요: ${barsToAnalyze}`,
-    );
-
+    // 데이터 부족 체크
     if (candles.length < barsToAnalyze) {
-      this.logger.warn(
-        `${prefix} [TREND] ❌ 데이터 부족 (${candles.length}/${barsToAnalyze})`,
-      );
-      return this.neutralResult('데이터 부족');
+      if (SCALPING_CONFIG.logging.verbose && symbol) {
+        this.logger.debug(
+          `[TrendAnalyzer] ${symbol}: Insufficient data (${candles.length}/${barsToAnalyze} bars)`,
+        );
+      }
+      return this.neutralResult(candles.length);
     }
 
     const recentCandles = candles.slice(-barsToAnalyze);
 
     // 고점/저점 추출
-    const highs = recentCandles.map((c) => parseFloat(c[2])); // index 2 = high
-    const lows = recentCandles.map((c) => parseFloat(c[3])); // index 3 = low
-    const closes = recentCandles.map((c) => parseFloat(c[4])); // index 4 = close
-
-    this.logger.debug(
-      `${prefix} [TREND] 고점: [${highs.map((h) => h.toFixed(6)).join(', ')}]`,
-    );
-    this.logger.debug(
-      `${prefix} [TREND] 저점: [${lows.map((l) => l.toFixed(6)).join(', ')}]`,
-    );
+    const highs = recentCandles.map((c) => c.high);
+    const lows = recentCandles.map((c) => c.low);
 
     // 고저점 패턴 분석
     const higherHighs = this.isHigherHighs(highs);
@@ -70,138 +66,129 @@ export class TrendAnalyzer {
     const lowerHighs = this.isLowerHighs(highs);
     const lowerLows = this.isLowerLows(lows);
 
-    this.logger.debug(
-      `${prefix} [TREND] 패턴 분석 | HH: ${higherHighs}, HL: ${higherLows}, LH: ${lowerHighs}, LL: ${lowerLows}`,
-    );
-
-    // 가격 변화율 계산
-    const firstClose = closes[0];
-    const lastClose = closes[closes.length - 1];
-    const priceChange = (lastClose - firstClose) / firstClose;
-
     // 추세 판단
-    let direction: TrendDirection;
+    let direction: 'UP' | 'DOWN' | 'NEUTRAL';
     let strength: number;
-    let details: string;
 
     if (higherHighs && higherLows) {
       // 명확한 상승 추세
       direction = 'UP';
-      strength = this.calculateTrendStrength(candles, 'UP');
-      details = 'Higher Highs + Higher Lows = 명확한 상승추세';
-      this.logger.log(
-        `${prefix} [TREND] ✅ UP | ${details} | 강도: ${(strength * 100).toFixed(1)}%`,
-      );
+      strength = this.calculateTrendStrength(recentCandles, 'UP');
     } else if (lowerHighs && lowerLows) {
       // 명확한 하락 추세
       direction = 'DOWN';
-      strength = this.calculateTrendStrength(candles, 'DOWN');
-      details = 'Lower Highs + Lower Lows = 명확한 하락추세';
-      this.logger.log(
-        `${prefix} [TREND] ✅ DOWN | ${details} | 강도: ${(strength * 100).toFixed(1)}%`,
-      );
+      strength = this.calculateTrendStrength(recentCandles, 'DOWN');
     } else if (higherLows && !lowerHighs) {
       // 약한 상승 (저점만 높아짐)
       direction = 'UP';
       strength = 0.5;
-      details = 'Higher Lows (저점 상승) = 약한 상승추세';
-      this.logger.log(
-        `${prefix} [TREND] ⚡ WEAK UP | ${details} | 강도: 50%`,
-      );
     } else if (lowerHighs && !higherLows) {
       // 약한 하락 (고점만 낮아짐)
       direction = 'DOWN';
       strength = 0.5;
-      details = 'Lower Highs (고점 하락) = 약한 하락추세';
-      this.logger.log(
-        `${prefix} [TREND] ⚡ WEAK DOWN | ${details} | 강도: 50%`,
-      );
     } else {
       // 횡보
       direction = 'NEUTRAL';
       strength = 0;
-      details = '혼합 패턴 = 횡보/중립';
-      this.logger.debug(`${prefix} [TREND] ⏸️ NEUTRAL | ${details}`);
     }
 
-    this.logger.debug(
-      `${prefix} [TREND] 가격 변화: ${(priceChange * 100).toFixed(3)}%`,
-    );
-    this.logger.debug(
-      `${prefix} [TREND] ──────────────────────────────────────`,
-    );
-
-    return {
+    const result: TrendResult = {
       direction,
       strength,
       higherHighs,
       higherLows,
       lowerHighs,
       lowerLows,
-      priceChange,
-      details,
+      barsAnalyzed: barsToAnalyze,
     };
+
+    // 로깅
+    if (SCALPING_CONFIG.logging.verbose && symbol) {
+      this.logger.debug(
+        `[TrendAnalyzer] ${symbol}: Analyzing ${barsToAnalyze} bars...`,
+      );
+      this.logger.debug(
+        `[TrendAnalyzer] ${symbol}: HH=${higherHighs}, HL=${higherLows}, LH=${lowerHighs}, LL=${lowerLows}`,
+      );
+      this.logger.debug(
+        `[TrendAnalyzer] ${symbol}: Direction=${direction}, Strength=${strength.toFixed(2)}`,
+      );
+    }
+
+    return result;
   }
 
   /**
-   * Higher Highs 체크
-   * 연속적으로 고점이 높아지는지 확인
+   * Higher Highs 체크 (과반수 패턴)
+   *
+   * 4개 봉 중 3개 이상이 이전보다 높으면 true
+   * → 3번 비교 중 2번 이상 일치 (66%)
    */
   private isHigherHighs(highs: number[]): boolean {
+    let count = 0;
+    const total = highs.length - 1;
     for (let i = 1; i < highs.length; i++) {
-      if (highs[i] <= highs[i - 1]) {
-        return false;
+      if (highs[i] > highs[i - 1]) {
+        count++;
       }
     }
-    return true;
+    // 4개 봉 → 3번 비교 → 2번 이상 일치 (ceil(3 * 0.5) = 2)
+    return count >= Math.ceil(total * 0.5);
   }
 
   /**
-   * Higher Lows 체크
+   * Higher Lows 체크 (과반수 패턴)
    */
   private isHigherLows(lows: number[]): boolean {
+    let count = 0;
+    const total = lows.length - 1;
     for (let i = 1; i < lows.length; i++) {
-      if (lows[i] <= lows[i - 1]) {
-        return false;
+      if (lows[i] > lows[i - 1]) {
+        count++;
       }
     }
-    return true;
+    return count >= Math.ceil(total * 0.5);
   }
 
   /**
-   * Lower Highs 체크
+   * Lower Highs 체크 (과반수 패턴)
    */
   private isLowerHighs(highs: number[]): boolean {
+    let count = 0;
+    const total = highs.length - 1;
     for (let i = 1; i < highs.length; i++) {
-      if (highs[i] >= highs[i - 1]) {
-        return false;
+      if (highs[i] < highs[i - 1]) {
+        count++;
       }
     }
-    return true;
+    return count >= Math.ceil(total * 0.5);
   }
 
   /**
-   * Lower Lows 체크
+   * Lower Lows 체크 (과반수 패턴)
    */
   private isLowerLows(lows: number[]): boolean {
+    let count = 0;
+    const total = lows.length - 1;
     for (let i = 1; i < lows.length; i++) {
-      if (lows[i] >= lows[i - 1]) {
-        return false;
+      if (lows[i] < lows[i - 1]) {
+        count++;
       }
     }
-    return true;
+    return count >= Math.ceil(total * 0.5);
   }
 
   /**
    * 추세 강도 계산
+   *
    * 가격 변화율 기반
    */
   private calculateTrendStrength(
-    candles: any[],
+    candles: CandleData[],
     direction: 'UP' | 'DOWN',
   ): number {
-    const firstClose = parseFloat(candles[0][4]);
-    const lastClose = parseFloat(candles[candles.length - 1][4]);
+    const firstClose = candles[0].close;
+    const lastClose = candles[candles.length - 1].close;
 
     const changePercent = Math.abs((lastClose - firstClose) / firstClose);
 
@@ -209,7 +196,10 @@ export class TrendAnalyzer {
     return Math.min(changePercent * 100, 1);
   }
 
-  private neutralResult(reason: string): TrendResult {
+  /**
+   * 중립 결과 반환
+   */
+  private neutralResult(barsAnalyzed: number): TrendResult {
     return {
       direction: 'NEUTRAL',
       strength: 0,
@@ -217,8 +207,7 @@ export class TrendAnalyzer {
       higherLows: false,
       lowerHighs: false,
       lowerLows: false,
-      priceChange: 0,
-      details: reason,
+      barsAnalyzed,
     };
   }
 }

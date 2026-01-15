@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { BinanceService } from '../binance/binance.service';
+import { OkxService } from '../okx/okx.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -90,7 +90,7 @@ export class SymbolSectorService implements OnModuleInit {
     },
   };
 
-  constructor(private binanceService: BinanceService) {}
+  constructor(private okxService: OkxService) {}
 
   async onModuleInit() {
     // 데이터 디렉토리 생성
@@ -156,18 +156,21 @@ export class SymbolSectorService implements OnModuleInit {
    * underlyingSubType 필드를 사용한 공식 분류
    */
   async updateSectorData() {
-    this.logger.log('Updating sector data from Binance (official classification)...');
+    this.logger.log('Updating sector data from OKX...');
 
     try {
-      const exchangeInfo = await this.binanceService.getExchangeInfo();
+      const instruments = await this.okxService.getExchangeInfo();
 
-      // USDT 선물만 필터링
-      const usdtSymbols = exchangeInfo.symbols
-        .filter((s: any) =>
-          s.symbol.endsWith('USDT') &&
-          s.status === 'TRADING' &&
-          s.contractType === 'PERPETUAL'
-        );
+      // OKX returns array directly, not { symbols: [...] }
+      // Map to compatible format and filter USDT swaps
+      const usdtSymbols = instruments
+        .filter((inst: any) => inst.instId.includes('-USDT-SWAP'))
+        .map((inst: any) => ({
+          symbol: inst.instId.replace('-USDT-SWAP', 'USDT'),
+          baseAsset: inst.instId.split('-')[0],
+          status: inst.state === 'live' ? 'TRADING' : inst.state,
+          contractType: 'PERPETUAL',
+        }));
 
       const symbols: SymbolSectorData[] = [];
       const sectorCounts: Record<string, number> = {};

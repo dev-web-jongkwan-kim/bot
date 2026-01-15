@@ -1,5 +1,5 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import { BinanceService } from '../binance/binance.service';
+import { OkxService } from '../okx/okx.service';
 import Redis from 'ioredis';
 
 export interface SelectedSymbol {
@@ -21,14 +21,14 @@ export class SymbolSelectionService {
   private readonly CACHE_TTL = 86400; // 24 hours
 
   constructor(
-    private binanceService: BinanceService,
+    private okxService: OkxService,
     @Inject('REDIS_CLIENT') private redis: Redis,
   ) {}
 
   /**
    * 거래량 기준 상위 N개 종목 선택
    */
-  async selectTopSymbols(count: number = 80): Promise<string[]> {
+  async selectTopSymbols(count: number = 50): Promise<string[]> {
     this.logger.log(`Selecting top ${count} symbols by 24h volume...`);
 
     try {
@@ -90,23 +90,31 @@ export class SymbolSelectionService {
   }
 
   /**
-   * 모든 영구 USDT 선물 종목 가져오기
+   * 모든 영구 USDT 선물 종목 가져오기 (OKX 형식)
    */
   private async getAllPerpetualSymbols(): Promise<any[]> {
-    const exchangeInfo = await this.binanceService.getExchangeInfo();
+    const instruments = await this.okxService.getExchangeInfo();
 
-    return (exchangeInfo.symbols as any[]).filter((s: any) =>
-      s.contractType === 'PERPETUAL' &&
-      s.quoteAsset === 'USDT' &&
-      s.status === 'TRADING'
-    );
+    // OKX returns array of instruments with instId like "BTC-USDT-SWAP"
+    // Map to Binance-compatible format
+    return instruments.map((inst: any) => ({
+      symbol: inst.instId.replace('-USDT-SWAP', 'USDT'),  // BTC-USDT-SWAP -> BTCUSDT
+      contractType: 'PERPETUAL',
+      quoteAsset: 'USDT',
+      status: inst.state === 'live' ? 'TRADING' : inst.state,
+      // Keep original OKX data
+      instId: inst.instId,
+      tickSz: inst.tickSz,
+      lotSz: inst.lotSz,
+      minSz: inst.minSz,
+    }));
   }
 
   /**
    * 모든 종목의 24시간 통계 가져오기
    */
   private async getAll24hTickers(): Promise<any[]> {
-    const result = await this.binanceService.getAll24hTickers();
+    const result = await this.okxService.getAll24hTickers();
     // Ensure we always return an array
     return Array.isArray(result) ? result : [result];
   }
@@ -198,7 +206,7 @@ export class SymbolSelectionService {
   private getDefaultSymbols(): string[] {
     return [
       'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT',
-      'ADAUSDT', 'DOGEUSDT', 'DOTUSDT', 'MATICUSDT', 'AVAXUSDT',
+      'ADAUSDT', 'DOGEUSDT', 'DOTUSDT', 'POLUSDT', 'AVAXUSDT',  // MATIC → POL (OKX)
       'LINKUSDT', 'LTCUSDT', 'ATOMUSDT', 'UNIUSDT', 'ETCUSDT',
       'FILUSDT', 'APTUSDT', 'ARBUSDT', 'OPUSDT', 'NEARUSDT',
     ];
@@ -230,7 +238,7 @@ export class SymbolSelectionService {
    * 하이브리드 선택: 코어 + 동적
    * Top 5는 항상 포함, 나머지는 거래량 순
    */
-  async selectHybridSymbols(totalCount: number = 80): Promise<string[]> {
+  async selectHybridSymbols(totalCount: number = 50): Promise<string[]> {
     const CORE_SYMBOLS = [
       'BTCUSDT',
       'ETHUSDT',
@@ -239,7 +247,7 @@ export class SymbolSelectionService {
       'XRPUSDT',
     ];
 
-    this.logger.log('Hybrid selection: Core 5 + Dynamic 75');
+    this.logger.log(`Hybrid selection: Core 5 + Dynamic ${Math.max(totalCount - CORE_SYMBOLS.length, 0)}`);
 
     // 모든 종목 선택
     const allSelected = await this.selectTopSymbols(totalCount + 10);

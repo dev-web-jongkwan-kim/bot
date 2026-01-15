@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
-import { BinanceModule } from './binance/binance.module';
+import { OkxModule } from './okx/okx.module';
 import { StrategiesModule } from './strategies/strategies.module';
 import { SignalModule } from './signal/signal.module';
 import { RiskModule } from './risk/risk.module';
@@ -50,7 +50,7 @@ import { Signal } from './database/entities/signal.entity';
     DatabaseModule,
     CacheModule,
     TradingControlModule,  // ✅ 매매 시작/종료 제어 (Global)
-    BinanceModule,
+    OkxModule,
     WebSocketModule,
     SymbolSelectionModule, // 동적 종목 선택 모듈
     StrategiesModule,

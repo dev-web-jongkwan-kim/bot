@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleInit, Inject, forwardRef } from '@nestjs/co
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { BinanceService } from '../binance/binance.service';
+import { OkxService } from '../okx/okx.service';
 import { Position } from '../database/entities/position.entity';
 import { AppWebSocketGateway } from '../websocket/websocket.gateway';
 import { Signal } from '../database/entities/signal.entity';
@@ -12,7 +12,7 @@ import { Signal } from '../database/entities/signal.entity';
  */
 export interface PendingLimitOrder {
   symbol: string;
-  orderId: number;
+  orderId: string;  // OKX uses string orderId
   side: 'LONG' | 'SHORT';
   quantity: number;
   price: number;
@@ -53,7 +53,7 @@ export class OrderMonitorService implements OnModuleInit {
   private readonly MONITOR_INTERVAL = 2000;
 
   constructor(
-    private binanceService: BinanceService,
+    private okxService: OkxService,
     @InjectRepository(Position)
     private positionRepo: Repository<Position>,
     @InjectRepository(Signal)
@@ -157,7 +157,7 @@ export class OrderMonitorService implements OnModuleInit {
     for (const [symbol, pending] of this.pendingOrders) {
       try {
         // 1. 주문 상태 확인
-        const orderStatus = await this.binanceService.queryOrder(symbol, pending.orderId);
+        const orderStatus = await this.okxService.queryOrder(symbol, pending.orderId);
 
         // ═══════════════════════════════════════════════════════════
         // CASE 1: 체결됨
@@ -206,7 +206,7 @@ export class OrderMonitorService implements OnModuleInit {
 
           // OB 이탈 체크
           if (pending.obTop && pending.obBottom) {
-            const currentPrice = await this.binanceService.getSymbolPrice(symbol);
+            const currentPrice = await this.okxService.getSymbolPrice(symbol);
             const buffer = (pending.obTop - pending.obBottom) * 0.5;
 
             const isOutOfZone = pending.side === 'LONG'
@@ -288,7 +288,7 @@ export class OrderMonitorService implements OnModuleInit {
       while (!slOrder && slRetryCount <= this.MAX_SLTP_RETRIES) {
         try {
           // 포지션 존재 확인 (closePosition 사용 전 필수)
-          const positions = await this.binanceService.getOpenPositions();
+          const positions = await this.okxService.getOpenPositions();
           const position = positions.find((p: any) => p.symbol === symbol);
           const positionAmt = position ? Math.abs(parseFloat(position.positionAmt)) : 0;
 
@@ -304,22 +304,22 @@ export class OrderMonitorService implements OnModuleInit {
           // 기존 algo order 정리
           if (slRetryCount === 0) {
             try {
-              const existingAlgoOrders = await this.binanceService.getOpenAlgoOrders(symbol);
+              const existingAlgoOrders = await this.okxService.getOpenAlgoOrders(symbol);
               const conflicting = existingAlgoOrders.filter(o =>
                 (o.type === 'STOP_MARKET' || o.type === 'TAKE_PROFIT_MARKET') &&
-                (o.closePosition === true || o.closePosition === 'true')
+                o.closePosition === true
               );
               for (const order of conflicting) {
-                await this.binanceService.cancelAlgoOrder(symbol, order.algoId);
+                await this.okxService.cancelAlgoOrder(symbol, order.algoId);
               }
             } catch (cleanupError) {
               this.logger.warn(`[MONITOR] Cleanup error: ${cleanupError.message}`);
             }
           }
 
-          const formattedSL = parseFloat(this.binanceService.formatPrice(symbol, actualStopLoss));
+          const formattedSL = parseFloat(this.okxService.formatPrice(symbol, actualStopLoss));
 
-          slOrder = await this.binanceService.createAlgoOrder({
+          slOrder = await this.okxService.createAlgoOrder({
             symbol,
             side: signal.side === 'LONG' ? 'SELL' : 'BUY',
             type: 'STOP_MARKET',
@@ -372,11 +372,11 @@ export class OrderMonitorService implements OnModuleInit {
         // 단일 TP (전체 포지션)
         const totalNotional = executedQty * entryPrice;
         if (totalNotional >= MIN_TP_NOTIONAL) {
-          const formattedTP = parseFloat(this.binanceService.formatPrice(symbol, actualTP1));
-          const formattedQty = parseFloat(this.binanceService.formatQuantity(symbol, executedQty));
+          const formattedTP = parseFloat(this.okxService.formatPrice(symbol, actualTP1));
+          const formattedQty = parseFloat(this.okxService.formatQuantity(symbol, executedQty));
 
           try {
-            const tpOrder = await this.binanceService.createAlgoOrder({
+            const tpOrder = await this.okxService.createAlgoOrder({
               symbol,
               side: signal.side === 'LONG' ? 'SELL' : 'BUY',
               type: 'TAKE_PROFIT_MARKET',
@@ -391,13 +391,13 @@ export class OrderMonitorService implements OnModuleInit {
         }
       } else {
         // 분할 TP (TP1 + TP2)
-        const formattedTp1Qty = parseFloat(this.binanceService.formatQuantity(symbol, tp1Qty));
-        const formattedTp2Qty = parseFloat(this.binanceService.formatQuantity(symbol, tp2Qty));
+        const formattedTp1Qty = parseFloat(this.okxService.formatQuantity(symbol, tp1Qty));
+        const formattedTp2Qty = parseFloat(this.okxService.formatQuantity(symbol, tp2Qty));
 
         // TP1
         try {
-          const formattedTP1 = parseFloat(this.binanceService.formatPrice(symbol, actualTP1));
-          const tp1Order = await this.binanceService.createAlgoOrder({
+          const formattedTP1 = parseFloat(this.okxService.formatPrice(symbol, actualTP1));
+          const tp1Order = await this.okxService.createAlgoOrder({
             symbol,
             side: signal.side === 'LONG' ? 'SELL' : 'BUY',
             type: 'TAKE_PROFIT_MARKET',
@@ -412,8 +412,8 @@ export class OrderMonitorService implements OnModuleInit {
 
         // TP2
         try {
-          const formattedTP2 = parseFloat(this.binanceService.formatPrice(symbol, actualTP2));
-          const tp2Order = await this.binanceService.createAlgoOrder({
+          const formattedTP2 = parseFloat(this.okxService.formatPrice(symbol, actualTP2));
+          const tp2Order = await this.okxService.createAlgoOrder({
             symbol,
             side: signal.side === 'LONG' ? 'SELL' : 'BUY',
             type: 'TAKE_PROFIT_MARKET',
@@ -534,14 +534,14 @@ export class OrderMonitorService implements OnModuleInit {
    */
   private async cancelOrder(pending: PendingLimitOrder, reason: string): Promise<void> {
     try {
-      await this.binanceService.cancelOrder(pending.symbol, pending.orderId);
+      await this.okxService.cancelOrder(pending.symbol, pending.orderId);
       this.logger.log(`[MONITOR] Order canceled: ${pending.symbol} - ${reason}`);
     } catch (cancelError: any) {
       this.logger.warn(`[MONITOR] Cancel failed: ${cancelError.message}`);
 
       // 취소 실패 시 주문 상태 재확인
       try {
-        const finalStatus = await this.binanceService.queryOrder(pending.symbol, pending.orderId);
+        const finalStatus = await this.okxService.queryOrder(pending.symbol, pending.orderId);
         if (finalStatus.status === 'FILLED') {
           // 취소 직전에 체결된 경우
           const entryPrice = parseFloat(finalStatus.avgPrice || finalStatus.price);
@@ -570,7 +570,7 @@ export class OrderMonitorService implements OnModuleInit {
     );
 
     try {
-      const closeOrder = await this.binanceService.createOrder({
+      const closeOrder = await this.okxService.createOrder({
         symbol,
         side: side === 'LONG' ? 'SELL' : 'BUY',
         type: 'MARKET',
@@ -594,11 +594,11 @@ export class OrderMonitorService implements OnModuleInit {
 
     try {
       // 1. 바이낸스의 모든 오픈 LIMIT 주문 조회
-      const binanceOrders = await this.binanceService.getAllOpenOrders();
+      const binanceOrders = await this.okxService.getAllOpenOrders();
       const limitOrders = binanceOrders.filter((o: any) => o.type === 'LIMIT');
 
       // 2. 현재 오픈 포지션 조회
-      const binancePositions = await this.binanceService.getOpenPositions();
+      const binancePositions = await this.okxService.getOpenPositions();
       const activeSymbols = new Set(
         binancePositions
           .filter((p: any) => Math.abs(parseFloat(p.positionAmt)) > 0)

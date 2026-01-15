@@ -8,7 +8,7 @@ import { RiskModule } from '../risk/risk.module';
 import { OrderModule } from '../order/order.module';
 import { WebSocketModule } from '../websocket/websocket.module';
 import { StrategiesModule } from '../strategies/strategies.module';
-import { BinanceModule } from '../binance/binance.module';
+import { OkxModule } from '../okx/okx.module';
 import { SymbolSelectionModule } from '../symbol-selection/symbol-selection.module';
 
 @Module({
@@ -18,7 +18,7 @@ import { SymbolSelectionModule } from '../symbol-selection/symbol-selection.modu
     OrderModule,
     forwardRef(() => WebSocketModule),
     StrategiesModule,  // Import strategies
-    BinanceModule,     // For historical candles
+    OkxModule,         // For historical candles (OKX)
     SymbolSelectionModule, // For selected symbols
   ],
   providers: [SignalProcessorService, StrategyRunnerService],

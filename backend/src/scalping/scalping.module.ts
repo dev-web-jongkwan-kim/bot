@@ -1,53 +1,75 @@
 import { Module } from '@nestjs/common';
-import { BinanceModule } from '../binance/binance.module';
-import { CacheModule } from '../cache/cache.module';
-import { OrderModule } from '../order/order.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+// Entities
+import { Signal } from '../database/entities/signal.entity';
+import { Position } from '../database/entities/position.entity';
 
 // Services
 import { ScalpingDataService } from './services/scalping-data.service';
 import { ScalpingSignalService } from './services/scalping-signal.service';
-import { ScalpingPositionService } from './services/scalping-position.service';
 import { ScalpingOrderService } from './services/scalping-order.service';
+import { ScalpingPositionService } from './services/scalping-position.service';
 
-// Analyzers
+// Strategies (Analyzers)
 import { TrendAnalyzer } from './strategies/trend-analyzer';
 import { MomentumAnalyzer } from './strategies/momentum-analyzer';
+
+// Dependencies
+import { OkxModule } from '../okx/okx.module';
+import { CacheModule } from '../cache/cache.module';
+import { WebSocketModule } from '../websocket/websocket.module';
+import { DatabaseModule } from '../database/database.module';
+import { SymbolSelectionModule } from '../symbol-selection/symbol-selection.module';
 
 /**
  * 스캘핑 전략 모듈
  *
- * 30분 이내 빠른 매매를 목표로 하는 스캘핑 전략
+ * 30분 이내 청산 초단타 스캘핑 전략
  *
- * 구성:
- * - ScalpingDataService: Funding Rate, OI, Spread 수집
- * - ScalpingSignalService: 다단계 필터링으로 시그널 생성
- * - ScalpingPositionService: 활성 포지션 관리
+ * 구성요소:
+ * - ScalpingDataService: 마켓 데이터 수집 (Funding, OI, Spread)
+ * - ScalpingSignalService: 시그널 생성 (6단계 필터)
  * - ScalpingOrderService: 주문 실행 및 포지션 관리
+ * - ScalpingPositionService: 포지션 상태 관리
  * - TrendAnalyzer: 15분봉 추세 분석
  * - MomentumAnalyzer: 5분봉 모멘텀 분석
  */
 @Module({
   imports: [
-    BinanceModule,
+    ScheduleModule.forRoot(),
+    ConfigModule,
     CacheModule,
-    OrderModule,
+    OkxModule,
+    WebSocketModule,
+    DatabaseModule,
+    SymbolSelectionModule,
+    TypeOrmModule.forFeature([Signal, Position]),
   ],
   providers: [
-    // Analyzers (먼저 등록)
+    // 데이터 서비스
+    ScalpingDataService,
+
+    // 분석기
     TrendAnalyzer,
     MomentumAnalyzer,
 
-    // Services
-    ScalpingDataService,
+    // 시그널 서비스
     ScalpingSignalService,
+
+    // 포지션 서비스
     ScalpingPositionService,
+
+    // 주문 서비스
     ScalpingOrderService,
   ],
   exports: [
     ScalpingDataService,
     ScalpingSignalService,
-    ScalpingPositionService,
     ScalpingOrderService,
+    ScalpingPositionService,
   ],
 })
 export class ScalpingModule {}

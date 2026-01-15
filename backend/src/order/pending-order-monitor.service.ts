@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { BinanceService } from '../binance/binance.service';
+import { OkxService } from '../okx/okx.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Position } from '../database/entities/position.entity';
@@ -16,7 +16,7 @@ import { Signal } from '../database/entities/signal.entity';
  */
 
 interface PendingOrder {
-  orderId: number;
+  orderId: string;  // OKX uses string orderId
   symbol: string;
   side: 'LONG' | 'SHORT';
   limitPrice: number;
@@ -43,7 +43,7 @@ export class PendingOrderMonitorService implements OnModuleInit {
   private readonly CHECK_INTERVAL = 2000; // 2초마다 체크
 
   constructor(
-    private readonly binanceService: BinanceService,
+    private readonly okxService: OkxService,
     @InjectRepository(Position)
     private readonly positionRepo: Repository<Position>,
     @InjectRepository(Signal)
@@ -162,7 +162,7 @@ export class PendingOrderMonitorService implements OnModuleInit {
     // 1. 주문 상태 확인
     let orderStatus;
     try {
-      orderStatus = await this.binanceService.queryOrder(order.symbol, order.orderId);
+      orderStatus = await this.okxService.queryOrder(order.symbol, order.orderId);
     } catch (error) {
       this.logger.warn(`[MONITOR] Failed to query order ${order.symbol}: ${error.message}`);
       return { shouldRemove: false };
@@ -198,7 +198,7 @@ export class PendingOrderMonitorService implements OnModuleInit {
 
     // 5. OB 영역 이탈 체크
     try {
-      const currentPrice = await this.binanceService.getSymbolPrice(order.symbol);
+      const currentPrice = await this.okxService.getSymbolPrice(order.symbol);
       const buffer = (order.obTop - order.obBottom) * 0.5;
 
       const isOutOfZone = order.side === 'LONG'
@@ -234,11 +234,11 @@ export class PendingOrderMonitorService implements OnModuleInit {
    */
   private async cancelOrder(order: PendingOrder, reason: string): Promise<void> {
     try {
-      await this.binanceService.cancelOrder(order.symbol, order.orderId);
+      await this.okxService.cancelOrder(order.symbol, order.orderId);
       this.logger.log(`[MONITOR] ❌ Canceled ${order.symbol} order #${order.orderId} (${reason})`);
     } catch (error) {
       // 이미 체결되었을 수 있음 - 재확인
-      const finalStatus = await this.binanceService.queryOrder(order.symbol, order.orderId);
+      const finalStatus = await this.okxService.queryOrder(order.symbol, order.orderId);
       if (finalStatus.status === 'FILLED') {
         const entryPrice = parseFloat(finalStatus.avgPrice || finalStatus.price);
         const executedQty = parseFloat(finalStatus.executedQty);
@@ -263,22 +263,38 @@ export class PendingOrderMonitorService implements OnModuleInit {
     try {
       // ═══════════════════════════════════════════════════════════════════
       // SL/TP 슬리피지 보정 (백테스트와 동일)
+      // ✅ 주문 방향 반전에 따른 SL/TP 반전 적용
+      // - LONG 신호 → SHORT 포지션: SL은 위쪽, TP는 아래쪽
+      // - SHORT 신호 → LONG 포지션: SL은 아래쪽, TP는 위쪽
       // ═══════════════════════════════════════════════════════════════════
       const TP1_RATIO = 1.2;
       const TP2_RATIO = 4.0;
 
       const plannedEntry = signal.entryPrice;
       const entrySlippageAmount = entryPrice - plannedEntry;
-      const actualStopLoss = signal.stopLoss + entrySlippageAmount;
+
+      // 원래 리스크 거리 계산
+      const originalRisk = Math.abs(signal.entryPrice - signal.stopLoss);
+
+      // ✅ 반전된 SL 계산 (슬리피지 보정 포함)
+      // LONG 신호 → SHORT 포지션: SL은 entry 위쪽
+      // SHORT 신호 → LONG 포지션: SL은 entry 아래쪽
+      const actualStopLoss = signal.side === 'LONG'
+        ? entryPrice + originalRisk + entrySlippageAmount  // SHORT 포지션: SL 위쪽
+        : entryPrice - originalRisk + entrySlippageAmount; // LONG 포지션: SL 아래쪽
+
       const actualRisk = Math.abs(entryPrice - actualStopLoss);
 
+      // ✅ 반전된 TP 계산
+      // LONG 신호 → SHORT 포지션: TP는 entry 아래쪽 (가격 하락 = 이익)
+      // SHORT 신호 → LONG 포지션: TP는 entry 위쪽 (가격 상승 = 이익)
       const actualTP1 = signal.side === 'LONG'
-        ? entryPrice + (actualRisk * TP1_RATIO)
-        : entryPrice - (actualRisk * TP1_RATIO);
+        ? entryPrice - (actualRisk * TP1_RATIO)  // SHORT 포지션: TP 아래쪽
+        : entryPrice + (actualRisk * TP1_RATIO); // LONG 포지션: TP 위쪽
 
       const actualTP2 = signal.side === 'LONG'
-        ? entryPrice + (actualRisk * TP2_RATIO)
-        : entryPrice - (actualRisk * TP2_RATIO);
+        ? entryPrice - (actualRisk * TP2_RATIO)  // SHORT 포지션: TP 아래쪽
+        : entryPrice + (actualRisk * TP2_RATIO); // LONG 포지션: TP 위쪽
 
       this.logger.log(
         `\n🔄 [MONITOR] SL/TP Calculation for ${order.symbol}:\n` +
@@ -291,18 +307,18 @@ export class PendingOrderMonitorService implements OnModuleInit {
       // ═══════════════════════════════════════════════════════════════════
       // SL 주문 생성 (Algo Order)
       // ═══════════════════════════════════════════════════════════════════
-      const formattedSL = parseFloat(this.binanceService.formatPrice(order.symbol, actualStopLoss));
+      const formattedSL = parseFloat(this.okxService.formatPrice(order.symbol, actualStopLoss));
 
       // 기존 algo order 정리
       try {
-        const existingAlgoOrders = await this.binanceService.getOpenAlgoOrders(order.symbol);
+        const existingAlgoOrders = await this.okxService.getOpenAlgoOrders(order.symbol);
         const conflictingOrders = existingAlgoOrders.filter(o =>
           (o.type === 'STOP_MARKET' || o.type === 'TAKE_PROFIT_MARKET') &&
-          (o.closePosition === true || o.closePosition === 'true')
+          o.closePosition === true
         );
 
         for (const o of conflictingOrders) {
-          await this.binanceService.cancelAlgoOrder(order.symbol, o.algoId);
+          await this.okxService.cancelAlgoOrder(order.symbol, o.algoId);
         }
       } catch (e) {
         this.logger.warn(`[MONITOR] Failed to clear existing algo orders: ${e.message}`);
@@ -310,9 +326,12 @@ export class PendingOrderMonitorService implements OnModuleInit {
 
       let slOrder;
       try {
-        slOrder = await this.binanceService.createAlgoOrder({
+        // ✅ 반전된 포지션 청산 방향
+        // LONG 신호 → SHORT 포지션: BUY로 청산
+        // SHORT 신호 → LONG 포지션: SELL로 청산
+        slOrder = await this.okxService.createAlgoOrder({
           symbol: order.symbol,
-          side: order.side === 'LONG' ? 'SELL' : 'BUY',
+          side: order.side === 'LONG' ? 'BUY' : 'SELL',
           type: 'STOP_MARKET',
           triggerPrice: formattedSL,
           closePosition: true,
@@ -336,15 +355,18 @@ export class PendingOrderMonitorService implements OnModuleInit {
       const tp1Notional = tp1Qty * entryPrice;
 
       if (tp1Notional >= MIN_TP_NOTIONAL) {
-        const formattedTP1 = parseFloat(this.binanceService.formatPrice(order.symbol, actualTP1));
-        const formattedQty = parseFloat(this.binanceService.formatQuantity(order.symbol,
+        const formattedTP1 = parseFloat(this.okxService.formatPrice(order.symbol, actualTP1));
+        const formattedQty = parseFloat(this.okxService.formatQuantity(order.symbol,
           signal.tp1Percent === 100 ? executedQty : tp1Qty
         ));
 
         try {
-          const tpOrder = await this.binanceService.createAlgoOrder({
+          // ✅ 반전된 포지션 청산 방향
+          // LONG 신호 → SHORT 포지션: BUY로 청산
+          // SHORT 신호 → LONG 포지션: SELL로 청산
+          const tpOrder = await this.okxService.createAlgoOrder({
             symbol: order.symbol,
-            side: order.side === 'LONG' ? 'SELL' : 'BUY',
+            side: order.side === 'LONG' ? 'BUY' : 'SELL',
             type: 'TAKE_PROFIT_MARKET',
             triggerPrice: formattedTP1,
             quantity: formattedQty,
@@ -424,9 +446,12 @@ export class PendingOrderMonitorService implements OnModuleInit {
    */
   private async emergencyClose(order: PendingOrder, quantity: number): Promise<void> {
     try {
-      await this.binanceService.createOrder({
+      // ✅ 반전된 포지션 청산 방향
+      // LONG 신호 → SHORT 포지션: BUY로 청산
+      // SHORT 신호 → LONG 포지션: SELL로 청산
+      await this.okxService.createOrder({
         symbol: order.symbol,
-        side: order.side === 'LONG' ? 'SELL' : 'BUY',
+        side: order.side === 'LONG' ? 'BUY' : 'SELL',
         type: 'MARKET',
         quantity: quantity,
       });

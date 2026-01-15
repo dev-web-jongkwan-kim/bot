@@ -1,16 +1,13 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BinanceService } from '../binance/binance.service';
+import { OkxService } from '../okx/okx.service';
 import { Position } from '../database/entities/position.entity';
 import { OrderMonitorService, PendingLimitOrder } from './order-monitor.service';
 
 @Injectable()
 export class OrderService {
   private readonly logger = new Logger(OrderService.name);
-
-  // ✅ 리버스 트레이딩 모드 (환경변수에서 읽음)
-  private readonly REVERSE_TRADING = process.env.REVERSE_TRADING === 'true';
 
   // ✅ 중복 포지션 방지: 현재 처리 중인 심볼 추적
   // PositionSyncService에서 확인하여 MANUAL 포지션 중복 생성 방지
@@ -30,7 +27,7 @@ export class OrderService {
   };
 
   constructor(
-    private binanceService: BinanceService,
+    private okxService: OkxService,
     @InjectRepository(Position)
     private positionRepo: Repository<Position>,
     @Inject(forwardRef(() => OrderMonitorService))
@@ -38,68 +35,6 @@ export class OrderService {
   ) {
     // 1시간마다 통계 로깅
     setInterval(() => this.logOrderStats(), 60 * 60 * 1000);
-
-    // 리버스 트레이딩 모드 로깅
-    if (this.REVERSE_TRADING) {
-      this.logger.warn(`\n🔄🔄🔄 REVERSE TRADING MODE ENABLED 🔄🔄🔄\n  All signals will be executed in OPPOSITE direction!`);
-    }
-  }
-
-  /**
-   * ✅ 리버스 트레이딩: 시그널 방향 및 SL/TP 반전
-   * - LONG → SHORT, SHORT → LONG
-   * - SL ↔ TP 교환
-   */
-  private applyReverseTrading(signal: any): any {
-    if (!this.REVERSE_TRADING) {
-      return signal;
-    }
-
-    const originalSide = signal.side;
-    const originalSL = signal.stopLoss;
-    const originalTP1 = signal.takeProfit1;
-    const originalTP2 = signal.takeProfit2;
-
-    // 방향 반전
-    const reversedSide = originalSide === 'LONG' ? 'SHORT' : 'LONG';
-
-    // SL ↔ TP 교환 (리버스 시 원래 TP가 새 SL, 원래 SL이 새 TP)
-    const reversedSL = originalTP1;  // 원래 TP1 → 새 SL
-    const reversedTP1 = originalSL;  // 원래 SL → 새 TP1
-    const reversedTP2 = originalSL;  // TP2도 원래 SL 방향으로
-
-    this.logger.log(
-      `\n🔄 [REVERSE TRADING] Signal reversed!\n` +
-      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `  Symbol:     ${signal.symbol}\n` +
-      `  ┌─────────────────────────────────────────────────\n` +
-      `  │ Original Signal:\n` +
-      `  │   Side:  ${originalSide}\n` +
-      `  │   SL:    ${originalSL?.toFixed(4)}\n` +
-      `  │   TP1:   ${originalTP1?.toFixed(4)}\n` +
-      `  ├─────────────────────────────────────────────────\n` +
-      `  │ Reversed Signal:\n` +
-      `  │   Side:  ${reversedSide}\n` +
-      `  │   SL:    ${reversedSL?.toFixed(4)} (was TP1)\n` +
-      `  │   TP1:   ${reversedTP1?.toFixed(4)} (was SL)\n` +
-      `  └─────────────────────────────────────────────────\n` +
-      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`
-    );
-
-    return {
-      ...signal,
-      side: reversedSide,
-      stopLoss: reversedSL,
-      takeProfit1: reversedTP1,
-      takeProfit2: reversedTP2,
-      metadata: {
-        ...signal.metadata,
-        reversedFrom: originalSide,
-        originalSL,
-        originalTP1,
-        originalTP2,
-      },
-    };
   }
 
   /**
@@ -211,7 +146,7 @@ export class OrderService {
    */
   private async verifyNoUnexpectedPosition(signal: any): Promise<void> {
     try {
-      const positions = await this.binanceService.getOpenPositions();
+      const positions = await this.okxService.getOpenPositions();
       const binancePosition = positions.find(
         (p: any) => p.symbol === signal.symbol && parseFloat(p.positionAmt) !== 0
       );
@@ -238,10 +173,10 @@ export class OrderService {
           const slPrice = side === 'LONG'
             ? entryPrice * (1 - EMERGENCY_SL_PERCENT)
             : entryPrice * (1 + EMERGENCY_SL_PERCENT);
-          const formattedSL = parseFloat(this.binanceService.formatPrice(signal.symbol, slPrice));
+          const formattedSL = parseFloat(this.okxService.formatPrice(signal.symbol, slPrice));
 
           try {
-            await this.binanceService.createAlgoOrder({
+            await this.okxService.createAlgoOrder({
               symbol: signal.symbol,
               side: side === 'LONG' ? 'SELL' : 'BUY',
               type: 'STOP_MARKET',
@@ -262,22 +197,19 @@ export class OrderService {
   }
 
   async executeOrder(signal: any, positionSize: any): Promise<any> {
-    // ✅ 리버스 트레이딩 적용
-    const effectiveSignal = this.applyReverseTrading(signal);
-
     this.logger.log(
-      `\n🚀 [ORDER SERVICE] Received order execution request for ${effectiveSignal.symbol} ${effectiveSignal.side}`
+      `\n🚀 [ORDER SERVICE] Received order execution request for ${signal.symbol} ${signal.side}`
     );
 
     // ✅ [중복 방지] 주문 전 바이낸스에서 기존 포지션/주문 확인
-    const duplicateCheck = await this.checkExistingPositionOrOrder(effectiveSignal.symbol, effectiveSignal.side);
+    const duplicateCheck = await this.checkExistingPositionOrOrder(signal.symbol, signal.side);
     if (duplicateCheck.shouldSkip) {
       this.logger.warn(
         `\n🚫 [DUPLICATE PREVENTION] Skipping order!\n` +
-        `  Symbol: ${effectiveSignal.symbol} ${effectiveSignal.side}\n` +
+        `  Symbol: ${signal.symbol} ${signal.side}\n` +
         `  Reason: ${duplicateCheck.reason}`
       );
-      this.recordOrderResult(effectiveSignal.symbol, 'SKIPPED', duplicateCheck.reason);
+      this.recordOrderResult(signal.symbol, 'SKIPPED', duplicateCheck.reason);
       return {
         status: 'SKIPPED',
         error: duplicateCheck.reason,
@@ -285,20 +217,20 @@ export class OrderService {
     }
 
     // ✅ 중복 포지션 방지: 처리 시작 시 pending 세트에 추가
-    this.addPendingSymbol(effectiveSignal.symbol);
+    this.addPendingSymbol(signal.symbol);
 
     try {
-      const result = await this._executeOrderInternal(effectiveSignal, positionSize);
+      const result = await this._executeOrderInternal(signal, positionSize);
 
       // ✅ 주문 실패 시 바이낸스 포지션 검증 (예상치 못한 체결 감지)
       if (result.status === 'FAILED' || result.status === 'CANCELED') {
-        await this.verifyNoUnexpectedPosition(effectiveSignal);
+        await this.verifyNoUnexpectedPosition(signal);
       }
 
       return result;
     } finally {
       // ✅ 성공/실패 관계없이 pending 세트에서 제거
-      this.removePendingSymbol(effectiveSignal.symbol);
+      this.removePendingSymbol(signal.symbol);
     }
   }
 
@@ -336,7 +268,7 @@ export class OrderService {
 
       // 먼저 요청된 레버리지 시도
       try {
-        await this.binanceService.changeLeverage(signal.symbol, actualLeverage);
+        await this.okxService.changeLeverage(signal.symbol, actualLeverage);
         this.logger.log(`[ORDER] ✓ Leverage set to ${actualLeverage}x successfully`);
         leverageSet = true;
       } catch (leverageError: any) {
@@ -347,7 +279,7 @@ export class OrderService {
           if (fallback >= actualLeverage) continue; // 이미 시도한 것보다 높은 레버리지는 스킵
           try {
             this.logger.log(`[ORDER] Retrying with fallback leverage ${fallback}x...`);
-            await this.binanceService.changeLeverage(signal.symbol, fallback);
+            await this.okxService.changeLeverage(signal.symbol, fallback);
             this.logger.log(`[ORDER] ✓ Leverage set to ${fallback}x (fallback) successfully`);
             actualLeverage = fallback;
             leverageSet = true;
@@ -367,7 +299,7 @@ export class OrderService {
 
       // 2. 마진 모드 설정
       this.logger.log(`[ORDER] Step 2/6: Setting margin type to ISOLATED for ${signal.symbol}...`);
-      await this.binanceService.changeMarginType(signal.symbol, 'ISOLATED');
+      await this.okxService.changeMarginType(signal.symbol, 'ISOLATED');
       this.logger.log(`[ORDER] ✓ Margin type set successfully`);
 
       let mainOrder: any;
@@ -378,10 +310,10 @@ export class OrderService {
       this.logger.log(`[ORDER] Step 3/6: Preparing LIMIT order...`);
 
         // Binance API에서 틱 사이즈 조회
-        const tickSize = this.binanceService.getTickSize(signal.symbol);
+        const tickSize = this.okxService.getTickSize(signal.symbol);
 
         // 현재 시장가 조회
-        const currentMarketPrice = await this.binanceService.getSymbolPrice(signal.symbol);
+        const currentMarketPrice = await this.okxService.getSymbolPrice(signal.symbol);
         const obMidpoint = signal.entryPrice;
         const obTop = signal.metadata?.obTop || obMidpoint * 1.005;
         const obBottom = signal.metadata?.obBottom || obMidpoint * 0.995;
@@ -401,7 +333,7 @@ export class OrderService {
         const maxWaitTime = timeframe === '15m' ? 2700000 : 900000; // ms
 
         // MIDPOINT 지정가 설정
-        const limitPrice = parseFloat(this.binanceService.formatPrice(signal.symbol, obMidpoint));
+        const limitPrice = parseFloat(this.okxService.formatPrice(signal.symbol, obMidpoint));
 
         this.logger.log(
           `📊 [LIMIT ORDER] Price Analysis:\n` +
@@ -418,7 +350,7 @@ export class OrderService {
         // 지정가 주문 (MIDPOINT만 사용)
         this.logger.log(`[LIMIT ORDER] Placing MIDPOINT limit order at ${limitPrice}...`);
 
-        mainOrder = await this.binanceService.createOrder({
+        mainOrder = await this.okxService.createOrder({
           symbol: signal.symbol,
           side: signal.side === 'LONG' ? 'BUY' : 'SELL',
           type: 'LIMIT',
@@ -462,7 +394,7 @@ export class OrderService {
 
             try {
               // 1. 주문 상태 확인
-              const orderStatus = await this.binanceService.queryOrder(signal.symbol, mainOrder.orderId);
+              const orderStatus = await this.okxService.queryOrder(signal.symbol, mainOrder.orderId);
 
               if (orderStatus.status === 'FILLED') {
                 this.logger.log(`✅ [MAKER ORDER] Order filled!`);
@@ -480,7 +412,7 @@ export class OrderService {
 
               // 2. 현재 가격이 OB 영역 이탈했는지 확인
               if (obTop && obBottom) {
-                const currentPrice = await this.binanceService.getSymbolPrice(signal.symbol);
+                const currentPrice = await this.okxService.getSymbolPrice(signal.symbol);
 
                 // OB 영역 이탈 체크 (버퍼 0.5% 추가)
                 const buffer = (obTop - obBottom) * 0.5;
@@ -496,7 +428,7 @@ export class OrderService {
                     `  Side:          ${signal.side}`
                   );
 
-                  await this.binanceService.cancelOrder(signal.symbol, mainOrder.orderId);
+                  await this.okxService.cancelOrder(signal.symbol, mainOrder.orderId);
                   orderCanceled = true;
                   break;
                 }
@@ -519,12 +451,12 @@ export class OrderService {
             );
 
             try {
-              await this.binanceService.cancelOrder(signal.symbol, mainOrder.orderId);
+              await this.okxService.cancelOrder(signal.symbol, mainOrder.orderId);
             } catch (cancelError) {
               this.logger.warn(`[TIMEOUT] Cancel error (may already be filled):`, cancelError.message);
 
               // 취소 실패 시 주문 상태 재확인
-              const finalStatus = await this.binanceService.queryOrder(signal.symbol, mainOrder.orderId);
+              const finalStatus = await this.okxService.queryOrder(signal.symbol, mainOrder.orderId);
               if (finalStatus.status === 'FILLED') {
                 entryPrice = parseFloat(finalStatus.avgPrice || finalStatus.price);
                 executedQty = parseFloat(finalStatus.executedQty);
@@ -637,15 +569,15 @@ export class OrderService {
 
       // 4. Stop Loss 주문 (Algo Order API 사용 - 2025-12-09 바이낸스 변경)
       // ✅ 틱 사이즈에 맞게 가격 포맷팅 (실제 계산된 SL 사용)
-      const formattedSL = parseFloat(this.binanceService.formatPrice(signal.symbol, actualStopLoss));
+      const formattedSL = parseFloat(this.okxService.formatPrice(signal.symbol, actualStopLoss));
       this.logger.log(`[ORDER] Step 4/6: Placing Stop Loss order at ${formattedSL} (adjusted from planned: ${signal.stopLoss.toFixed(4)})...`);
 
       // ✅ 기존 algo order 정리 (closePosition=true 충돌 방지 - Error -4130)
       try {
-        const existingAlgoOrders = await this.binanceService.getOpenAlgoOrders(signal.symbol);
+        const existingAlgoOrders = await this.okxService.getOpenAlgoOrders(signal.symbol);
         const conflictingOrders = existingAlgoOrders.filter(o =>
           (o.type === 'STOP_MARKET' || o.type === 'TAKE_PROFIT_MARKET') &&
-          (o.closePosition === true || o.closePosition === 'true')  // boolean 또는 string 모두 처리
+          o.closePosition === true
         );
 
         if (conflictingOrders.length > 0) {
@@ -655,7 +587,7 @@ export class OrderService {
 
           for (const order of conflictingOrders) {
             try {
-              await this.binanceService.cancelAlgoOrder(signal.symbol, order.algoId);
+              await this.okxService.cancelAlgoOrder(signal.symbol, order.algoId);
               this.logger.log(`[ORDER] ✓ Canceled conflicting algo order: ${order.algoId} (${order.type})`);
             } catch (cancelErr: any) {
               this.logger.warn(`[ORDER] Failed to cancel algo ${order.algoId}: ${cancelErr.message}`);
@@ -673,7 +605,7 @@ export class OrderService {
       try {
         // ✅ NEW: Algo Order API 사용 (기존 createOrder의 STOP_MARKET은 -4120 에러 발생)
         // closePosition: true 사용 - TP 부분 청산 후에도 남은 전체 포지션 청산 보장
-        slOrder = await this.binanceService.createAlgoOrder({
+        slOrder = await this.okxService.createAlgoOrder({
           symbol: signal.symbol,
           side: signal.side === 'LONG' ? 'SELL' : 'BUY',
           type: 'STOP_MARKET',
@@ -690,14 +622,14 @@ export class OrderService {
 
         // ✅ SL 주문 검증: 실제로 생성되었는지 확인 (1초 대기 후)
         await new Promise(resolve => setTimeout(resolve, 1000));
-        const verifyAlgoOrders = await this.binanceService.getOpenAlgoOrders(signal.symbol);
+        const verifyAlgoOrders = await this.okxService.getOpenAlgoOrders(signal.symbol);
         const verifiedSL = verifyAlgoOrders.find(o => o.type === 'STOP_MARKET');
 
         if (!verifiedSL) {
           this.logger.warn(`[ORDER] ⚠️ SL verification failed - retrying...`);
           // 재시도 (단, 이미 존재하면 성공으로 처리)
           try {
-            slOrder = await this.binanceService.createAlgoOrder({
+            slOrder = await this.okxService.createAlgoOrder({
               symbol: signal.symbol,
               side: signal.side === 'LONG' ? 'SELL' : 'BUY',
               type: 'STOP_MARKET',
@@ -729,7 +661,7 @@ export class OrderService {
 
         try {
           // 시장가로 즉시 청산
-          const closeOrder = await this.binanceService.createOrder({
+          const closeOrder = await this.okxService.createOrder({
             symbol: signal.symbol,
             side: signal.side === 'LONG' ? 'SELL' : 'BUY',
             type: 'MARKET',
@@ -802,8 +734,8 @@ export class OrderService {
 
         // 단일 TP 주문 (전체 포지션) - 검증 및 재시도 포함
         if (signal.takeProfit1 && totalPositionNotional >= MIN_TP_NOTIONAL) {
-          const formattedTP1 = parseFloat(this.binanceService.formatPrice(signal.symbol, signal.takeProfit1));
-          const formattedQty = parseFloat(this.binanceService.formatQuantity(signal.symbol, executedQty));
+          const formattedTP1 = parseFloat(this.okxService.formatPrice(signal.symbol, signal.takeProfit1));
+          const formattedQty = parseFloat(this.okxService.formatQuantity(signal.symbol, executedQty));
 
           let tpCreated = false;
           let retryCount = 0;
@@ -813,7 +745,7 @@ export class OrderService {
             try {
               this.logger.log(`[TP] Placing single TP order (Algo): 100% at ${formattedTP1}${retryCount > 0 ? ` (retry ${retryCount})` : ''}`);
 
-              const tpOrder = await this.binanceService.createAlgoOrder({
+              const tpOrder = await this.okxService.createAlgoOrder({
                 symbol: signal.symbol,
                 side: signal.side === 'LONG' ? 'SELL' : 'BUY',
                 type: 'TAKE_PROFIT_MARKET',
@@ -823,7 +755,7 @@ export class OrderService {
 
               // ✅ TP 검증: 1초 후 존재 여부 확인
               await new Promise(resolve => setTimeout(resolve, 1000));
-              const verifyAlgoOrders = await this.binanceService.getOpenAlgoOrders(signal.symbol);
+              const verifyAlgoOrders = await this.okxService.getOpenAlgoOrders(signal.symbol);
               const verifiedTP = verifyAlgoOrders.find(o => o.type === 'TAKE_PROFIT_MARKET');
 
               if (verifiedTP) {
@@ -854,11 +786,11 @@ export class OrderService {
         }
       } else {
         // 정상적인 분할 TP 주문 (검증 및 재시도 포함)
-        const formattedTp1Qty = parseFloat(this.binanceService.formatQuantity(signal.symbol, tp1Qty));
-        const formattedTp2Qty = parseFloat(this.binanceService.formatQuantity(signal.symbol, tp2Qty));
+        const formattedTp1Qty = parseFloat(this.okxService.formatQuantity(signal.symbol, tp1Qty));
+        const formattedTp2Qty = parseFloat(this.okxService.formatQuantity(signal.symbol, tp2Qty));
 
         if (signal.tp1Percent > 0 && signal.takeProfit1) {
-          const formattedTP1 = parseFloat(this.binanceService.formatPrice(signal.symbol, signal.takeProfit1));
+          const formattedTP1 = parseFloat(this.okxService.formatPrice(signal.symbol, signal.takeProfit1));
           let tp1Created = false;
           let retryCount = 0;
 
@@ -866,7 +798,7 @@ export class OrderService {
             try {
               this.logger.log(`[TP1] Placing TP1 order (Algo): ${signal.tp1Percent}% at ${formattedTP1}${retryCount > 0 ? ` (retry ${retryCount})` : ''}`);
 
-              const tp1Order = await this.binanceService.createAlgoOrder({
+              const tp1Order = await this.okxService.createAlgoOrder({
                 symbol: signal.symbol,
                 side: signal.side === 'LONG' ? 'SELL' : 'BUY',
                 type: 'TAKE_PROFIT_MARKET',
@@ -876,7 +808,7 @@ export class OrderService {
 
               // 검증
               await new Promise(resolve => setTimeout(resolve, 500));
-              const verifyOrders = await this.binanceService.getOpenAlgoOrders(signal.symbol);
+              const verifyOrders = await this.okxService.getOpenAlgoOrders(signal.symbol);
               if (verifyOrders.find(o => o.type === 'TAKE_PROFIT_MARKET')) {
                 this.logger.log(`[TP1] ✓ Order placed & verified: ${tp1Order.algoId}`);
                 tpOrders.push(tp1Order);
@@ -892,7 +824,7 @@ export class OrderService {
         }
 
         if (signal.tp2Percent > 0 && signal.takeProfit2) {
-          const formattedTP2 = parseFloat(this.binanceService.formatPrice(signal.symbol, signal.takeProfit2));
+          const formattedTP2 = parseFloat(this.okxService.formatPrice(signal.symbol, signal.takeProfit2));
           let tp2Created = false;
           let retryCount = 0;
 
@@ -900,7 +832,7 @@ export class OrderService {
             try {
               this.logger.log(`[TP2] Placing TP2 order (Algo): ${signal.tp2Percent}% at ${formattedTP2}${retryCount > 0 ? ` (retry ${retryCount})` : ''}`);
 
-              const tp2Order = await this.binanceService.createAlgoOrder({
+              const tp2Order = await this.okxService.createAlgoOrder({
                 symbol: signal.symbol,
                 side: signal.side === 'LONG' ? 'SELL' : 'BUY',
                 type: 'TAKE_PROFIT_MARKET',
@@ -910,7 +842,7 @@ export class OrderService {
 
               // 검증
               await new Promise(resolve => setTimeout(resolve, 500));
-              const verifyOrders = await this.binanceService.getOpenAlgoOrders(signal.symbol);
+              const verifyOrders = await this.okxService.getOpenAlgoOrders(signal.symbol);
               // TP2는 두 번째 TP이므로 개수로 확인
               const tpCount = verifyOrders.filter(o => o.type === 'TAKE_PROFIT_MARKET').length;
               if (tpCount >= 2) {
@@ -1123,7 +1055,7 @@ export class OrderService {
     }
 
     // 가격을 심볼의 precision에 맞게 포맷팅
-    const formattedPrice = this.binanceService.formatPrice(signal.symbol, limitPrice);
+    const formattedPrice = this.okxService.formatPrice(signal.symbol, limitPrice);
 
     this.logger.debug(
       `[MAKER PRICE CALC] ${signal.side} order:\n` +
@@ -1149,26 +1081,23 @@ export class OrderService {
     orderId?: number;
     error?: string;
   }> {
-    // ✅ 리버스 트레이딩 적용
-    const effectiveSignal = this.applyReverseTrading(signal);
-
     this.logger.log(
-      `\n🚀 [ASYNC ORDER] ${effectiveSignal.symbol} ${effectiveSignal.side}\n` +
-      `  Strategy:   ${effectiveSignal.strategy}\n` +
-      `  Entry:      ${effectiveSignal.entryPrice}\n` +
+      `\n🚀 [ASYNC ORDER] ${signal.symbol} ${signal.side}\n` +
+      `  Strategy:   ${signal.strategy}\n` +
+      `  Entry:      ${signal.entryPrice}\n` +
       `  Quantity:   ${positionSize.quantity}\n` +
       `  Leverage:   ${positionSize.leverage}x`
     );
 
     // ✅ [중복 방지] 주문 전 바이낸스에서 기존 포지션/주문 확인
-    const duplicateCheck = await this.checkExistingPositionOrOrder(effectiveSignal.symbol, effectiveSignal.side);
+    const duplicateCheck = await this.checkExistingPositionOrOrder(signal.symbol, signal.side);
     if (duplicateCheck.shouldSkip) {
       this.logger.warn(
         `\n🚫 [ASYNC DUPLICATE PREVENTION] Skipping order!\n` +
-        `  Symbol: ${effectiveSignal.symbol} ${effectiveSignal.side}\n` +
+        `  Symbol: ${signal.symbol} ${signal.side}\n` +
         `  Reason: ${duplicateCheck.reason}`
       );
-      this.recordOrderResult(effectiveSignal.symbol, 'SKIPPED', duplicateCheck.reason);
+      this.recordOrderResult(signal.symbol, 'SKIPPED', duplicateCheck.reason);
       return {
         status: 'SKIPPED',
         error: duplicateCheck.reason,
@@ -1176,7 +1105,7 @@ export class OrderService {
     }
 
     // 중복 방지
-    this.addPendingSymbol(effectiveSignal.symbol);
+    this.addPendingSymbol(signal.symbol);
 
     try {
       // 1. 레버리지 설정 (v11: 다단계 retry)
@@ -1187,7 +1116,7 @@ export class OrderService {
       let leverageSet = false;
 
       try {
-        await this.binanceService.changeLeverage(effectiveSignal.symbol, actualLeverage);
+        await this.okxService.changeLeverage(signal.symbol, actualLeverage);
         leverageSet = true;
       } catch (leverageError: any) {
         this.logger.warn(`[ASYNC] Leverage ${actualLeverage}x failed: ${leverageError.message}`);
@@ -1197,7 +1126,7 @@ export class OrderService {
           if (fallback >= actualLeverage) continue;
           try {
             this.logger.log(`[ASYNC] Retrying with fallback leverage ${fallback}x...`);
-            await this.binanceService.changeLeverage(effectiveSignal.symbol, fallback);
+            await this.okxService.changeLeverage(signal.symbol, fallback);
             this.logger.log(`[ASYNC] ✓ Leverage set to ${fallback}x (fallback)`);
             actualLeverage = fallback;
             leverageSet = true;
@@ -1208,25 +1137,25 @@ export class OrderService {
         }
 
         if (!leverageSet) {
-          throw new Error(`Failed to set leverage for ${effectiveSignal.symbol} - all fallbacks exhausted`);
+          throw new Error(`Failed to set leverage for ${signal.symbol} - all fallbacks exhausted`);
         }
 
         positionSize.leverage = actualLeverage;
       }
 
       // 2. 마진 모드 설정
-      await this.binanceService.changeMarginType(effectiveSignal.symbol, 'ISOLATED');
+      await this.okxService.changeMarginType(signal.symbol, 'ISOLATED');
 
       // 3. LIMIT 주문 생성
-      const obMidpoint = effectiveSignal.entryPrice;
-      const limitPrice = parseFloat(this.binanceService.formatPrice(effectiveSignal.symbol, obMidpoint));
+      const obMidpoint = signal.entryPrice;
+      const limitPrice = parseFloat(this.okxService.formatPrice(signal.symbol, obMidpoint));
 
-      const timeframe = effectiveSignal.metadata?.timeframe || effectiveSignal.timeframe || '5m';
+      const timeframe = signal.metadata?.timeframe || signal.timeframe || '5m';
       const maxWaitTime = timeframe === '15m' ? 2700000 : 900000; // 15분봉: 45분, 5분봉: 15분
 
-      const mainOrder = await this.binanceService.createOrder({
-        symbol: effectiveSignal.symbol,
-        side: effectiveSignal.side === 'LONG' ? 'BUY' : 'SELL',
+      const mainOrder = await this.okxService.createOrder({
+        symbol: signal.symbol,
+        side: signal.side === 'LONG' ? 'BUY' : 'SELL',
         type: 'LIMIT',
         quantity: positionSize.quantity,
         price: limitPrice,
@@ -1242,18 +1171,16 @@ export class OrderService {
 
       // 즉시 체결된 경우
       if (mainOrder.status === 'FILLED') {
-        const entryPrice = parseFloat(mainOrder.avgPrice || mainOrder.price);
-        const executedQty = parseFloat(mainOrder.executedQty || mainOrder.origQty);
+        const entryPrice = parseFloat(String(mainOrder.avgPrice || mainOrder.price));
+        const executedQty = parseFloat(String(mainOrder.executedQty || mainOrder.origQty));
 
         this.logger.log(`[ASYNC] ⚡ Immediately filled! Entry: ${entryPrice}`);
 
         // 동기식으로 SL/TP 생성 필요 - executeOrder로 fallback하거나 여기서 처리
         // OrderMonitorService에 바로 onOrderFilled 호출하는 것보다
         // 직접 처리하는 게 더 안전함 (동기적으로)
-        // Note: executeOrder에서 다시 applyReverseTrading이 호출되지만
-        // 이미 reversed된 signal이므로 다시 reverse되지 않도록 원본 사용
-        const result = await this._executeOrderInternal(effectiveSignal, positionSize);
-        this.removePendingSymbol(effectiveSignal.symbol);
+        const result = await this.executeOrder(signal, positionSize);
+        this.removePendingSymbol(signal.symbol);
         return {
           status: result.status === 'FILLED' ? 'PENDING' : 'FAILED',
           orderId: mainOrder.orderId,
@@ -1264,17 +1191,17 @@ export class OrderService {
       // 대기 중인 경우 - OrderMonitorService에 등록
       if (mainOrder.status === 'NEW') {
         const pendingOrder: PendingLimitOrder = {
-          symbol: effectiveSignal.symbol,
+          symbol: signal.symbol,
           orderId: mainOrder.orderId,
-          side: effectiveSignal.side,
+          side: signal.side,
           quantity: positionSize.quantity,
           price: limitPrice,
-          signal: { ...effectiveSignal, leverage: actualLeverage },
+          signal: { ...signal, leverage: actualLeverage },
           positionSize,
           createdAt: Date.now(),
           expireAt: Date.now() + maxWaitTime,
-          obTop: effectiveSignal.metadata?.obTop,
-          obBottom: effectiveSignal.metadata?.obBottom,
+          obTop: signal.metadata?.obTop,
+          obBottom: signal.metadata?.obBottom,
           timeframe,
           retryCount: 0,
         };
@@ -1283,15 +1210,15 @@ export class OrderService {
 
         this.logger.log(
           `[ASYNC] 📝 Registered for monitoring:\n` +
-          `  Symbol:  ${effectiveSignal.symbol}\n` +
+          `  Symbol:  ${signal.symbol}\n` +
           `  Expire:  ${new Date(pendingOrder.expireAt).toISOString()}`
         );
 
         // pendingSymbol은 유지 (OrderMonitorService가 체결/취소 시 정리)
         // 하지만 SignalProcessor가 다음 시그널 처리할 수 있도록 여기서 제거
-        this.removePendingSymbol(effectiveSignal.symbol);
+        this.removePendingSymbol(signal.symbol);
 
-        this.recordOrderResult(effectiveSignal.symbol, 'PENDING', 'Async monitoring');
+        this.recordOrderResult(signal.symbol, 'PENDING', 'Async monitoring');
 
         return {
           status: 'PENDING',
@@ -1301,7 +1228,7 @@ export class OrderService {
 
       // 기타 상태
       this.logger.warn(`[ASYNC] Unexpected status: ${mainOrder.status}`);
-      this.recordOrderResult(effectiveSignal.symbol, 'FAILED', `Unexpected: ${mainOrder.status}`);
+      this.recordOrderResult(signal.symbol, 'FAILED', `Unexpected: ${mainOrder.status}`);
       return {
         status: 'FAILED',
         error: `Unexpected status: ${mainOrder.status}`,
@@ -1309,13 +1236,13 @@ export class OrderService {
 
     } catch (error: any) {
       this.logger.error(`[ASYNC] ❌ Failed: ${error.message}`);
-      this.recordOrderResult(effectiveSignal.symbol, 'FAILED', error.message);
+      this.recordOrderResult(signal.symbol, 'FAILED', error.message);
       return {
         status: 'FAILED',
         error: error.message,
       };
     } finally {
-      this.removePendingSymbol(effectiveSignal.symbol);
+      this.removePendingSymbol(signal.symbol);
     }
   }
 
@@ -1346,7 +1273,7 @@ export class OrderService {
   }> {
     try {
       // 1. 바이낸스에서 현재 포지션 확인
-      const positions = await this.binanceService.getOpenPositions();
+      const positions = await this.okxService.getOpenPositions();
       const existingPosition = positions.find(
         (p: any) => p.symbol === symbol && Math.abs(parseFloat(p.positionAmt)) > 0.000001
       );
@@ -1382,7 +1309,7 @@ export class OrderService {
       }
 
       // 2. 바이낸스에서 대기 중인 LIMIT 주문 확인
-      const openOrders = await this.binanceService.getOpenOrders(symbol);
+      const openOrders = await this.okxService.getOpenOrders(symbol);
       const limitOrder = openOrders.find((o: any) => {
         const orderSide = o.side === 'BUY' ? 'LONG' : 'SHORT';
         return o.type === 'LIMIT' && orderSide === side;

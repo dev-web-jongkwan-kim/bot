@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { SymbolSelectionService } from './symbol-selection.service';
-import { WebSocketService } from '../websocket/websocket.service';
+import { OkxWebSocketService } from '../okx/okx-websocket.service';
 
 @Injectable()
 export class SymbolUpdateScheduler {
@@ -10,7 +10,7 @@ export class SymbolUpdateScheduler {
 
   constructor(
     private symbolSelection: SymbolSelectionService,
-    private wsService: WebSocketService,
+    private wsService: OkxWebSocketService,
   ) {}
 
   /**
@@ -42,8 +42,8 @@ export class SymbolUpdateScheduler {
       const currentSymbols = this.symbolSelection.getSelectedSymbols();
       this.logger.log(`Current symbols: ${currentSymbols.length}`);
 
-      // 2. 새로운 종목 선택 (하이브리드: 코어 5 + 동적 165)
-      const newSymbols = await this.symbolSelection.selectHybridSymbols(170);
+      // 2. 새로운 종목 선택 (하이브리드: 코어 5 + 동적 45)
+      const newSymbols = await this.symbolSelection.selectHybridSymbols(50);
 
       // 3. 변경사항 확인
       const added = newSymbols.filter(s => !currentSymbols.includes(s));

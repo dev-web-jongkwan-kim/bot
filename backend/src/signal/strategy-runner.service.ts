@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { SimpleTrueOBStrategy } from '../strategies/simple-true-ob.strategy';
 import { CandleAggregatorService, CandleData } from '../websocket/candle-aggregator.service';
 import { SignalProcessorService } from './signal-processor.service';
-import { BinanceService } from '../binance/binance.service';
+import { OkxService } from '../okx/okx.service';
 import { SymbolSelectionService } from '../symbol-selection/symbol-selection.service';
 
 /**
@@ -24,7 +24,7 @@ export class StrategyRunnerService {
     private readonly simpleTrueOBStrategy: SimpleTrueOBStrategy,
     private readonly candleAggregator: CandleAggregatorService,
     private readonly signalProcessor: SignalProcessorService,
-    private readonly binanceService: BinanceService,
+    private readonly okxService: OkxService,
     private readonly symbolSelection: SymbolSelectionService,
   ) {}
 
@@ -138,8 +138,8 @@ export class StrategyRunnerService {
           try {
             // 5분봉과 15분봉을 병렬로 로드
             const [candles5m, candles15m] = await Promise.all([
-              this.binanceService.getHistoricalCandles(symbol, '5m', REQUIRED_CANDLES),
-              this.binanceService.getHistoricalCandles(symbol, '15m', REQUIRED_CANDLES),
+              this.okxService.getHistoricalCandles(symbol, '5m', REQUIRED_CANDLES),
+              this.okxService.getHistoricalCandles(symbol, '15m', REQUIRED_CANDLES),
             ]);
 
             // 5분봉 처리 (순차적으로 전략에 주입)

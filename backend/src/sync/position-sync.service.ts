@@ -4,11 +4,11 @@ import { Repository, MoreThan } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Position } from '../database/entities/position.entity';
 import { Signal } from '../database/entities/signal.entity';
-import { BinanceService } from '../binance/binance.service';
-// SimpleTrueOBStrategy - DISABLED for ScalpingModule
-// import { SimpleTrueOBStrategy } from '../strategies/simple-true-ob.strategy';
+import { OkxService } from '../okx/okx.service';
+import { SimpleTrueOBStrategy } from '../strategies/simple-true-ob.strategy';
 import { OrderService } from '../order/order.service';
 import { RiskService } from '../risk/risk.service';
+import { ScalpingPositionService } from '../scalping/services/scalping-position.service';
 
 @Injectable()
 export class PositionSyncService {
@@ -32,9 +32,6 @@ export class PositionSyncService {
   // ✅ 방어 로직: 포지션별 SL 부재 시작 시간 추적
   private positionWithoutSlSince: Map<string, number> = new Map();
 
-  // v22: 현재 sync 사이클에서 청산된 심볼 (중복 처리 방지)
-  private closedInCurrentCycle: Set<string> = new Set();
-
   // v15: 타임프레임별 최대 보유 시간 (밀리초)
   // 5분봉: 2시간 (24캔들) - 데이터 분석 결과 120분 이후 승률 급락
   // 15분봉: 4시간 (16캔들) - 기존 유지
@@ -49,8 +46,12 @@ export class PositionSyncService {
     private positionRepo: Repository<Position>,
     @InjectRepository(Signal)
     private signalRepo: Repository<Signal>,
-    private binanceService: BinanceService,
+    private okxService: OkxService,
+    @Inject(forwardRef(() => SimpleTrueOBStrategy))
+    private simpleTrueOBStrategy: SimpleTrueOBStrategy,
     private riskService: RiskService,  // v13: 블랙리스트 기록용
+    @Optional() @Inject(forwardRef(() => ScalpingPositionService))
+    private scalpingPositionService: ScalpingPositionService,  // 스캘핑 포지션 서비스
   ) {}
 
   async onModuleInit() {
@@ -72,12 +73,9 @@ export class PositionSyncService {
     }
 
     this.isSyncing = true;
-    // v22: 매 사이클 시작 시 청산된 심볼 목록 초기화
-    this.closedInCurrentCycle.clear();
-
     try {
       // 1. 바이낸스에서 실제 오픈 포지션 가져오기
-      const binancePositions = await this.binanceService.getOpenPositions();
+      const binancePositions = await this.okxService.getOpenPositions();
       const activePositions = binancePositions.filter(
         p => Math.abs(parseFloat(p.positionAmt)) > 0.000001
       );
@@ -106,13 +104,6 @@ export class PositionSyncService {
       // 3. 바이낸스에 있는 포지션 기준으로 DB 업데이트/생성
       for (const binancePos of activePositions) {
         const symbol = binancePos.symbol;
-
-        // v22: 이번 사이클에서 이미 청산한 심볼은 스킵
-        if (this.closedInCurrentCycle.has(symbol)) {
-          this.logger.debug(`[SYNC] ${symbol}: Already closed in this cycle, skipping`);
-          continue;
-        }
-
         const positionAmt = parseFloat(binancePos.positionAmt);
         const entryPrice = parseFloat(binancePos.entryPrice);
         const markPrice = parseFloat(binancePos.markPrice);
@@ -174,16 +165,34 @@ export class PositionSyncService {
           }
 
           // ✅ PENDING 신호 매칭 시도 (최근 30분 이내 - 타임아웃 3캔들 고려)
+          // ✅ 주문 반전 로직 고려: LONG 신호 → SHORT 포지션, SHORT 신호 → LONG 포지션
           const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-          const pendingSignal = await this.signalRepo.findOne({
+          const actualSide = positionAmt > 0 ? 'LONG' : 'SHORT';
+          const reversedSide = positionAmt > 0 ? 'SHORT' : 'LONG';  // 전략 반전 시 신호 side
+
+          // 먼저 반전된 side로 찾기 (전략 포지션)
+          let pendingSignal = await this.signalRepo.findOne({
             where: {
               symbol,
-              side: positionAmt > 0 ? 'LONG' : 'SHORT',
+              side: reversedSide,  // ✅ 반전된 side 먼저 체크
               status: 'PENDING',
               createdAt: MoreThan(thirtyMinutesAgo),
             },
             order: { createdAt: 'DESC' },
           });
+
+          // 없으면 실제 side로 찾기 (수동 포지션 또는 반전 안 된 경우)
+          if (!pendingSignal) {
+            pendingSignal = await this.signalRepo.findOne({
+              where: {
+                symbol,
+                side: actualSide,
+                status: 'PENDING',
+                createdAt: MoreThan(thirtyMinutesAgo),
+              },
+              order: { createdAt: 'DESC' },
+            });
+          }
 
           let strategy = 'MANUAL';
           let stopLoss = 0;
@@ -194,15 +203,37 @@ export class PositionSyncService {
             this.logger.log(
               `✅ [RECOVERY] Found matching PENDING signal for ${symbol}!\n` +
               `  Signal ID: ${pendingSignal.id}\n` +
-              `  SL: ${pendingSignal.stopLoss}\n` +
-              `  TP1: ${pendingSignal.takeProfit1}\n` +
-              `  TP2: ${pendingSignal.takeProfit2}`
+              `  Signal Side: ${pendingSignal.side}\n` +
+              `  Original SL: ${pendingSignal.stopLoss}\n` +
+              `  Original TP1: ${pendingSignal.takeProfit1}\n` +
+              `  Original TP2: ${pendingSignal.takeProfit2}`
             );
 
             strategy = pendingSignal.strategy || 'SimpleTrueOB';
-            stopLoss = pendingSignal.stopLoss || 0;
-            takeProfit1 = pendingSignal.takeProfit1;
-            takeProfit2 = pendingSignal.takeProfit2;
+            const actualPositionSide = positionAmt > 0 ? 'LONG' : 'SHORT';
+
+            // ✅ 주문 반전 감지: 신호 side와 실제 포지션 side가 반대인 경우
+            // LONG 신호 → SHORT 포지션, SHORT 신호 → LONG 포지션
+            const isReversed = pendingSignal.side !== actualPositionSide;
+
+            if (isReversed) {
+              // ✅ SL/TP 반전: 신호의 SL이 새 TP, 신호의 TP가 새 SL
+              // LONG 신호: SL(아래) → TP(아래), TP(위) → SL(위)
+              // SHORT 신호: SL(위) → TP(위), TP(아래) → SL(아래)
+              stopLoss = pendingSignal.takeProfit1 || 0;  // 원래 TP → 새 SL
+              takeProfit1 = pendingSignal.stopLoss;       // 원래 SL → 새 TP
+              takeProfit2 = null;  // TP2는 사용 안 함
+
+              this.logger.log(
+                `  → Order Reversed: ${pendingSignal.side} signal → ${actualPositionSide} position\n` +
+                `  → Swapped SL: ${stopLoss.toFixed(4)} (was TP1)\n` +
+                `  → Swapped TP: ${takeProfit1?.toFixed(4)} (was SL)`
+              );
+            } else {
+              stopLoss = pendingSignal.stopLoss || 0;
+              takeProfit1 = pendingSignal.takeProfit1;
+              takeProfit2 = pendingSignal.takeProfit2;
+            }
 
             // 신호 상태를 FILLED로 업데이트
             await this.signalRepo.update(pendingSignal.id, {
@@ -259,15 +290,17 @@ export class PositionSyncService {
             this.logger.log(`[RECOVERY] Creating TP order for ${symbol}...`);
 
             try {
-              const formattedTP1 = parseFloat(this.binanceService.formatPrice(symbol, takeProfit1));
-              const formattedQty = parseFloat(this.binanceService.formatQuantity(symbol, Math.abs(positionAmt)));
+              const formattedTP1 = parseFloat(this.okxService.formatPrice(symbol, takeProfit1));
+              const formattedQty = parseFloat(this.okxService.formatQuantity(symbol, Math.abs(positionAmt)));
 
-              await this.binanceService.createAlgoOrder({
+              // ✅ positionAmt는 실제 포지션 방향이므로 추가 반전 불필요
+              await this.okxService.createAlgoOrder({
                 symbol,
                 side: positionAmt > 0 ? 'SELL' : 'BUY',
                 type: 'TAKE_PROFIT_MARKET',
                 triggerPrice: formattedTP1,
                 quantity: formattedQty,  // 100% 청산
+                isStrategyPosition: false,  // ✅ 실제 포지션 방향 - 반전 불필요
               });
               this.logger.log(`[RECOVERY] ✓ TP created at ${formattedTP1} (100% qty: ${formattedQty})`);
             } catch (tpError: any) {
@@ -294,60 +327,27 @@ export class PositionSyncService {
             `  Side:       ${dbPos.side}\n` +
             `  Entry:      ${dbPos.entryPrice}\n` +
             `  Quantity:   ${dbPos.quantity}\n` +
-            `  → Fetching trade history for PnL...`
+            `  → Fetching OKX Position History for accurate PnL...`
           );
 
-          // 바이낸스에서 최근 거래 내역 조회하여 실현 PnL 확인
-          // v10: 더 많은 거래 조회 + 모든 관련 거래 합산 (슬리피지/부분 체결 반영)
+          // ✅ OKX Position History API 사용 - 정확한 PnL 조회
           try {
-            const trades = await this.binanceService.getRecentTrades(dbPos.symbol, 50);  // 50개로 증가
+            const closedPosition = await this.okxService.getLastClosedPosition(dbPos.symbol);
 
-            // 청산 거래 찾기 (반대 방향, 포지션 오픈 이후)
-            const closeSide = dbPos.side === 'LONG' ? 'SELL' : 'BUY';
-            const positionOpenTime = new Date(dbPos.openedAt).getTime();
+            if (closedPosition) {
+              // OKX에서 정확한 PnL 데이터 가져오기
+              const realizedPnl = closedPosition.realizedPnl;
+              const fee = closedPosition.fee;
+              const fundingFee = closedPosition.fundingFee;
+              const avgClosePrice = closedPosition.closePrice;
+              const entryPriceOkx = closedPosition.entryPrice;
 
-            // v10: 모든 관련 청산 거래 수집 (부분 체결 포함)
-            const closeTrades = trades.filter((t: any) =>
-              t.side === closeSide &&
-              new Date(t.time).getTime() > positionOpenTime
-            );
+              // 총 비용 = 수수료 + 펀딩비
+              const totalFee = Math.abs(fee) + Math.abs(fundingFee);
 
-            if (closeTrades.length > 0) {
-              // v10: 모든 청산 거래의 PnL 합산 (실제 슬리피지 반영)
-              let totalRealizedPnl = 0;  // 바이낸스 realizedPnl (수수료 미포함)
-              let totalCommission = 0;   // 청산 거래 수수료
-              let totalQuantity = 0;
-              let weightedPriceSum = 0;
+              // 순 PnL = 실현 PnL (OKX가 이미 수수료 포함)
+              const netPnl = realizedPnl;
 
-              for (const trade of closeTrades) {
-                const qty = parseFloat(trade.qty || '0');
-                const price = parseFloat(trade.price || '0');
-                const pnl = parseFloat(trade.realizedPnl || '0');
-                const commission = parseFloat(trade.commission || '0');
-
-                totalRealizedPnl += pnl;
-                totalCommission += commission;
-                totalQuantity += qty;
-                weightedPriceSum += price * qty;
-              }
-
-              // 진입 수수료 계산 (진입가 * 수량 * taker fee 0.04%)
-              const entryCommission = (typeof dbPos.entryPrice === 'string'
-                ? parseFloat(dbPos.entryPrice) : dbPos.entryPrice)
-                * totalQuantity * 0.0004;
-
-              // 총 수수료 = 진입 + 청산
-              const totalFee = entryCommission + totalCommission;
-
-              // 순수익 = 실현손익 - 총 수수료
-              const netPnl = totalRealizedPnl - totalFee;
-
-              // 가중 평균 청산가
-              const avgClosePrice = totalQuantity > 0 ? weightedPriceSum / totalQuantity : 0;
-
-              // ═══════════════════════════════════════════════════════════
-              // 📊 청산 타입 감지 (SL/TP1/TP2/MANUAL)
-              // ═══════════════════════════════════════════════════════════
               const entryPrice = typeof dbPos.entryPrice === 'string'
                 ? parseFloat(dbPos.entryPrice) : dbPos.entryPrice;
               const plannedSL = typeof dbPos.stopLoss === 'string'
@@ -357,20 +357,22 @@ export class PositionSyncService {
               const plannedTP2 = typeof dbPos.takeProfit2 === 'string'
                 ? parseFloat(dbPos.takeProfit2) : dbPos.takeProfit2;
 
-              // 청산 타입 결정 (가장 가까운 목표가 기준)
+              // 청산 타입 결정
               let closeType: 'SL' | 'TP1' | 'TP2' | 'MANUAL' | 'LIQUIDATION' = 'MANUAL';
               let closeTriggerPrice = 0;
               let closeSlippage = 0;
               let closeSlippagePercent = 0;
 
-              if (plannedSL && plannedTP1) {
+              // OKX closeType: 1=full, 2=partial, 3=liquidation, 4=ADL
+              if (closedPosition.closeType === '3' || closedPosition.closeType === '4') {
+                closeType = 'LIQUIDATION';
+              } else if (plannedSL && plannedTP1) {
                 const slDistance = Math.abs(avgClosePrice - plannedSL);
                 const tp1Distance = Math.abs(avgClosePrice - plannedTP1);
                 const tp2Distance = plannedTP2 ? Math.abs(avgClosePrice - plannedTP2) : Infinity;
 
-                // 가장 가까운 목표가로 청산 타입 결정 (5% 오차 허용)
                 const minDistance = Math.min(slDistance, tp1Distance, tp2Distance);
-                const tolerance = entryPrice * 0.05; // 5% 허용 오차
+                const tolerance = entryPrice * 0.05;
 
                 if (minDistance < tolerance) {
                   if (minDistance === slDistance) {
@@ -396,99 +398,86 @@ export class PositionSyncService {
                 }
               }
 
+              // 보유 시간 계산
+              const holdingTime = dbPos.openedAt
+                ? closedPosition.closeTime - new Date(dbPos.openedAt).getTime()
+                : 0;
+              const holdingMinutes = Math.round(holdingTime / 60000);
+
               // ═══════════════════════════════════════════════════════════
-              // 💾 상세 청산 정보 저장
+              // 💾 상세 청산 정보 저장 (OKX Position History 기반)
               // ═══════════════════════════════════════════════════════════
-              // ✅ 순수익(수수료 차감) 저장 - 바이낸스 표시와 동일하게
               dbPos.realizedPnl = netPnl;
               dbPos.metadata = {
                 ...dbPos.metadata,
-                // 기존 필드 (하위 호환)
+                // OKX Position History 데이터
                 closePrice: avgClosePrice,
-                closeTradeIds: closeTrades.map((t: any) => t.id),
-                closeTradeCount: closeTrades.length,
-                closeTime: closeTrades[closeTrades.length - 1].time,
+                closeTime: closedPosition.closeTime,
+                okxPositionHistory: closedPosition.raw,
 
-                // 📊 실제 청산 정보 (actual 객체 업데이트)
+                // 📊 실제 청산 정보
                 actual: {
                   ...(dbPos.metadata?.actual || {}),
-                  exit: avgClosePrice,           // 실제 청산가
-                  exitTime: closeTrades[closeTrades.length - 1].time,
-                  closeType: closeType,          // SL/TP1/TP2/MANUAL
-                  closeTriggerPrice: closeTriggerPrice, // 트리거된 목표가
+                  entry: entryPriceOkx,          // OKX 실제 진입가
+                  exit: avgClosePrice,           // OKX 실제 청산가
+                  exitTime: closedPosition.closeTime,
+                  closeType: closeType,
+                  closeTriggerPrice: closeTriggerPrice,
                 },
 
-                // 📈 청산 슬리피지 분석
+                // 📈 슬리피지
                 slippage: {
                   ...(dbPos.metadata?.slippage || {}),
-                  exit: closeSlippage,           // 청산 슬리피지 (USDT)
-                  exitPercent: closeSlippagePercent, // 청산 슬리피지 (%)
+                  exit: closeSlippage,
+                  exitPercent: closeSlippagePercent,
                   totalSlippage: (dbPos.metadata?.slippage?.entry || 0) + closeSlippage,
                   totalSlippagePercent: (dbPos.metadata?.slippage?.entryPercent || 0) + closeSlippagePercent,
                 },
 
-                // 📊 거래 결과 분석
+                // 📊 거래 결과 (OKX 기준)
                 result: {
                   win: netPnl > 0,
-                  grossPnl: totalRealizedPnl,   // 수수료 미포함 손익
-                  fee: totalFee,                 // 총 수수료 (진입 + 청산)
-                  entryFee: entryCommission,     // 진입 수수료
-                  exitFee: totalCommission,      // 청산 수수료
-                  pnl: netPnl,                   // 순수익 (수수료 차감)
+                  pnl: netPnl,                   // OKX 실현 PnL (수수료 포함)
+                  fee: totalFee,                 // 총 수수료
+                  fundingFee: fundingFee,        // 펀딩비
                   pnlPercent: entryPrice > 0
-                    ? (netPnl / (entryPrice * totalQuantity / (dbPos.leverage || 10))) * 100
+                    ? (netPnl / (entryPrice * closedPosition.quantity / (dbPos.leverage || 10))) * 100
                     : 0,
-                  holdingTime: dbPos.openedAt
-                    ? new Date(closeTrades[closeTrades.length - 1].time).getTime() - new Date(dbPos.openedAt).getTime()
-                    : 0,
-                  expectedPnl: closeType === 'SL'
-                    ? -Math.abs(entryPrice - plannedSL) * totalQuantity
-                    : closeType === 'TP1'
-                      ? Math.abs(plannedTP1 - entryPrice) * totalQuantity
-                      : closeType === 'TP2'
-                        ? Math.abs(plannedTP2! - entryPrice) * totalQuantity
-                        : 0,
+                  holdingTime: holdingTime,
                 },
               };
 
-              const holdingMinutes = dbPos.metadata.result?.holdingTime
-                ? Math.round(dbPos.metadata.result.holdingTime / 60000)
-                : 0;
-
               this.logger.log(
-                `  ✅ Trades found: ${closeTrades.length} fill(s)\n` +
+                `  ✅ OKX Position History found\n` +
                 `    ┌─────────────────────────────────────────────────────\n` +
-                `    │ 📊 청산 분석\n` +
-                `    │   Close Type:     ${closeType} ${closeType === 'SL' ? '🔴' : closeType.startsWith('TP') ? '🟢' : '⚪'}\n` +
-                `    │   Planned Trigger: ${closeTriggerPrice > 0 ? closeTriggerPrice.toFixed(4) : 'N/A'}\n` +
-                `    │   Actual Close:   ${avgClosePrice.toFixed(4)}\n` +
+                `    │ 📊 청산 분석 (OKX 기준)\n` +
+                `    │   Close Type:     ${closeType} ${closeType === 'SL' ? '🔴' : closeType.startsWith('TP') ? '🟢' : closeType === 'LIQUIDATION' ? '💀' : '⚪'}\n` +
+                `    │   Entry Price:    ${entryPriceOkx.toFixed(4)} (OKX)\n` +
+                `    │   Close Price:    ${avgClosePrice.toFixed(4)} (OKX)\n` +
                 `    ├─────────────────────────────────────────────────────\n` +
-                `    │ 📈 슬리피지\n` +
-                `    │   Exit Slippage:  ${closeSlippage >= 0 ? '+' : ''}${closeSlippage.toFixed(4)} (${closeSlippagePercent >= 0 ? '+' : ''}${closeSlippagePercent.toFixed(3)}%)\n` +
-                `    │   Total Slippage: ${dbPos.metadata.slippage?.totalSlippage >= 0 ? '+' : ''}${(dbPos.metadata.slippage?.totalSlippage || 0).toFixed(4)}\n` +
-                `    ├─────────────────────────────────────────────────────\n` +
-                `    │ 💰 결과\n` +
-                `    │   Gross PnL:      $${totalRealizedPnl.toFixed(2)}\n` +
-                `    │   Trading Fee:    -$${totalFee.toFixed(2)} (entry: $${entryCommission.toFixed(2)}, exit: $${totalCommission.toFixed(2)})\n` +
-                `    │   Net PnL:        $${netPnl.toFixed(2)} ${netPnl >= 0 ? '🟢 WIN' : '🔴 LOSS'}\n` +
+                `    │ 💰 결과 (OKX 정확값)\n` +
+                `    │   Realized PnL:   $${realizedPnl.toFixed(4)}\n` +
+                `    │   Fee:            $${Math.abs(fee).toFixed(4)}\n` +
+                `    │   Funding Fee:    $${Math.abs(fundingFee).toFixed(4)}\n` +
+                `    │   Net PnL:        $${netPnl.toFixed(4)} ${netPnl >= 0 ? '🟢 WIN' : '🔴 LOSS'}\n` +
                 `    │   Holding Time:   ${holdingMinutes} minutes\n` +
                 `    └─────────────────────────────────────────────────────`
               );
             } else {
-              this.logger.warn(`  ⚠️ No matching close trade found - may be liquidation`);
+              this.logger.warn(`  ⚠️ No OKX position history found - position may still be active`);
               dbPos.metadata = {
                 ...dbPos.metadata,
-                closedByLiquidation: true,
+                closedByUnknown: true,
               };
             }
           } catch (tradeError: any) {
-            this.logger.warn(`  ⚠️ Failed to fetch trade history: ${tradeError.message}`);
+            this.logger.warn(`  ⚠️ Failed to fetch OKX position history: ${tradeError.message}`);
           }
 
           // ✅ 남은 조건 주문(SL/TP) 정리 - 포지션 청산 후 잔여 주문 취소
           try {
             this.logger.log(`  → Cleaning up remaining algo orders for ${dbPos.symbol}...`);
-            const cleanup = await this.binanceService.cancelAllAlgoOrders(dbPos.symbol);
+            const cleanup = await this.okxService.cancelAllAlgoOrders(dbPos.symbol);
             if (cleanup.canceled > 0) {
               this.logger.log(`  ✅ Cleaned up ${cleanup.canceled} remaining algo orders`);
             }
@@ -508,8 +497,12 @@ export class PositionSyncService {
           // TP1 추적에서 제거
           this.tp1TriggeredPositions.delete(dbPos.symbol);
 
-          // v8: 재진입 쿨다운 (SimpleTrueOB 비활성화로 제거)
-          // Scalping 전략은 자체적으로 쿨다운 관리
+          // v8: 재진입 쿨다운 시작 (5분봉, 15분봉 모두)
+          if (dbPos.strategy === 'SIMPLE_TRUE_OB') {
+            this.simpleTrueOBStrategy.onPositionClosed(dbPos.symbol, '5m');
+            this.simpleTrueOBStrategy.onPositionClosed(dbPos.symbol, '15m');
+            this.logger.log(`  → [v8] Reentry cooldown started for ${dbPos.symbol} (12 bars)`);
+          }
 
           this.logger.log(`  → Position marked as CLOSED in DB`);
         }
@@ -535,6 +528,81 @@ export class PositionSyncService {
   async forceSync() {
     this.logger.log('Force syncing positions...');
     await this.syncPositions();
+  }
+
+  /**
+   * ✅ 고아 주문 자동 정리 (60초마다)
+   * DB에 없는 포지션의 주문(리밋/알고)을 자동 취소
+   */
+  @Cron('*/60 * * * * *')
+  async cleanupOrphanOrders(): Promise<void> {
+    try {
+      // 1. 활성 포지션 심볼 수집 (OKX + DB + 스캘핑 대기 주문)
+      const okxPositions = await this.okxService.getOpenPositions();
+      const activeSymbols = new Set<string>();
+
+      for (const pos of okxPositions) {
+        if (Math.abs(parseFloat(pos.positionAmt)) > 0.000001) {
+          activeSymbols.add(pos.symbol);
+        }
+      }
+
+      const dbPositions = await this.positionRepo.find({
+        where: { status: 'OPEN' },
+      });
+      for (const dbPos of dbPositions) {
+        activeSymbols.add(dbPos.symbol);
+      }
+
+      // ✅ 스캘핑 대기 주문 심볼도 활성으로 처리 (고아 취소 방지)
+      if (this.scalpingPositionService) {
+        const scalpingPendingOrders = this.scalpingPositionService.getAllPendingOrders();
+        for (const order of scalpingPendingOrders) {
+          activeSymbols.add(order.symbol);
+        }
+        // 스캘핑 활성 포지션도 추가
+        const scalpingPositions = this.scalpingPositionService.getActivePositions();
+        for (const pos of scalpingPositions) {
+          activeSymbols.add(pos.symbol);
+        }
+      }
+
+      let totalCanceled = 0;
+
+      // 2. 고아 리밋 주문 취소
+      const limitOrders = await this.okxService.getAllOpenOrders();
+      for (const order of limitOrders) {
+        if (!activeSymbols.has(order.symbol)) {
+          try {
+            await this.okxService.cancelOrder(order.symbol, order.ordId);
+            totalCanceled++;
+            this.logger.log(`[ORPHAN CLEANUP] Canceled limit order: ${order.symbol} ${order.side} @ ${order.px}`);
+          } catch (err: any) {
+            this.logger.warn(`[ORPHAN CLEANUP] Failed to cancel limit: ${err.message}`);
+          }
+        }
+      }
+
+      // 3. 고아 알고 주문 취소
+      const algoOrders = await this.okxService.getOpenAlgoOrders();
+      for (const order of algoOrders) {
+        if (!activeSymbols.has(order.symbol)) {
+          try {
+            await this.okxService.cancelAlgoOrder(order.symbol, order.algoId);
+            totalCanceled++;
+            this.logger.log(`[ORPHAN CLEANUP] Canceled algo order: ${order.symbol} ${order.type}`);
+          } catch (err: any) {
+            this.logger.warn(`[ORPHAN CLEANUP] Failed to cancel algo: ${err.message}`);
+          }
+        }
+      }
+
+      if (totalCanceled > 0) {
+        this.logger.log(`[ORPHAN CLEANUP] ✅ Cleaned up ${totalCanceled} orphan orders`);
+      }
+    } catch (error: any) {
+      this.logger.error(`[ORPHAN CLEANUP] Error: ${error.message}`);
+    }
   }
 
   /**
@@ -582,11 +650,11 @@ export class PositionSyncService {
 
         try {
           // 현재 열린 Algo 주문에서 SL 주문 ID 찾기 (2025-12-09 Algo Order API 변경)
-          const algoOrders = await this.binanceService.getOpenAlgoOrders(dbPos.symbol);
+          const algoOrders = await this.okxService.getOpenAlgoOrders(dbPos.symbol);
           const slAlgoOrder = algoOrders.find(o => o.type === 'STOP_MARKET');
 
           // SL을 본전(진입가)으로 이동
-          await this.binanceService.modifyStopLoss(
+          await this.okxService.modifyStopLoss(
             dbPos.symbol,
             dbPos.side as 'LONG' | 'SHORT',
             entryPrice,
@@ -677,11 +745,11 @@ export class PositionSyncService {
 
       try {
         // 1. 모든 SL/TP 주문 취소
-        await this.binanceService.cancelAllAlgoOrders(dbPos.symbol);
+        await this.okxService.cancelAllAlgoOrders(dbPos.symbol);
 
         // 2. 시장가로 강제 청산
         const closeSide = dbPos.side === 'LONG' ? 'SELL' : 'BUY';
-        const closeOrder = await this.binanceService.createOrder({
+        const closeOrder = await this.okxService.createOrder({
           symbol: dbPos.symbol,
           side: closeSide,
           type: 'MARKET',
@@ -720,21 +788,13 @@ export class PositionSyncService {
   private async checkAndPlaceMissingSL(dbPositions: Position[]): Promise<void> {
     for (const dbPos of dbPositions) {
       try {
-        // v21: 포지션 생성 후 30초 동안은 SL Watchdog 체크 스킵 (SL/TP 생성 대기)
-        const positionAge = Date.now() - new Date(dbPos.createdAt).getTime();
-        const GRACE_PERIOD_MS = 30 * 1000; // 30초
-        if (positionAge < GRACE_PERIOD_MS) {
-          this.logger.debug(`[WATCHDOG] ${dbPos.symbol}: Position too new (${Math.round(positionAge/1000)}s), skipping SL check`);
-          continue;
-        }
-
         // Algo Order에서 SL/TP 주문 찾기
-        const algoOrders = await this.binanceService.getOpenAlgoOrders(dbPos.symbol);
+        const algoOrders = await this.okxService.getOpenAlgoOrders(dbPos.symbol);
 
         // SL 체크: closePosition=true인 STOP_MARKET
         const existingSL = algoOrders.find(o =>
           o.type === 'STOP_MARKET' &&
-          (o.closePosition === true || o.closePosition === 'true')
+          o.closePosition === true
         );
 
         // TP 체크: TAKE_PROFIT_MARKET (quantity 또는 closePosition)
@@ -772,24 +832,25 @@ export class PositionSyncService {
               );
 
               try {
-                const binancePositions = await this.binanceService.getOpenPositions();
+                const binancePositions = await this.okxService.getOpenPositions();
                 const binancePos = binancePositions.find(p => p.symbol === dbPos.symbol);
 
                 if (binancePos) {
                   const currentQty = Math.abs(parseFloat(binancePos.positionAmt));
                   if (currentQty > 0) {
-                    await this.binanceService.cancelAllAlgoOrders(dbPos.symbol);
+                    await this.okxService.cancelAllAlgoOrders(dbPos.symbol);
 
                     const closeSide = dbPos.side === 'LONG' ? 'SELL' : 'BUY';
-                    await this.binanceService.createOrder({
+                    await this.okxService.createOrder({
                       symbol: dbPos.symbol,
                       side: closeSide,
                       type: 'MARKET',
                       quantity: currentQty,
                       reduceOnly: true,
+                      quantityInContracts: true,  // ✅ positionAmt는 이미 계약 단위
                     });
 
-                    this.logger.log(`  ✅ Position force closed due to SL absence`);
+                    this.logger.log(`  ✅ Position force closed due to SL absence (${currentQty} contracts)`);
 
                     dbPos.metadata = {
                       ...dbPos.metadata,
@@ -827,24 +888,25 @@ export class PositionSyncService {
 
           try {
             // 시장가로 강제 청산
-            const binancePositions = await this.binanceService.getOpenPositions();
+            const binancePositions = await this.okxService.getOpenPositions();
             const binancePos = binancePositions.find(p => p.symbol === dbPos.symbol);
 
             if (binancePos) {
               const currentQty = Math.abs(parseFloat(binancePos.positionAmt));
               if (currentQty > 0) {
-                await this.binanceService.cancelAllAlgoOrders(dbPos.symbol);
+                await this.okxService.cancelAllAlgoOrders(dbPos.symbol);
 
                 const closeSide = dbPos.side === 'LONG' ? 'SELL' : 'BUY';
-                await this.binanceService.createOrder({
+                await this.okxService.createOrder({
                   symbol: dbPos.symbol,
                   side: closeSide,
                   type: 'MARKET',
                   quantity: currentQty,
                   reduceOnly: true,
+                  quantityInContracts: true,  // ✅ positionAmt는 이미 계약 단위
                 });
 
-                this.logger.log(`  ✅ Position force closed due to SL/TP failure`);
+                this.logger.log(`  ✅ Position force closed due to SL/TP failure (${currentQty} contracts)`);
 
                 dbPos.metadata = {
                   ...dbPos.metadata,
@@ -871,26 +933,6 @@ export class PositionSyncService {
         // SL이 없으면 긴급 생성
         // ═══════════════════════════════════════════════════════════
         if (!existingSL) {
-          // v21: Binance에서 실제 포지션 존재 여부 확인
-          const binancePositions = await this.binanceService.getOpenPositions();
-          const binancePos = binancePositions.find(p => p.symbol === dbPos.symbol);
-          const hasRealPosition = binancePos && Math.abs(parseFloat(binancePos.positionAmt)) > 0;
-
-          if (!hasRealPosition) {
-            this.logger.debug(`[SL WATCHDOG] ${dbPos.symbol}: No real position on Binance, skipping SL creation`);
-            // DB 상태 업데이트 (포지션 없으면 CLOSED로)
-            dbPos.status = 'CLOSED';
-            dbPos.metadata = {
-              ...dbPos.metadata,
-              autoClosedReason: 'NO_BINANCE_POSITION',
-              autoClosedTime: new Date().toISOString(),
-            };
-            await this.positionRepo.save(dbPos);
-            this.slTpRetryCount.delete(dbPos.symbol);
-            this.positionWithoutSlSince.delete(dbPos.symbol);
-            continue;
-          }
-
           this.logger.warn(
             `\n🚨 [SL WATCHDOG] Missing SL detected!\n` +
             `  Symbol: ${dbPos.symbol} ${dbPos.side}\n` +
@@ -902,22 +944,39 @@ export class PositionSyncService {
             ? parseFloat(dbPos.stopLoss) : dbPos.stopLoss;
 
           const EMERGENCY_SL_PERCENT = 0.03;
-          if (!slPrice || slPrice <= 0) {
+
+          // ✅ SL 방향 검증: LONG은 entry 아래, SHORT는 entry 위
+          // 잘못된 방향이면 긴급 SL 사용
+          const isSlInWrongDirection =
+            (dbPos.side === 'LONG' && slPrice && slPrice > entryPrice) ||
+            (dbPos.side === 'SHORT' && slPrice && slPrice < entryPrice);
+
+          if (!slPrice || slPrice <= 0 || isSlInWrongDirection) {
+            const oldSlPrice = slPrice;
             slPrice = dbPos.side === 'LONG'
               ? entryPrice * (1 - EMERGENCY_SL_PERCENT)
               : entryPrice * (1 + EMERGENCY_SL_PERCENT);
-            this.logger.warn(`  ⚠️ No SL price in DB, using 3%: ${slPrice.toFixed(4)}`);
+
+            if (isSlInWrongDirection) {
+              this.logger.warn(
+                `  ⚠️ SL in wrong direction (${oldSlPrice?.toFixed(4)}), using 3%: ${slPrice.toFixed(4)}`
+              );
+            } else {
+              this.logger.warn(`  ⚠️ No SL price in DB, using 3%: ${slPrice.toFixed(4)}`);
+            }
           }
 
-          const formattedSL = parseFloat(this.binanceService.formatPrice(dbPos.symbol, slPrice));
+          const formattedSL = parseFloat(this.okxService.formatPrice(dbPos.symbol, slPrice));
 
           try {
-            const slOrder = await this.binanceService.createAlgoOrder({
+            // ✅ DB 포지션의 side는 이미 실제 포지션 방향이므로 추가 반전 불필요
+            const slOrder = await this.okxService.createAlgoOrder({
               symbol: dbPos.symbol,
               side: dbPos.side === 'LONG' ? 'SELL' : 'BUY',
               type: 'STOP_MARKET',
               triggerPrice: formattedSL,
               closePosition: true,
+              isStrategyPosition: false,  // ✅ DB side는 실제 포지션 방향 - 반전 불필요
             });
 
             dbPos.metadata = {
@@ -932,9 +991,6 @@ export class PositionSyncService {
           } catch (slError: any) {
             if (slError.code === -4130 || slError.message?.includes('-4130')) {
               this.logger.log(`[SL WATCHDOG] ${dbPos.symbol}: SL already exists`);
-            } else if (slError.code === -4509 || slError.message?.includes('-4509')) {
-              // v21: 포지션이 아직 Binance에서 인식되지 않음 - 재시도 카운터 증가하지 않고 다음 주기에 재시도
-              this.logger.debug(`[SL WATCHDOG] ${dbPos.symbol}: Position not yet recognized by Binance, will retry next cycle`);
             } else {
               // ✅ [방어 로직] SL 생성 실패 - 재시도 카운터 증가
               this.slTpRetryCount.set(dbPos.symbol, currentRetries + 1);
@@ -952,38 +1008,101 @@ export class PositionSyncService {
           let tpPrice = typeof dbPos.takeProfit1 === 'string'
             ? parseFloat(dbPos.takeProfit1) : dbPos.takeProfit1;
 
-          // TP 가격이 없으면 1.2R로 계산 (SL 기준)
-          if (!tpPrice || tpPrice <= 0) {
-            const slPrice = typeof dbPos.stopLoss === 'string'
-              ? parseFloat(dbPos.stopLoss) : dbPos.stopLoss;
-            if (slPrice && slPrice > 0) {
-              const risk = Math.abs(entryPrice - slPrice);
-              tpPrice = dbPos.side === 'LONG'
-                ? entryPrice + (risk * 1.2)
-                : entryPrice - (risk * 1.2);
+          // ✅ TP 방향 검증: LONG은 entry 위, SHORT는 entry 아래
+          // 잘못된 방향이면 긴급 TP 사용
+          const isTpInWrongDirection =
+            (dbPos.side === 'LONG' && tpPrice && tpPrice < entryPrice) ||
+            (dbPos.side === 'SHORT' && tpPrice && tpPrice > entryPrice);
+
+          // TP 가격이 없거나 잘못된 방향이면 1.2R로 계산 (entry 기준)
+          if (!tpPrice || tpPrice <= 0 || isTpInWrongDirection) {
+            const oldTpPrice = tpPrice;
+            // SL 기반이 아닌 entry 기반으로 1.5% TP 계산
+            const EMERGENCY_TP_PERCENT = 0.015;  // 1.5%
+            tpPrice = dbPos.side === 'LONG'
+              ? entryPrice * (1 + EMERGENCY_TP_PERCENT)
+              : entryPrice * (1 - EMERGENCY_TP_PERCENT);
+
+            if (isTpInWrongDirection) {
+              this.logger.warn(
+                `  ⚠️ TP in wrong direction (${oldTpPrice?.toFixed(4)}), using 1.5%: ${tpPrice.toFixed(4)}`
+              );
             }
           }
 
           if (tpPrice && tpPrice > 0) {
+            // ✅ 현재가 확인 - TP 가격이 이미 도달했는지 체크
+            const binancePositions = await this.okxService.getOpenPositions();
+            const binancePos = binancePositions.find(p => p.symbol === dbPos.symbol);
+            const currentPrice = binancePos ? parseFloat(binancePos.markPrice) : 0;
+
+            // 디버깅 로그 추가
+            this.logger.debug(
+              `[TP WATCHDOG] ${dbPos.symbol}: markPrice=${binancePos?.markPrice}, currentPrice=${currentPrice}, tpPrice=${tpPrice}`
+            );
+
+            // TP 방향 검증: LONG은 TP > current, SHORT는 TP < current
+            // LONG: TP is above entry, price going UP triggers TP → tpAlreadyPassed when currentPrice >= tpPrice
+            // SHORT: TP is below entry, price going DOWN triggers TP → tpAlreadyPassed when currentPrice <= tpPrice
+            const tpAlreadyPassed = dbPos.side === 'LONG'
+              ? (currentPrice > 0 && currentPrice >= tpPrice)   // LONG: current >= TP means TP reached
+              : (currentPrice > 0 && currentPrice <= tpPrice);  // SHORT: current <= TP means TP reached
+
+            if (tpAlreadyPassed) {
+              this.logger.warn(
+                `\n💰 [TP WATCHDOG] Price already passed TP!\n` +
+                `  Symbol: ${dbPos.symbol} ${dbPos.side}\n` +
+                `  TP Target: ${tpPrice.toFixed(4)}\n` +
+                `  Current:   ${currentPrice.toFixed(4)}\n` +
+                `  → Price is ${dbPos.side === 'LONG' ? 'above' : 'below'} TP, closing at market...`
+              );
+
+              // 시장가로 즉시 청산
+              try {
+                const currentQty = binancePos ? Math.abs(parseFloat(binancePos.positionAmt)) : 0;
+                if (currentQty > 0) {
+                  await this.okxService.cancelAllAlgoOrders(dbPos.symbol);
+                  const closeSide = dbPos.side === 'LONG' ? 'SELL' : 'BUY';
+                  await this.okxService.createOrder({
+                    symbol: dbPos.symbol,
+                    side: closeSide,
+                    type: 'MARKET',
+                    quantity: currentQty,
+                    reduceOnly: true,
+                    quantityInContracts: true,  // ✅ positionAmt는 이미 계약 단위
+                  });
+                  this.logger.log(`  ✅ Position closed at market (TP already reached, ${currentQty} contracts)`);
+                }
+              } catch (closeError: any) {
+                this.logger.error(`  ❌ Market close failed: ${closeError.message}`);
+              }
+              this.slTpRetryCount.delete(dbPos.symbol);
+              continue;  // 다음 포지션으로
+            }
+
+            // ✅ OKX에서 실제 포지션 수량 확인 (계약 단위)
+            const currentQtyForTp = binancePos ? Math.abs(parseFloat(binancePos.positionAmt)) : 0;
+
             this.logger.warn(
               `\n🚨 [TP WATCHDOG] Missing TP detected!\n` +
               `  Symbol: ${dbPos.symbol} ${dbPos.side}\n` +
               `  Entry:  ${entryPrice}\n` +
+              `  Qty:    ${currentQtyForTp} contracts\n` +
               `  → Creating emergency TP order at ${tpPrice.toFixed(4)}...`
             );
 
-            const formattedTP = parseFloat(this.binanceService.formatPrice(dbPos.symbol, tpPrice));
-            const quantity = typeof dbPos.quantity === 'string'
-              ? parseFloat(dbPos.quantity) : dbPos.quantity;
-            const formattedQty = parseFloat(this.binanceService.formatQuantity(dbPos.symbol, quantity));
+            const formattedTP = parseFloat(this.okxService.formatPrice(dbPos.symbol, tpPrice));
 
             try {
-              const tpOrder = await this.binanceService.createAlgoOrder({
+              // ✅ DB 포지션의 side는 이미 실제 포지션 방향이므로 추가 반전 불필요
+              const tpOrder = await this.okxService.createAlgoOrder({
                 symbol: dbPos.symbol,
                 side: dbPos.side === 'LONG' ? 'SELL' : 'BUY',
                 type: 'TAKE_PROFIT_MARKET',
                 triggerPrice: formattedTP,
-                quantity: formattedQty,
+                quantity: currentQtyForTp,
+                quantityInContracts: true,  // ✅ positionAmt는 이미 계약 단위
+                isStrategyPosition: false,  // ✅ DB side는 실제 포지션 방향 - 반전 불필요
               });
 
               dbPos.metadata = {
@@ -996,16 +1115,11 @@ export class PositionSyncService {
               this.logger.log(`  ✅ Emergency TP created: ${tpOrder.algoId} @ ${formattedTP}`);
               // SL과 TP 둘 다 성공하면 다음 사이클에서 카운터 리셋됨
             } catch (tpError: any) {
-              if (tpError.code === -4509 || tpError.message?.includes('-4509')) {
-                // v21: 포지션이 아직 Binance에서 인식되지 않음 - 다음 주기에 재시도
-                this.logger.debug(`[TP WATCHDOG] ${dbPos.symbol}: Position not yet recognized by Binance, will retry next cycle`);
-              } else {
-                // ✅ [방어 로직] TP 생성 실패 - 재시도 카운터 증가
-                this.slTpRetryCount.set(dbPos.symbol, currentRetries + 1);
-                this.logger.error(
-                  `[TP WATCHDOG] Failed (retry ${currentRetries + 1}/${this.MAX_SLTP_RETRIES}): ${tpError.message}`
-                );
-              }
+              // ✅ [방어 로직] TP 생성 실패 - 재시도 카운터 증가
+              this.slTpRetryCount.set(dbPos.symbol, currentRetries + 1);
+              this.logger.error(
+                `[TP WATCHDOG] Failed (retry ${currentRetries + 1}/${this.MAX_SLTP_RETRIES}): ${tpError.message}`
+              );
             }
           } else {
             // TP 가격을 구할 수 없는 경우도 재시도 카운터 증가
@@ -1053,18 +1167,37 @@ export class PositionSyncService {
       // PENDING 또는 FILLED 신호 확인 (최근 30분 이내)
       // - 주문 체결까지 시간이 걸릴 수 있음 (Limit 주문은 최대 15분)
       // - FILLED 직후 OrderMonitorService와 경쟁 상태 발생 가능
+      // ✅ 주문 반전 로직 고려: LONG 신호 → SHORT 포지션, SHORT 신호 → LONG 포지션
+      // 따라서 양쪽 side 모두 체크해야 함
       const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+      const actualPositionSide = positionAmt > 0 ? 'LONG' : 'SHORT';
+      const reversedSignalSide = positionAmt > 0 ? 'SHORT' : 'LONG';  // 전략 반전 시 신호 side
+
       const recentSignal = await this.signalRepo.findOne({
         where: [
+          // 실제 포지션 side와 일치하는 신호 (수동 포지션/반전 안 된 경우)
           {
             symbol,
-            side: positionAmt > 0 ? 'LONG' : 'SHORT',
+            side: actualPositionSide,
             status: 'PENDING',
             createdAt: MoreThan(thirtyMinutesAgo),
           },
           {
             symbol,
-            side: positionAmt > 0 ? 'LONG' : 'SHORT',
+            side: actualPositionSide,
+            status: 'FILLED',
+            createdAt: MoreThan(thirtyMinutesAgo),
+          },
+          // ✅ 반전된 신호 side (전략 LONG → 실제 SHORT 포지션인 경우)
+          {
+            symbol,
+            side: reversedSignalSide,
+            status: 'PENDING',
+            createdAt: MoreThan(thirtyMinutesAgo),
+          },
+          {
+            symbol,
+            side: reversedSignalSide,
             status: 'FILLED',
             createdAt: MoreThan(thirtyMinutesAgo),
           },
@@ -1096,23 +1229,10 @@ export class PositionSyncService {
         continue;
       }
 
-      // ⚠️ 미인식 포지션 발견
+      // ⚠️ 미인식 포지션 발견 - 즉시 청산!
       const entryPrice = parseFloat(binancePos.entryPrice);
       const currentQty = Math.abs(positionAmt);
       const positionValue = entryPrice * currentQty;
-
-      // v22: Binance 포지션의 updateTime 확인 (포지션 생성 후 30초 대기)
-      // Binance API는 updateTime을 밀리초 timestamp로 제공
-      const positionUpdateTime = parseInt(binancePos.updateTime || '0');
-      const positionAge = Date.now() - positionUpdateTime;
-      const GRACE_PERIOD_MS = 30 * 1000; // 30초
-
-      if (positionAge < GRACE_PERIOD_MS) {
-        this.logger.debug(
-          `[DEFENSE] ${symbol}: Position too new (${Math.round(positionAge/1000)}s), waiting for OrderService to process`
-        );
-        continue;
-      }
 
       this.logger.error(
         `\n🚨🚨🚨 [CRITICAL] UNKNOWN POSITION DETECTED! 🚨🚨🚨\n` +
@@ -1121,17 +1241,16 @@ export class PositionSyncService {
         `  Quantity:  ${currentQty}\n` +
         `  Entry:     ${entryPrice}\n` +
         `  Value:     $${positionValue.toFixed(2)}\n` +
-        `  Age:       ${Math.round(positionAge/1000)}s\n` +
         `  → CLOSING IMMEDIATELY!`
       );
 
       try {
         // 1. 모든 관련 주문 취소
-        await this.binanceService.cancelAllAlgoOrders(symbol);
+        await this.okxService.cancelAllAlgoOrders(symbol);
 
         // 2. 시장가로 즉시 청산
         const closeSide = positionAmt > 0 ? 'SELL' : 'BUY';
-        const closeOrder = await this.binanceService.createOrder({
+        const closeOrder = await this.okxService.createOrder({
           symbol,
           side: closeSide,
           type: 'MARKET',
@@ -1143,9 +1262,6 @@ export class PositionSyncService {
           `  ✅ Unknown position CLOSED: ${closeOrder.orderId}\n` +
           `  ════════════════════════════════════════════════════`
         );
-
-        // v22: 청산된 심볼 추적 (메인 루프에서 중복 처리 방지)
-        this.closedInCurrentCycle.add(symbol);
 
       } catch (error: any) {
         this.logger.error(`  ❌ Failed to close unknown position: ${error.message}`);
@@ -1165,7 +1281,7 @@ export class PositionSyncService {
     // ✅ 총 자본 조회 (Available Balance + Unrealized PnL)
     let totalCapital: number;
     try {
-      const availableBalance = await this.binanceService.getAvailableBalance();
+      const availableBalance = await this.okxService.getAvailableBalance();
       // 미실현 손익 포함한 총 자본 계산
       const totalUnrealizedPnl = binancePositions.reduce((sum, p) => {
         return sum + parseFloat(p.unRealizedProfit || '0');
@@ -1192,11 +1308,9 @@ export class PositionSyncService {
       const margin = positionValue / leverage;
 
       // ✅ v16: 비정상 마진 체크 - 2가지 조건
-      // 1) 총 자본의 10% 초과 (단, 마진이 $50 이상일 때만 체크)
+      // 1) 총 자본의 10% 초과
       // 2) 절대값 $35 이상 (무조건)
-      // v20: 마진 $50 미만은 퍼센트 체크 스킵 (소액 시드용)
-      const MIN_MARGIN_FOR_PERCENT_CHECK = 50;
-      const exceedsPercentLimit = margin >= MIN_MARGIN_FOR_PERCENT_CHECK && margin > maxMargin;
+      const exceedsPercentLimit = margin > maxMargin;
       const exceedsAbsoluteLimit = margin >= this.ABSOLUTE_MAX_MARGIN;
 
       if (exceedsPercentLimit || exceedsAbsoluteLimit) {
@@ -1221,11 +1335,11 @@ export class PositionSyncService {
 
         try {
           // 1. 모든 관련 주문 취소
-          await this.binanceService.cancelAllAlgoOrders(symbol);
+          await this.okxService.cancelAllAlgoOrders(symbol);
 
           // 2. 시장가로 즉시 청산
           const closeSide = positionAmt > 0 ? 'SELL' : 'BUY';
-          const closeOrder = await this.binanceService.createOrder({
+          const closeOrder = await this.okxService.createOrder({
             symbol,
             side: closeSide,
             type: 'MARKET',
@@ -1237,9 +1351,6 @@ export class PositionSyncService {
             `  ✅ Oversized margin position CLOSED: ${closeOrder.orderId}\n` +
             `  ════════════════════════════════════════════════════`
           );
-
-          // v22: 청산된 심볼 추적 (메인 루프에서 중복 처리 방지)
-          this.closedInCurrentCycle.add(symbol);
 
           // DB에 포지션이 있으면 상태 업데이트
           const dbPos = await this.positionRepo.findOne({
