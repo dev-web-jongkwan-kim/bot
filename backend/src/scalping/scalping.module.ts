@@ -19,6 +19,7 @@ import { MomentumAnalyzer } from './strategies/momentum-analyzer';
 
 // Dependencies
 import { OkxModule } from '../okx/okx.module';
+import { BinanceModule } from '../binance/binance.module';
 import { CacheModule } from '../cache/cache.module';
 import { WebSocketModule } from '../websocket/websocket.module';
 import { DatabaseModule } from '../database/database.module';
@@ -43,6 +44,7 @@ import { SymbolSelectionModule } from '../symbol-selection/symbol-selection.modu
     ConfigModule,
     CacheModule,
     OkxModule,
+    BinanceModule,
     WebSocketModule,
     DatabaseModule,
     SymbolSelectionModule,

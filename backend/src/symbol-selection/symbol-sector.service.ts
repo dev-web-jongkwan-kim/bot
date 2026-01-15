@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { OkxService } from '../okx/okx.service';
+import { BinanceService } from '../binance/binance.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -90,7 +90,7 @@ export class SymbolSectorService implements OnModuleInit {
     },
   };
 
-  constructor(private okxService: OkxService) {}
+  constructor(private binanceService: BinanceService) {}
 
   async onModuleInit() {
     // 데이터 디렉토리 생성
@@ -159,7 +159,7 @@ export class SymbolSectorService implements OnModuleInit {
     this.logger.log('Updating sector data from OKX...');
 
     try {
-      const instruments = await this.okxService.getExchangeInfo();
+      const instruments = await this.binanceService.getExchangeInfo();
 
       // OKX returns array directly, not { symbols: [...] }
       // Map to compatible format and filter USDT swaps

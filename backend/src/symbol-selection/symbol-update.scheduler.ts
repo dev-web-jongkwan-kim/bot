@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { SymbolSelectionService } from './symbol-selection.service';
-import { OkxWebSocketService } from '../okx/okx-websocket.service';
+import { WebSocketService } from '../websocket/websocket.service';
 
 @Injectable()
 export class SymbolUpdateScheduler {
@@ -10,7 +10,7 @@ export class SymbolUpdateScheduler {
 
   constructor(
     private symbolSelection: SymbolSelectionService,
-    private wsService: OkxWebSocketService,
+    private wsService: WebSocketService,
   ) {}
 
   /**

@@ -1,5 +1,5 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import { OkxService } from '../okx/okx.service';
+import { BinanceService } from '../binance/binance.service';
 import Redis from 'ioredis';
 
 export interface SelectedSymbol {
@@ -21,7 +21,7 @@ export class SymbolSelectionService {
   private readonly CACHE_TTL = 86400; // 24 hours
 
   constructor(
-    private okxService: OkxService,
+    private binanceService: BinanceService,
     @Inject('REDIS_CLIENT') private redis: Redis,
   ) {}
 
@@ -90,31 +90,18 @@ export class SymbolSelectionService {
   }
 
   /**
-   * 모든 영구 USDT 선물 종목 가져오기 (OKX 형식)
+   * 모든 영구 USDT 선물 종목 가져오기 (Binance)
    */
   private async getAllPerpetualSymbols(): Promise<any[]> {
-    const instruments = await this.okxService.getExchangeInfo();
-
-    // OKX returns array of instruments with instId like "BTC-USDT-SWAP"
-    // Map to Binance-compatible format
-    return instruments.map((inst: any) => ({
-      symbol: inst.instId.replace('-USDT-SWAP', 'USDT'),  // BTC-USDT-SWAP -> BTCUSDT
-      contractType: 'PERPETUAL',
-      quoteAsset: 'USDT',
-      status: inst.state === 'live' ? 'TRADING' : inst.state,
-      // Keep original OKX data
-      instId: inst.instId,
-      tickSz: inst.tickSz,
-      lotSz: inst.lotSz,
-      minSz: inst.minSz,
-    }));
+    const exchangeInfo = await this.binanceService.getExchangeInfo();
+    return exchangeInfo.symbols || [];
   }
 
   /**
    * 모든 종목의 24시간 통계 가져오기
    */
   private async getAll24hTickers(): Promise<any[]> {
-    const result = await this.okxService.getAll24hTickers();
+    const result = await this.binanceService.getAll24hTickers();
     // Ensure we always return an array
     return Array.isArray(result) ? result : [result];
   }

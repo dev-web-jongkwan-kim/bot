@@ -1,7 +1,7 @@
 import { Injectable, Logger, Inject, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import Redis from 'ioredis';
-import { ConfigService } from '@nestjs/config';
+import { BinanceService } from '../../binance/binance.service';
 import { SymbolSelectionService } from '../../symbol-selection/symbol-selection.service';
 import { SCALPING_CONFIG } from '../constants/scalping.config';
 import {
@@ -29,9 +29,6 @@ import {
 export class ScalpingDataService implements OnModuleInit {
   private readonly logger = new Logger(ScalpingDataService.name);
 
-  // OKX API 설정
-  private readonly baseUrl = 'https://www.okx.com';
-
   // 모니터링할 심볼 목록
   private symbols: string[] = [];
 
@@ -45,7 +42,7 @@ export class ScalpingDataService implements OnModuleInit {
 
   constructor(
     @Inject('REDIS_CLIENT') private redis: Redis,
-    private configService: ConfigService,
+    private binanceService: BinanceService,
     private symbolSelectionService: SymbolSelectionService,
   ) {}
 
@@ -120,17 +117,13 @@ export class ScalpingDataService implements OnModuleInit {
   }
 
   /**
-   * OKX REST API에서 초기 캔들 데이터 로드
-   *
-   * 서버 시작 시 WebSocket 캔들이 닫히기를 기다리지 않고
-   * 히스토리 캔들을 미리 로드합니다.
+   * Binance REST API에서 초기 캔들 데이터 로드
    */
   private async loadInitialCandles(): Promise<void> {
     const startTime = Date.now();
     let successCount = 0;
     let errorCount = 0;
 
-    // 전체 심볼 로드 (Rate Limit: 20 req/2sec = 10 req/sec)
     const timeframes = ['5m', '15m'];
     const totalRequests = this.symbols.length * timeframes.length;
 
@@ -148,7 +141,6 @@ export class ScalpingDataService implements OnModuleInit {
             this.logger.warn(`[ScalpingData] Failed to load ${symbol} ${timeframe}: ${error.message}`);
           }
         }
-        // Rate limit 방지: 50ms 딜레이 (20 req/sec)
         await this.sleep(50);
       }
     }
@@ -160,46 +152,30 @@ export class ScalpingDataService implements OnModuleInit {
   }
 
   /**
-   * 단일 심볼의 캔들 데이터 로드
-   *
-   * OKX API: GET /api/v5/market/candles
+   * 단일 심볼의 캔들 데이터 로드 (Binance)
    */
   private async loadCandlesForSymbol(symbol: string, timeframe: string): Promise<void> {
-    const instId = this.toOkxInstId(symbol);
-    const limit = timeframe === '5m' ? 50 : 20; // 5분봉 50개, 15분봉 20개
-
-    const response = await fetch(
-      `${this.baseUrl}/api/v5/market/candles?instId=${instId}&bar=${timeframe}&limit=${limit}`,
-    );
-    const data = await response.json();
-
-    if (data.code !== '0' || !data.data || data.data.length === 0) {
-      throw new Error(`OKX API error: ${data.msg || 'No data'}`);
+    const limit = timeframe === '5m' ? 50 : 20;
+    const candles = await this.binanceService.getHistoricalCandles(symbol, timeframe, limit);
+    if (!candles || candles.length === 0) {
+      throw new Error(`Binance API error: No data`);
     }
 
     const key = `candles:${symbol}:${timeframe}`;
     const pipeline = this.redis.pipeline();
-
-    // 기존 데이터 삭제
     pipeline.del(key);
 
-    // OKX 캔들 형식: [ts, o, h, l, c, vol, volCcy, volCcyQuote, confirm]
-    // 역순으로 저장 (최신 것을 먼저 LPUSH)
-    const candles = data.data.reverse(); // OKX는 최신부터 반환하므로 역순
-
-    for (const candleData of candles) {
-      const [ts, o, h, l, c, vol] = candleData;
-
-      // 완료된 캔들만 저장 (confirm=1 또는 과거 캔들)
+    for (const candle of candles) {
       const candleJson = JSON.stringify({
-        timestamp: new Date(parseInt(ts)).toISOString(),
-        open: parseFloat(o),
-        high: parseFloat(h),
-        low: parseFloat(l),
-        close: parseFloat(c),
-        volume: parseFloat(vol),
+        timestamp: candle.timestamp instanceof Date
+          ? candle.timestamp.toISOString()
+          : new Date(candle.timestamp).toISOString(),
+        open: candle.open,
+        high: candle.high,
+        low: candle.low,
+        close: candle.close,
+        volume: candle.volume,
       });
-
       pipeline.lpush(key, candleJson);
     }
 
@@ -222,13 +198,7 @@ export class ScalpingDataService implements OnModuleInit {
     return `${parts[0]}USDT`;
   }
 
-  /**
-   * Binance 심볼 -> OKX instId 변환: BTCUSDT -> BTC-USDT-SWAP
-   */
-  private toOkxInstId(symbol: string): string {
-    const base = symbol.replace('USDT', '');
-    return `${base}-USDT-SWAP`;
-  }
+  // Binance는 심볼을 그대로 사용 (BTCUSDT)
 
   /**
    * 1분마다 실행: 모든 마켓 데이터 수집
@@ -284,51 +254,35 @@ export class ScalpingDataService implements OnModuleInit {
         this.logger.debug('[ScalpingData] Collecting funding rates...');
       }
 
-      let updateCount = 0;
-      const pipeline = this.redis.pipeline();
+    let updateCount = 0;
+    const pipeline = this.redis.pipeline();
 
-      // OKX는 단일 심볼씩 조회해야 함
-      // 전체 종목 처리 (딜레이로 Rate Limit 대응)
-      for (const symbol of this.symbols) {
-        try {
-          const instId = this.toOkxInstId(symbol);
-          const response = await fetch(
-            `${this.baseUrl}/api/v5/public/funding-rate?instId=${instId}`,
-          );
-          const data = await response.json();
+    const premiumIndex = await this.binanceService.getPremiumIndex();
+    if (!Array.isArray(premiumIndex)) {
+      return;
+    }
 
-          if (data.code === '0' && data.data && data.data[0]) {
-            const item = data.data[0];
-            const fundingData: FundingData = {
-              symbol,
-              fundingRate: parseFloat(item.fundingRate),
-              nextFundingTime: parseInt(item.nextFundingTime),
-              markPrice: parseFloat(item.markPx || '0'),
-              indexPrice: parseFloat(item.indexPx || '0'),
-              updatedAt: Date.now(),
-            };
+    for (const item of premiumIndex) {
+      if (!item.symbol) continue;
+      if (this.symbols.length > 0 && !this.symbols.includes(item.symbol)) continue;
 
-            pipeline.set(
-              `scalping:funding:${symbol}`,
-              JSON.stringify(fundingData),
-              'EX',
-              120, // 2분 TTL
-            );
-            updateCount++;
+      const fundingData: FundingData = {
+        symbol: item.symbol,
+        fundingRate: parseFloat(item.lastFundingRate || '0'),
+        nextFundingTime: parseInt(item.nextFundingTime || '0'),
+        markPrice: parseFloat(item.markPrice || '0'),
+        indexPrice: parseFloat(item.indexPrice || '0'),
+        updatedAt: Date.now(),
+      };
 
-            if (SCALPING_CONFIG.logging.verbose && updateCount <= 5) {
-              this.logger.debug(
-                `[ScalpingData] Funding: ${symbol} = ${(fundingData.fundingRate * 100).toFixed(4)}%`,
-              );
-            }
-          }
-
-          // Rate limit 방지: 30ms 딜레이
-          await this.sleep(30);
-        } catch (symbolError) {
-          // 개별 심볼 에러는 무시하고 계속
-        }
-      }
+      pipeline.set(
+        `scalping:funding:${item.symbol}`,
+        JSON.stringify(fundingData),
+        'EX',
+        120,
+      );
+      updateCount++;
+    }
 
       await pipeline.exec();
       this.stats.fundingUpdates = updateCount;
@@ -344,9 +298,7 @@ export class ScalpingDataService implements OnModuleInit {
   }
 
   /**
-   * Open Interest 수집
-   *
-   * OKX API: GET /api/v5/public/open-interest
+   * Open Interest 수집 (Binance)
    */
   private async collectOpenInterest(): Promise<void> {
     try {
@@ -357,57 +309,33 @@ export class ScalpingDataService implements OnModuleInit {
       let updateCount = 0;
       const pipeline = this.redis.pipeline();
 
-      // 전체 종목 처리 (딜레이로 Rate Limit 대응)
       for (const symbol of this.symbols) {
         try {
-          const instId = this.toOkxInstId(symbol);
-          const response = await fetch(
-            `${this.baseUrl}/api/v5/public/open-interest?instType=SWAP&instId=${instId}`,
+          const oiResponse = await this.binanceService.getOpenInterest(symbol);
+          const currentOi = parseFloat(oiResponse?.openInterest || '0');
+
+          const prevDataStr = await this.redis.get(`scalping:oi:${symbol}`);
+          const prevOi = prevDataStr ? JSON.parse(prevDataStr).openInterest : currentOi;
+
+          const oiChange = currentOi - prevOi;
+          const oiChangePercent = prevOi > 0 ? oiChange / prevOi : 0;
+
+          const oiData: OiData = {
+            symbol,
+            openInterest: currentOi,
+            oiChange,
+            oiChangePercent,
+            direction: oiChangePercent > 0 ? 'UP' : oiChangePercent < 0 ? 'DOWN' : 'FLAT',
+            updatedAt: Date.now(),
+          };
+
+          pipeline.set(
+            `scalping:oi:${symbol}`,
+            JSON.stringify(oiData),
+            'EX',
+            120,
           );
-          const data = await response.json();
-
-          if (data.code === '0' && data.data && data.data[0]) {
-            const item = data.data[0];
-            const currentOi = parseFloat(item.oi);
-
-            // 이전 OI 조회
-            const prevDataStr = await this.redis.get(`scalping:oi:${symbol}`);
-            const prevOi = prevDataStr ? JSON.parse(prevDataStr).openInterest : currentOi;
-
-            // 변화율 계산
-            const oiChange = currentOi - prevOi;
-            const oiChangePercent = prevOi > 0 ? oiChange / prevOi : 0;
-
-            const oiData: OiData = {
-              symbol,
-              openInterest: currentOi,
-              oiChange,
-              oiChangePercent,
-              direction: oiChangePercent > 0 ? 'UP' : oiChangePercent < 0 ? 'DOWN' : 'FLAT',
-              updatedAt: Date.now(),
-            };
-
-            pipeline.set(
-              `scalping:oi:${symbol}`,
-              JSON.stringify(oiData),
-              'EX',
-              120, // 2분 TTL
-            );
-            updateCount++;
-
-            if (
-              SCALPING_CONFIG.logging.verbose &&
-              updateCount <= 5 &&
-              Math.abs(oiChangePercent) > 0.001
-            ) {
-              this.logger.debug(
-                `[ScalpingData] OI: ${symbol} = ${currentOi.toFixed(2)} (${oiChangePercent >= 0 ? '+' : ''}${(oiChangePercent * 100).toFixed(2)}%)`,
-              );
-            }
-          }
-
-          // Rate limit 방지: 30ms 딜레이
-          await this.sleep(30);
+          updateCount++;
         } catch (symbolError) {
           // 개별 심볼 에러는 무시하고 계속
         }
@@ -427,9 +355,7 @@ export class ScalpingDataService implements OnModuleInit {
   }
 
   /**
-   * Spread (Book Ticker) 수집
-   *
-   * OKX API: GET /api/v5/market/books (depth 1)
+   * Spread (Book Ticker) 수집 (Binance)
    */
   private async collectSpreads(): Promise<void> {
     try {
@@ -440,56 +366,38 @@ export class ScalpingDataService implements OnModuleInit {
       let updateCount = 0;
       const pipeline = this.redis.pipeline();
 
-      // 전체 심볼 처리 (Book ticker는 빠름)
-      for (const symbol of this.symbols) {
-        try {
-          const instId = this.toOkxInstId(symbol);
-          const response = await fetch(
-            `${this.baseUrl}/api/v5/market/books?instId=${instId}&sz=1`,
-          );
-          const data = await response.json();
+      const bookTickers = await this.binanceService.getBookTickers();
+      if (!Array.isArray(bookTickers)) return;
 
-          if (data.code === '0' && data.data && data.data[0]) {
-            const item = data.data[0];
-            const bidPrice = parseFloat(item.bids?.[0]?.[0] || '0');
-            const askPrice = parseFloat(item.asks?.[0]?.[0] || '0');
+      for (const item of bookTickers) {
+        const symbol = item.symbol;
+        if (!symbol || (this.symbols.length > 0 && !this.symbols.includes(symbol))) continue;
 
-            if (bidPrice > 0 && askPrice > 0) {
-              const midPrice = (bidPrice + askPrice) / 2;
-              const spread = askPrice - bidPrice;
-              const spreadPercent = spread / midPrice;
+        const bidPrice = parseFloat(item.bidPrice || '0');
+        const askPrice = parseFloat(item.askPrice || '0');
+        if (bidPrice <= 0 || askPrice <= 0) continue;
 
-              const spreadData: SpreadData = {
-                symbol,
-                bidPrice,
-                askPrice,
-                midPrice,
-                spread,
-                spreadPercent,
-                updatedAt: Date.now(),
-              };
+        const midPrice = (bidPrice + askPrice) / 2;
+        const spread = askPrice - bidPrice;
+        const spreadPercent = spread / midPrice;
 
-              pipeline.set(
-                `scalping:spread:${symbol}`,
-                JSON.stringify(spreadData),
-                'EX',
-                90, // 90초 TTL (스캔 주기 60초 고려)
-              );
-              updateCount++;
+        const spreadData: SpreadData = {
+          symbol,
+          bidPrice,
+          askPrice,
+          midPrice,
+          spread,
+          spreadPercent,
+          updatedAt: Date.now(),
+        };
 
-              if (SCALPING_CONFIG.logging.verbose && spreadPercent > 0.001 && updateCount <= 3) {
-                this.logger.debug(
-                  `[ScalpingData] Spread: ${symbol} = ${(spreadPercent * 100).toFixed(4)}% (bid: ${bidPrice}, ask: ${askPrice})`,
-                );
-              }
-            }
-          }
-
-          // Rate limit 방지: 20ms 딜레이 (Book ticker는 가벼움)
-          await this.sleep(20);
-        } catch (symbolError) {
-          // 개별 심볼 에러는 무시하고 계속
-        }
+        pipeline.set(
+          `scalping:spread:${symbol}`,
+          JSON.stringify(spreadData),
+          'EX',
+          90,
+        );
+        updateCount++;
       }
 
       await pipeline.exec();

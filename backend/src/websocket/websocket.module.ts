@@ -1,5 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { OkxWebSocketService } from '../okx/okx-websocket.service';
+import { WebSocketService } from './websocket.service';
 import { CandleAggregatorService } from './candle-aggregator.service';
 import { AppWebSocketGateway } from './websocket.gateway';
 import { CacheModule } from '../cache/cache.module';
@@ -10,15 +10,14 @@ import { CacheModule } from '../cache/cache.module';
 @Module({
   imports: [CacheModule],
   providers: [
-    OkxWebSocketService,
+    WebSocketService,
     CandleAggregatorService,
     AppWebSocketGateway,
-    // Provide OkxWebSocketService as 'WebSocketService' for compatibility
     {
       provide: 'WebSocketService',
-      useExisting: OkxWebSocketService,
+      useExisting: WebSocketService,
     },
   ],
-  exports: [OkxWebSocketService, CandleAggregatorService, AppWebSocketGateway, 'WebSocketService'],
+  exports: [WebSocketService, CandleAggregatorService, AppWebSocketGateway, 'WebSocketService'],
 })
 export class WebSocketModule {}
