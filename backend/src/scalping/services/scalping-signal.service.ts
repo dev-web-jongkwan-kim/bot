@@ -10,6 +10,7 @@ import {
   FilterResult,
   SignalAnalysisResult,
   ScanSummary,
+  CandleData,
 } from '../interfaces';
 
 /**
@@ -42,7 +43,7 @@ export class ScalpingSignalService {
    * 메인 스캔 루프
    *
    * 매 1분마다 실행
-   * - 140개 종목 스캔
+   * - 상위 50개 종목 스캔
    * - 조건 충족 종목에 시그널 생성
    */
   @Cron('30 * * * * *') // 매 분 30초 (데이터 수집 후)
@@ -231,10 +232,16 @@ export class ScalpingSignalService {
         marketData.candles5m,
         SCALPING_CONFIG.filter3.cvdBars,
       );
+      const cvdRatio = this.calculateCvdRatio(
+        marketData.candles5m,
+        cvdResult.cvd,
+        SCALPING_CONFIG.filter3.cvdBars,
+      );
       const filter3 = this.checkFilter3(
         trendResult,
         momentumResult,
         cvdResult,
+        cvdRatio,
         marketData,
       );
       result.filter3Result = filter3;
@@ -266,6 +273,13 @@ export class ScalpingSignalService {
         marketData.candles5m,
         SCALPING_CONFIG.order.atrPeriod,
       );
+      if (atrResult.atrPercent < SCALPING_CONFIG.order.minAtrPercent) {
+        this.logger.debug(
+          `[ScalpingSignal] [${symbol}] ATR% too low: ${(atrResult.atrPercent * 100).toFixed(3)}% < ${(SCALPING_CONFIG.order.minAtrPercent * 100).toFixed(3)}%`,
+        );
+        result.analysisTimeMs = Date.now() - analysisStart;
+        return result;
+      }
 
       // 가격 계산
       const currentPrice = marketData.currentPrice;
@@ -282,8 +296,14 @@ export class ScalpingSignalService {
       const atrTpDistance = atrResult.atr * SCALPING_CONFIG.order.tpAtr; // 단일 TP (fallback)
       const atrSlDistance = atrResult.atr * SCALPING_CONFIG.order.slAtr;
 
-      // 최소 TP/SL 거리 (0.3%로 낮춤)
-      const minTpSlPercent = 0.003; // 0.3%
+      // 최소 TP/SL 거리 (수수료 + 스프레드 + 슬리피지 반영)
+      const spreadPercent = marketData.spreadData?.spreadPercent || 0;
+      const minTpSlPercent = Math.max(
+        SCALPING_CONFIG.order.minTpSlPercent,
+        (SCALPING_CONFIG.order.feePercent * 2) +
+          (spreadPercent * 2) +
+          SCALPING_CONFIG.order.slippagePercent,
+      );
       const minTp1Distance = entryPrice * minTpSlPercent;
       const minTp2Distance = entryPrice * (minTpSlPercent * 1.5); // TP2는 더 크게
       const minTpDistance = entryPrice * minTpSlPercent;
@@ -322,6 +342,7 @@ export class ScalpingSignalService {
         trendStrength: trendResult.strength,
         momentumStrength: momentumResult.strength,
         cvdStrength: Math.abs(cvdResult.cvd),
+        cvdRatio,
         fundingFavorable: this.isFundingFavorable(
           marketData.fundingData?.fundingRate || 0,
           direction,
@@ -378,6 +399,12 @@ export class ScalpingSignalService {
       );
       this.logger.log(
         `[ScalpingSignal] [${symbol}]   ATR: ${atrResult.atr.toFixed(4)} (${(atrResult.atrPercent * 100).toFixed(2)}%), Strength: ${strength.toFixed(0)}/100`,
+      );
+      this.logger.debug(
+        `[ScalpingSignal] [${symbol}]   Min TP/SL: ${(minTpSlPercent * 100).toFixed(3)}% ` +
+          `(fee=${(SCALPING_CONFIG.order.feePercent * 100).toFixed(3)}%, ` +
+          `spread=${(spreadPercent * 100).toFixed(3)}%, ` +
+          `slip=${(SCALPING_CONFIG.order.slippagePercent * 100).toFixed(3)}%)`,
       );
     } catch (error) {
       this.logger.error(`[ScalpingSignal] [${symbol}] Analysis error`, error);
@@ -453,6 +480,14 @@ export class ScalpingSignalService {
         details,
       };
     }
+    // 추세 강도 부족
+    if (trendResult.strength < config.minTrendStrength) {
+      return {
+        passed: false,
+        reason: `Trend strength too weak: ${trendResult.strength.toFixed(2)} < ${config.minTrendStrength}`,
+        details,
+      };
+    }
 
     // OI 방향 확인 (선택적)
     const oiDirection = marketData.oiData?.direction || 'FLAT';
@@ -473,6 +508,7 @@ export class ScalpingSignalService {
     trendResult: TrendResult,
     momentumResult: MomentumResult,
     cvdResult: any,
+    cvdRatio: number,
     marketData: any,
   ): FilterResult {
     const details: Record<string, number | string | boolean> = {};
@@ -482,6 +518,7 @@ export class ScalpingSignalService {
     details.momentumStrength = momentumResult.strength;
     details.cvd = cvdResult.cvd;
     details.cvdDirection = cvdResult.direction;
+    details.cvdRatio = cvdRatio;
 
     // 소진 상태면 진입 금지
     if (momentumResult.state === 'EXHAUSTED') {
@@ -541,6 +578,14 @@ export class ScalpingSignalService {
         details,
       };
     }
+    // CVD 비율 체크 (체결 우세가 약하면 스킵)
+    if (cvdRatio < SCALPING_CONFIG.filter3.minCvdRatio) {
+      return {
+        passed: false,
+        reason: `CVD ratio too low: ${(cvdRatio * 100).toFixed(2)}% < ${(SCALPING_CONFIG.filter3.minCvdRatio * 100).toFixed(2)}%`,
+        details,
+      };
+    }
 
     // Funding Rate 방향 체크 (Filter1에서 저장한 극단 값 사용)
     const fundingRate = marketData.fundingData?.fundingRate || 0;
@@ -590,6 +635,25 @@ export class ScalpingSignalService {
   }
 
   /**
+   * CVD 비율 계산 (|CVD| / 총 거래량)
+   */
+  private calculateCvdRatio(
+    candles: CandleData[],
+    cvd: number,
+    periods: number,
+  ): number {
+    if (candles.length < periods) {
+      return 0;
+    }
+    const recentCandles = candles.slice(-periods);
+    const totalVolume = recentCandles.reduce((sum, c) => sum + c.volume, 0);
+    if (totalVolume <= 0) {
+      return 0;
+    }
+    return Math.abs(cvd) / totalVolume;
+  }
+
+  /**
    * 시그널 강도 계산
    *
    * 각 요소에 가중치를 부여하여 0-100 점수로 변환
@@ -598,6 +662,7 @@ export class ScalpingSignalService {
     trendStrength: number;
     momentumStrength: number;
     cvdStrength: number;
+    cvdRatio: number;
     fundingFavorable: boolean;
     oiIncreasing: boolean;
   }): number {
@@ -609,8 +674,9 @@ export class ScalpingSignalService {
     // 모멘텀 강도 (0-25점)
     score += Math.min(factors.momentumStrength * 25, 25);
 
-    // CVD 강도 (0-20점) - 정규화 필요
-    const cvdScore = Math.min(factors.cvdStrength / 100000, 1) * 20;
+    // CVD 강도 (0-20점) - 비율 기반 정규화
+    const cvdRatioTarget = SCALPING_CONFIG.filter3.minCvdRatio * 3;
+    const cvdScore = Math.min(factors.cvdRatio / cvdRatioTarget, 1) * 20;
     score += cvdScore;
 
     // Funding 유리 (0-15점)

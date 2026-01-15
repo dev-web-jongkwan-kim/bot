@@ -80,6 +80,12 @@ export class ScalpingOrderService {
     }
 
     try {
+      const positions = this.positionService.getActivePositions();
+      const pendingOrders = this.positionService.getAllPendingOrders();
+      this.logger.log(
+        `[ScalpingOrder] 🔄 Loop start | Signals=${this.signalService.getActiveSignals().length} ` +
+          `Pending=${pendingOrders.length} Positions=${positions.length}`,
+      );
       // 1. 새 시그널 처리
       await this.processNewSignals();
 
@@ -88,6 +94,7 @@ export class ScalpingOrderService {
 
       // 3. 포지션 관리
       await this.managePositions();
+      this.logger.log('[ScalpingOrder] ✅ Loop completed');
     } catch (error) {
       this.logger.error('[ScalpingOrder] ✗ Execute loop failed', error);
     }
@@ -100,6 +107,7 @@ export class ScalpingOrderService {
     const signals = this.signalService.getActiveSignals();
 
     if (signals.length === 0) {
+      this.logger.debug('[ScalpingOrder] No active signals');
       return;
     }
 
@@ -177,6 +185,17 @@ export class ScalpingOrderService {
       // ⚠️ 스캘핑에서는 방향 반전 없이 직접 매매
       // LONG = BUY, SHORT = SELL
       const side = signal.direction === 'LONG' ? 'BUY' : 'SELL';
+      const currentPrice = await this.dataService.getCurrentPrice(signal.symbol);
+      if (currentPrice) {
+        const likelyTaker =
+          (side === 'BUY' && signal.entryPrice >= currentPrice) ||
+          (side === 'SELL' && signal.entryPrice <= currentPrice);
+        this.logger.log(
+          `[ScalpingOrder] [${signal.symbol}] Entry check | ` +
+            `Current=${currentPrice.toFixed(4)}, Entry=${signal.entryPrice.toFixed(4)}, ` +
+            `Side=${side}, Likely=${likelyTaker ? 'TAKER' : 'MAKER'}`,
+        );
+      }
 
       this.logger.log(
         `[ScalpingOrder] [${signal.symbol}] Creating LIMIT ${side} @ ${signal.entryPrice.toFixed(4)}, qty=${quantity}`,
@@ -339,9 +358,13 @@ export class ScalpingOrderService {
     const pendingOrders = this.positionService.getAllPendingOrders();
 
     if (pendingOrders.length === 0) {
+      this.logger.debug('[ScalpingOrder] No pending orders to manage');
       return;
     }
 
+    this.logger.log(
+      `[ScalpingOrder] 🧾 Managing ${pendingOrders.length} pending order(s)`,
+    );
     const now = Date.now();
     const timeout = SCALPING_CONFIG.order.unfillTimeoutSec * 1000;
 
@@ -364,6 +387,9 @@ export class ScalpingOrderService {
 
         if (status === 'FILLED' || status === 'filled') {
           // 체결됨 → 포지션 등록 + TP/SL
+          this.logger.log(
+            `[ScalpingOrder] [${pending.symbol}] Order filled detected, processing TP/SL`,
+          );
           await this.onOrderFilled(pending, orderStatus);
           this.positionService.removePendingOrder(pending.symbol);
         } else if (
@@ -391,6 +417,7 @@ export class ScalpingOrderService {
         );
       }
     }
+    this.logger.log('[ScalpingOrder] ✅ Pending order management completed');
   }
 
   /**
@@ -567,9 +594,13 @@ export class ScalpingOrderService {
     const positions = this.positionService.getActivePositions();
 
     if (positions.length === 0) {
+      this.logger.debug('[ScalpingOrder] No active positions to manage');
       return;
     }
 
+    this.logger.log(
+      `[ScalpingOrder] 📌 Managing ${positions.length} active position(s)`,
+    );
     const now = Date.now();
 
     for (const position of positions) {
@@ -671,6 +702,7 @@ export class ScalpingOrderService {
         );
       }
     }
+    this.logger.log('[ScalpingOrder] ✅ Position management completed');
   }
 
   /**

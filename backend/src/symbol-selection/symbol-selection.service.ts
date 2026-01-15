@@ -28,7 +28,7 @@ export class SymbolSelectionService {
   /**
    * 거래량 기준 상위 N개 종목 선택
    */
-  async selectTopSymbols(count: number = 80): Promise<string[]> {
+  async selectTopSymbols(count: number = 50): Promise<string[]> {
     this.logger.log(`Selecting top ${count} symbols by 24h volume...`);
 
     try {
@@ -238,7 +238,7 @@ export class SymbolSelectionService {
    * 하이브리드 선택: 코어 + 동적
    * Top 5는 항상 포함, 나머지는 거래량 순
    */
-  async selectHybridSymbols(totalCount: number = 80): Promise<string[]> {
+  async selectHybridSymbols(totalCount: number = 50): Promise<string[]> {
     const CORE_SYMBOLS = [
       'BTCUSDT',
       'ETHUSDT',
@@ -247,7 +247,7 @@ export class SymbolSelectionService {
       'XRPUSDT',
     ];
 
-    this.logger.log('Hybrid selection: Core 5 + Dynamic 75');
+    this.logger.log(`Hybrid selection: Core 5 + Dynamic ${Math.max(totalCount - CORE_SYMBOLS.length, 0)}`);
 
     // 모든 종목 선택
     const allSelected = await this.selectTopSymbols(totalCount + 10);

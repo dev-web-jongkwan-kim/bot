@@ -38,7 +38,7 @@ export const SCALPING_CONFIG = {
      * - OKX USDT 무기한 선물 전체
      * @range 50 - 200
      */
-    maxSymbols: 140,
+    maxSymbols: 50,
   },
 
   // ============================================
@@ -80,7 +80,7 @@ export const SCALPING_CONFIG = {
      * - 소형 알트는 0.1% 이상일 수 있음
      * @range 0.0003 - 0.001
      */
-    maxSpreadPercent: 0.001, // 0.1% (완화: 0.05% → 0.1%)
+    maxSpreadPercent: 0.0007, // 0.07% (수익성 개선용 강화)
 
     /**
      * 24시간 거래량 필터
@@ -104,6 +104,13 @@ export const SCALPING_CONFIG = {
      * @range 3 - 6
      */
     trendBars: 4,
+    /**
+     * 추세 강도 최소값
+     *
+     * - 너무 약한 추세는 스캘핑 노이즈가 큼
+     * @range 0.1 - 0.4
+     */
+    minTrendStrength: 0.2,
 
     /**
      * OI 변화율 임계값
@@ -164,6 +171,13 @@ export const SCALPING_CONFIG = {
      * @range 2 - 5
      */
     cvdBars: 3,
+    /**
+     * CVD 비율 최소값 (|CVD| / 총 거래량)
+     *
+     * - 체결 우세가 미미한 신호 제거
+     * @range 0.01 - 0.05
+     */
+    minCvdRatio: 0.02,
   },
 
   // ============================================
@@ -178,7 +192,7 @@ export const SCALPING_CONFIG = {
      * - 너무 크면 체결 안 됨, 너무 작으면 의미 없음
      * @range 0.05 - 0.15
      */
-    entryOffsetAtr: 0.08,
+    entryOffsetAtr: 0.05,
 
     /**
      * TP1 (Take Profit 1) 거리 (ATR 배수) - 부분 청산 50%
@@ -224,6 +238,33 @@ export const SCALPING_CONFIG = {
      * @range 10 - 20
      */
     atrPeriod: 14,
+    /**
+     * 최소 TP/SL 퍼센트 (기본)
+     *
+     * - 수수료/슬리피지를 고려한 하한선
+     * @range 0.002 - 0.006
+     */
+    minTpSlPercent: 0.003,
+    /**
+     * 거래 수수료 추정치 (왕복 기준 = 2배 적용)
+     *
+     * - OKX 수수료 환경에 맞게 조정 필요
+     * @range 0.0003 - 0.0015
+     */
+    feePercent: 0.0006,
+    /**
+     * 슬리피지 추정치
+     *
+     * @range 0.0002 - 0.001
+     */
+    slippagePercent: 0.0004,
+    /**
+     * 최소 ATR 퍼센트
+     *
+     * - 변동성 부족 시 스캘핑 기대값 악화
+     * @range 0.001 - 0.004
+     */
+    minAtrPercent: 0.0015,
 
     /**
      * 미체결 타임아웃 (초)
@@ -348,14 +389,14 @@ export const SCALPING_CONFIG = {
      * - OKX에서 지원하지 않으면 자동 폴백
      * @range 5 - 15
      */
-    leverage: 15,
+    leverage: 20,
 
     /**
      * 레버리지 폴백 목록
      *
      * - 첫 번째가 안되면 다음으로 시도
      */
-    leverageFallback: [15, 10, 5],
+    leverageFallback: [20],
 
     /**
      * 거래당 고정 마진 (USDT)
@@ -364,7 +405,7 @@ export const SCALPING_CONFIG = {
      * - 0이면 riskPerTrade 기반 동적 계산
      * @range 10 - 100
      */
-    fixedMarginUsdt: 15,
+    fixedMarginUsdt: 20,
   },
 
   // ============================================

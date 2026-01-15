@@ -94,6 +94,9 @@ export class ScalpingDataService implements OnModuleInit {
    * 심볼 목록 갱신 (SymbolSelectionService에서 다시 로드)
    */
   async refreshSymbolList(): Promise<void> {
+    if (SCALPING_CONFIG.logging.verbose) {
+      this.logger.log('[ScalpingData] Refreshing symbol list...');
+    }
     const prevCount = this.symbols.length;
     this.symbols = this.symbolSelectionService.getSelectedSymbols();
 
@@ -110,6 +113,9 @@ export class ScalpingDataService implements OnModuleInit {
       this.logger.log('[ScalpingData] 🚀 Loading initial candle data from OKX REST API...');
       await this.loadInitialCandles();
       this.initialCandlesLoaded = true;
+    }
+    if (SCALPING_CONFIG.logging.verbose && this.symbols.length === 0) {
+      this.logger.warn('[ScalpingData] No symbols available after refresh');
     }
   }
 
@@ -578,6 +584,12 @@ export class ScalpingDataService implements OnModuleInit {
     // if (!oiData) missingFields.push('oi');
     // if (!spreadData) missingFields.push('spread');
 
+    if (SCALPING_CONFIG.logging.verbose && missingFields.length > 0) {
+      this.logger.debug(
+        `[ScalpingData] [${symbol}] Missing fields: ${missingFields.join(', ')}`,
+      );
+    }
+
     return {
       symbol,
       candles5m,
@@ -658,9 +670,16 @@ export class ScalpingDataService implements OnModuleInit {
     let cvd = 0;
 
     for (const candle of recentCandles) {
-      // 캔들 방향에 따른 volume delta 추정
-      // 양봉 = 매수 우세, 음봉 = 매도 우세
-      const bodyRatio = candle.open !== 0 ? (candle.close - candle.open) / candle.open : 0;
+      // 캔들 방향 + 변동폭 기반으로 volume delta 추정
+      // 범위 대비 몸통 비율을 사용해 과도한 왜곡을 줄임
+      const range = candle.high - candle.low;
+      if (range <= 0) {
+        continue;
+      }
+      const body = candle.close - candle.open;
+      let bodyRatio = body / range; // [-1, 1] 범위에 가까움
+      if (bodyRatio > 1) bodyRatio = 1;
+      if (bodyRatio < -1) bodyRatio = -1;
       cvd += bodyRatio * candle.volume;
     }
 
