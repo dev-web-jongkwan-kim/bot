@@ -298,16 +298,20 @@ export class ScalpingSignalService {
 
       // 최소 TP/SL 거리 (수수료 + 스프레드 + 슬리피지 반영)
       const spreadPercent = marketData.spreadData?.spreadPercent || 0;
-      const minTpSlPercent = Math.max(
+      const baseMinPercent = Math.max(
         SCALPING_CONFIG.order.minTpSlPercent,
         (SCALPING_CONFIG.order.feePercent * 2) +
           (spreadPercent * 2) +
           SCALPING_CONFIG.order.slippagePercent,
       );
-      const minTp1Distance = entryPrice * minTpSlPercent;
-      const minTp2Distance = entryPrice * (minTpSlPercent * 1.5); // TP2는 더 크게
-      const minTpDistance = entryPrice * minTpSlPercent;
-      const minSlDistance = entryPrice * minTpSlPercent;
+      const minSlPercent = Math.max(
+        SCALPING_CONFIG.order.minSlPercent || baseMinPercent,
+        baseMinPercent,
+      );
+      const minTp1Distance = entryPrice * baseMinPercent;
+      const minTp2Distance = entryPrice * (baseMinPercent * 1.5); // TP2는 더 크게
+      const minTpDistance = entryPrice * baseMinPercent;
+      const minSlDistance = entryPrice * minSlPercent;
 
       // ATR 기반과 최소값 중 큰 값 사용
       const tp1Distance = Math.max(atrTp1Distance, minTp1Distance);
@@ -401,7 +405,8 @@ export class ScalpingSignalService {
         `[ScalpingSignal] [${symbol}]   ATR: ${atrResult.atr.toFixed(4)} (${(atrResult.atrPercent * 100).toFixed(2)}%), Strength: ${strength.toFixed(0)}/100`,
       );
       this.logger.debug(
-        `[ScalpingSignal] [${symbol}]   Min TP/SL: ${(minTpSlPercent * 100).toFixed(3)}% ` +
+        `[ScalpingSignal] [${symbol}]   Min TP/SL: ${(baseMinPercent * 100).toFixed(3)}% ` +
+          `Min SL: ${(minSlPercent * 100).toFixed(3)}% ` +
           `(fee=${(SCALPING_CONFIG.order.feePercent * 100).toFixed(3)}%, ` +
           `spread=${(spreadPercent * 100).toFixed(3)}%, ` +
           `slip=${(SCALPING_CONFIG.order.slippagePercent * 100).toFixed(3)}%)`,

@@ -30,6 +30,9 @@ export interface ScalpingPosition {
   /** 포지션 수량 */
   quantity: number;
 
+  /** 레버리지 */
+  leverage?: number;
+
   /** 현재 TP 가격 (단일 TP 사용 시) */
   tpPrice: number;
 
@@ -143,6 +146,9 @@ export interface PendingOrder {
 
   /** 주문 수량 */
   quantity: number;
+
+  /** 레버리지 */
+  leverage?: number;
 
   /** 주문 생성 시간 */
   createdAt: number;

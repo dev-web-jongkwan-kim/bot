@@ -64,6 +64,9 @@ export class PositionTimeManagerService {
       const now = Date.now();
 
       for (const position of openPositions) {
+        if (position.strategy === 'SCALPING') {
+          continue;
+        }
         const holdTimeSec = (now - new Date(position.createdAt).getTime()) / 1000;
 
         // 1. 강제 청산 (30분 초과)

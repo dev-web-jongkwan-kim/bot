@@ -20,7 +20,7 @@ interface ExtendedRedis extends Redis {
 export class CandleAggregatorService {
   private readonly logger = new Logger(CandleAggregatorService.name);
   private readonly bufferSize = 50; // 최근 50개 캔들만 유지
-  private readonly ttl = 900;  // 15분 TTL
+  private readonly ttl = 21600;  // 6시간 TTL
   private strategyCallbacks: Map<string, Set<(symbol: string, timeframe: string, candle: CandleData) => Promise<void>>> = new Map();
 
   constructor(@Inject('REDIS_CLIENT') private redis: ExtendedRedis) {}

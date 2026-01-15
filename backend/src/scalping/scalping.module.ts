@@ -12,6 +12,7 @@ import { ScalpingDataService } from './services/scalping-data.service';
 import { ScalpingSignalService } from './services/scalping-signal.service';
 import { ScalpingOrderService } from './services/scalping-order.service';
 import { ScalpingPositionService } from './services/scalping-position.service';
+import { ScalpingOrderWatchdogService } from './services/scalping-order-watchdog.service';
 
 // Strategies (Analyzers)
 import { TrendAnalyzer } from './strategies/trend-analyzer';
@@ -66,12 +67,14 @@ import { SymbolSelectionModule } from '../symbol-selection/symbol-selection.modu
 
     // 주문 서비스
     ScalpingOrderService,
+    ScalpingOrderWatchdogService,
   ],
   exports: [
     ScalpingDataService,
     ScalpingSignalService,
     ScalpingOrderService,
     ScalpingPositionService,
+    ScalpingOrderWatchdogService,
   ],
 })
 export class ScalpingModule {}

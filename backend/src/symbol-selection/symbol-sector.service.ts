@@ -156,20 +156,22 @@ export class SymbolSectorService implements OnModuleInit {
    * underlyingSubType 필드를 사용한 공식 분류
    */
   async updateSectorData() {
-    this.logger.log('Updating sector data from OKX...');
+    this.logger.log('Updating sector data from Binance...');
 
     try {
       const instruments = await this.binanceService.getExchangeInfo();
-
-      // OKX returns array directly, not { symbols: [...] }
-      // Map to compatible format and filter USDT swaps
-      const usdtSymbols = instruments
-        .filter((inst: any) => inst.instId.includes('-USDT-SWAP'))
+      const usdtSymbols = (instruments as any).symbols
+        .filter((inst: any) =>
+          inst.quoteAsset === 'USDT' &&
+          inst.contractType === 'PERPETUAL' &&
+          inst.status === 'TRADING',
+        )
         .map((inst: any) => ({
-          symbol: inst.instId.replace('-USDT-SWAP', 'USDT'),
-          baseAsset: inst.instId.split('-')[0],
-          status: inst.state === 'live' ? 'TRADING' : inst.state,
-          contractType: 'PERPETUAL',
+          symbol: inst.symbol,
+          baseAsset: inst.baseAsset,
+          status: inst.status,
+          contractType: inst.contractType,
+          underlyingSubType: inst.underlyingSubType,
         }));
 
       const symbols: SymbolSectorData[] = [];

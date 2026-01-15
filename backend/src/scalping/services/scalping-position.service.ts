@@ -27,6 +27,9 @@ export class ScalpingPositionService {
   // 대기 중인 주문 맵 (symbol -> pending order)
   private pendingOrders: Map<string, PendingOrder> = new Map();
 
+  // 심볼 재진입 쿨다운 (symbol -> timestamp)
+  private symbolCooldowns: Map<string, number> = new Map();
+
   // 일일 통계
   private dailyLoss: number = 0;
   private consecutiveLosses: number = 0;
@@ -246,6 +249,25 @@ export class ScalpingPositionService {
     }
 
     return { allowed: true };
+  }
+
+  isSymbolInCooldown(symbol: string): boolean {
+    const cooldownUntil = this.symbolCooldowns.get(symbol) || 0;
+    return Date.now() < cooldownUntil;
+  }
+
+  getSymbolCooldownRemaining(symbol: string): number {
+    const cooldownUntil = this.symbolCooldowns.get(symbol) || 0;
+    return Math.max(0, cooldownUntil - Date.now());
+  }
+
+  setSymbolCooldown(symbol: string, reason: CloseReason): void {
+    const cooldownMs = SCALPING_CONFIG.risk.reentryCooldownMinutes * 60 * 1000;
+    this.symbolCooldowns.set(symbol, Date.now() + cooldownMs);
+    this.logger.log(
+      `[ScalpingPosition] ⏸️ Reentry cooldown set: ${symbol} (${reason}) ` +
+        `${SCALPING_CONFIG.risk.reentryCooldownMinutes}m`,
+    );
   }
 
   /**

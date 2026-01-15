@@ -39,6 +39,8 @@ export class ScalpingDataService implements OnModuleInit {
     spreadUpdates: 0,
     lastUpdateTime: 0,
   };
+  // OI 조회 실패 심볼 캐시 (반복 호출 방지)
+  private invalidOiSymbols: Set<string> = new Set();
 
   constructor(
     @Inject('REDIS_CLIENT') private redis: Redis,
@@ -156,7 +158,11 @@ export class ScalpingDataService implements OnModuleInit {
    */
   private async loadCandlesForSymbol(symbol: string, timeframe: string): Promise<void> {
     const limit = timeframe === '5m' ? 50 : 20;
-    const candles = await this.binanceService.getHistoricalCandles(symbol, timeframe, limit);
+    const candles = await this.binanceService.getHistoricalCandles(
+      symbol,
+      timeframe as '5m' | '15m',
+      limit,
+    );
     if (!candles || candles.length === 0) {
       throw new Error(`Binance API error: No data`);
     }
@@ -181,7 +187,7 @@ export class ScalpingDataService implements OnModuleInit {
 
     // 최근 50개만 유지 + TTL 설정
     pipeline.ltrim(key, 0, 49);
-    pipeline.expire(key, 900); // 15분 TTL
+    pipeline.expire(key, 21600); // 6시간 TTL
 
     await pipeline.exec();
 
@@ -310,9 +316,16 @@ export class ScalpingDataService implements OnModuleInit {
       const pipeline = this.redis.pipeline();
 
       for (const symbol of this.symbols) {
+        if (this.invalidOiSymbols.has(symbol)) {
+          continue;
+        }
         try {
           const oiResponse = await this.binanceService.getOpenInterest(symbol);
-          const currentOi = parseFloat(oiResponse?.openInterest || '0');
+          if (!oiResponse) {
+            this.invalidOiSymbols.add(symbol);
+            continue;
+          }
+          const currentOi = parseFloat(oiResponse.openInterest || '0');
 
           const prevDataStr = await this.redis.get(`scalping:oi:${symbol}`);
           const prevOi = prevDataStr ? JSON.parse(prevDataStr).openInterest : currentOi;

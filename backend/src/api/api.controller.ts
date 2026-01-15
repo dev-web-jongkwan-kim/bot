@@ -6,6 +6,7 @@ import { Signal } from '../database/entities/signal.entity';
 import { OrderService } from '../order/order.service';
 import { OkxService } from '../okx/okx.service';
 import { SymbolSelectionService } from '../symbol-selection/symbol-selection.service';
+import { PositionSyncService } from '../sync/position-sync.service';
 
 @Controller('api')
 export class ApiController {
@@ -19,6 +20,7 @@ export class ApiController {
     private orderService: OrderService,
     private okxService: OkxService,
     private symbolSelection: SymbolSelectionService,
+    private positionSyncService: PositionSyncService,
   ) {}
 
   @Get('positions')
@@ -44,7 +46,7 @@ export class ApiController {
         const entryPrice = parseFloat(p.entryPrice);
         const markPrice = parseFloat(p.markPrice);
         // OKX: unrealizedProfit (lowercase), Binance: unRealizedProfit (uppercase R)
-        const unrealizedProfit = parseFloat(p.unrealizedProfit || p.unRealizedProfit || '0');
+      const unrealizedProfit = parseFloat((p as any).unRealizedProfit || '0');
         const leverage = parseInt(p.leverage);
 
         // DB에서 해당 포지션 찾기
@@ -411,23 +413,20 @@ export class ApiController {
   @Get('binance/symbols')
   async getBinanceSymbols() {
     try {
-      // ✅ OKX 선물 거래 가능한 모든 USDT 페어 가져오기
       const instruments = await this.okxService.getExchangeInfo();
+      const symbols = (instruments as any).symbols || [];
 
-      // OKX 형식: instId = "BTC-USDT-SWAP" → symbol = "BTCUSDT"
-      const usdtSymbols = instruments
-        .map((inst: any) => {
-          // BTC-USDT-SWAP -> BTCUSDT
-          const parts = inst.instId.split('-');
-          const baseAsset = parts[0];
-          const quoteAsset = parts[1] || 'USDT';
-          return {
-            symbol: `${baseAsset}${quoteAsset}`,
-            baseAsset,
-            quoteAsset,
-          };
-        })
-        .filter((s: any) => s.quoteAsset === 'USDT')
+      const usdtSymbols = symbols
+        .filter((inst: any) =>
+          inst.quoteAsset === 'USDT' &&
+          inst.contractType === 'PERPETUAL' &&
+          inst.status === 'TRADING',
+        )
+        .map((inst: any) => ({
+          symbol: inst.symbol,
+          baseAsset: inst.baseAsset,
+          quoteAsset: inst.quoteAsset,
+        }))
         .sort((a: any, b: any) => a.symbol.localeCompare(b.symbol));
 
       return {
@@ -866,5 +865,14 @@ export class ApiController {
         error: error.message,
       };
     }
+  }
+
+  /**
+   * ✅ 오늘자 바이낸스 체결 내역 기준 DB 싱크
+   */
+  @Post('sync/binance/today')
+  async syncTodayTradesFromBinance() {
+    this.logger.log('Starting Binance today trade sync...');
+    return this.positionSyncService.syncTodayTradesFromBinance();
   }
 }

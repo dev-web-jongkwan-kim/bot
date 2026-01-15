@@ -11,11 +11,10 @@ import { BinanceService } from '../binance/binance.service';
  */
 @Injectable()
 export class OkxService extends BinanceService {
-  private readonly logger = new Logger(OkxService.name);
-
   constructor(configService: ConfigService) {
     super(configService);
-    this.logger.warn('[OkxService] Binance shim enabled (OKX disabled)');
+    const logger = new Logger(OkxService.name);
+    logger.warn('[OkxService] Binance shim enabled (OKX disabled)');
   }
 
   /**
@@ -24,32 +23,97 @@ export class OkxService extends BinanceService {
   async createTpSlOrder(params: {
     symbol: string;
     side: 'BUY' | 'SELL';
-    quantity: number;
+    quantity?: number;
+    tpQuantity?: number;
+    slQuantity?: number;
     tpTriggerPrice: number;
     slTriggerPrice: number;
     isStrategyPosition?: boolean;
   }): Promise<{ tpAlgoId: string; slAlgoId: string }> {
+    const tpQty = params.tpQuantity ?? params.quantity;
+    const slQty = params.slQuantity ?? params.quantity;
+    if (!tpQty || !slQty) {
+      throw new Error(`[TP/SL] quantity missing for ${params.symbol} (tp=${tpQty}, sl=${slQty})`);
+    }
+    const formattedTp = this.formatPrice(params.symbol, params.tpTriggerPrice);
+    const formattedSl = this.formatPrice(params.symbol, params.slTriggerPrice);
+    const formattedTpQty = this.formatQuantity(params.symbol, tpQty);
+    const formattedSlQty = this.formatQuantity(params.symbol, slQty);
+    const logger = new Logger(OkxService.name);
+    logger.log(
+      `[TP/SL] Creating TP/SL for ${params.symbol} | side=${params.side} ` +
+      `tp=${formattedTp} sl=${formattedSl} tpQty=${formattedTpQty} slQty=${formattedSlQty}`,
+    );
+
+    let tpTriggerPrice = params.tpTriggerPrice;
+    try {
+      const lastPrice = await this.getSymbolPrice(params.symbol);
+      if (params.side === 'SELL' && tpTriggerPrice <= lastPrice) {
+        tpTriggerPrice = lastPrice * 1.001;
+        logger.warn(
+          `[TP/SL] TP would trigger immediately, adjust TP: ` +
+            `${this.formatPrice(params.symbol, tpTriggerPrice)} (last=${lastPrice})`,
+        );
+      } else if (params.side === 'BUY' && tpTriggerPrice >= lastPrice) {
+        tpTriggerPrice = lastPrice * 0.999;
+        logger.warn(
+          `[TP/SL] TP would trigger immediately, adjust TP: ` +
+            `${this.formatPrice(params.symbol, tpTriggerPrice)} (last=${lastPrice})`,
+        );
+      }
+    } catch (priceError) {
+      logger.warn(`[TP/SL] Failed to fetch price for TP adjust: ${params.symbol}`);
+    }
+
     const tpOrder = await this.createAlgoOrder({
       symbol: params.symbol,
       side: params.side,
       type: 'TAKE_PROFIT_MARKET',
-      triggerPrice: params.tpTriggerPrice,
-      quantity: params.quantity,
+      triggerPrice: tpTriggerPrice,
+      quantity: tpQty,
       workingType: 'CONTRACT_PRICE',
     });
 
-    const slOrder = await this.createAlgoOrder({
-      symbol: params.symbol,
-      side: params.side,
-      type: 'STOP_MARKET',
-      triggerPrice: params.slTriggerPrice,
-      quantity: params.quantity,
-      workingType: 'CONTRACT_PRICE',
-    });
+    let slOrder: any;
+    try {
+      slOrder = await this.createAlgoOrder({
+        symbol: params.symbol,
+        side: params.side,
+        type: 'STOP_MARKET',
+        triggerPrice: params.slTriggerPrice,
+        quantity: slQty,
+        workingType: 'CONTRACT_PRICE',
+      });
+      } catch (error: any) {
+      if (error?.code === -2021 || error?.message?.includes('immediately trigger')) {
+        const lastPrice = await this.getSymbolPrice(params.symbol);
+        const adjustedSl = params.side === 'SELL'
+          ? lastPrice * 0.98
+          : lastPrice * 1.02;
+        logger.warn(
+          `[TP/SL] SL would trigger immediately, retry with adjusted SL: ` +
+          `${this.formatPrice(params.symbol, adjustedSl)} (last=${lastPrice})`,
+        );
+        slOrder = await this.createAlgoOrder({
+          symbol: params.symbol,
+          side: params.side,
+          type: 'STOP_MARKET',
+          triggerPrice: adjustedSl,
+          quantity: slQty,
+          workingType: 'CONTRACT_PRICE',
+        });
+      } else {
+        throw error;
+      }
+    }
 
-    return {
-      tpAlgoId: tpOrder.algoId,
-      slAlgoId: slOrder.algoId,
+    logger.log(
+      `[TP/SL] ✅ Created for ${params.symbol} | tpAlgoId=${tpOrder.algoId} slAlgoId=${slOrder.algoId}`,
+    );
+
+        return {
+      tpAlgoId: String(tpOrder.algoId),
+      slAlgoId: String(slOrder.algoId),
     };
   }
 
@@ -73,9 +137,9 @@ export class OkxService extends BinanceService {
     quantityInContracts?: boolean;
   }) {
     return super.createOrder({
-      symbol: params.symbol,
+        symbol: params.symbol,
       side: params.side,
-      type: params.type,
+        type: params.type,
       quantity: params.quantity,
       price: params.price,
       stopPrice: params.stopPrice,
@@ -103,7 +167,7 @@ export class OkxService extends BinanceService {
     // OKX 전용 옵션 무시
     isStrategyPosition?: boolean;
     quantityInContracts?: boolean;
-  }) {
+  }): Promise<any> {
     return super.createAlgoOrder({
       symbol: params.symbol,
       side: params.side,
@@ -121,8 +185,9 @@ export class OkxService extends BinanceService {
   /**
    * OKX 전용 포지션 히스토리는 Binance에서 미지원 → null 반환
    */
-  async getLastClosedPosition(_symbol: string): Promise<null> {
-    this.logger.warn('[OkxService] getLastClosedPosition not supported on Binance');
+  async getLastClosedPosition(_symbol: string): Promise<any | null> {
+    const logger = new Logger(OkxService.name);
+    logger.warn('[OkxService] getLastClosedPosition not supported on Binance');
     return null;
   }
 }

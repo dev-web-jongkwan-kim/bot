@@ -157,7 +157,7 @@ export class OrderMonitorService implements OnModuleInit {
     for (const [symbol, pending] of this.pendingOrders) {
       try {
         // 1. 주문 상태 확인
-        const orderStatus = await this.okxService.queryOrder(symbol, pending.orderId);
+        const orderStatus = await this.okxService.queryOrder(symbol, Number(pending.orderId));
 
         // ═══════════════════════════════════════════════════════════
         // CASE 1: 체결됨
@@ -534,14 +534,14 @@ export class OrderMonitorService implements OnModuleInit {
    */
   private async cancelOrder(pending: PendingLimitOrder, reason: string): Promise<void> {
     try {
-      await this.okxService.cancelOrder(pending.symbol, pending.orderId);
+          await this.okxService.cancelOrder(pending.symbol, Number(pending.orderId));
       this.logger.log(`[MONITOR] Order canceled: ${pending.symbol} - ${reason}`);
     } catch (cancelError: any) {
       this.logger.warn(`[MONITOR] Cancel failed: ${cancelError.message}`);
 
       // 취소 실패 시 주문 상태 재확인
       try {
-        const finalStatus = await this.okxService.queryOrder(pending.symbol, pending.orderId);
+        const finalStatus = await this.okxService.queryOrder(pending.symbol, Number(pending.orderId));
         if (finalStatus.status === 'FILLED') {
           // 취소 직전에 체결된 경우
           const entryPrice = parseFloat(finalStatus.avgPrice || finalStatus.price);

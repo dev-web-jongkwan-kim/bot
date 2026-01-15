@@ -201,7 +201,7 @@ export const SCALPING_CONFIG = {
      * - 0.8 = ATR의 80% (50% 청산)
      * @range 0.4 - 1.0
      */
-    tp1Atr: 0.8,
+    tp1Atr: 1.0,
 
     /**
      * TP2 (Take Profit 2) 거리 (ATR 배수) - 나머지 50% 청산
@@ -210,7 +210,7 @@ export const SCALPING_CONFIG = {
      * - 1.5 = ATR의 150% (나머지 50% 청산)
      * @range 1.0 - 2.0
      */
-    tp2Atr: 1.5,
+    tp2Atr: 1.8,
 
     /**
      * TP (Take Profit) 거리 (ATR 배수) - 단일 TP 사용 시
@@ -219,7 +219,7 @@ export const SCALPING_CONFIG = {
      * - 1.2 = ATR의 120% (TP:SL = 2:1)
      * @range 0.8 - 1.5
      */
-    tpAtr: 1.2,
+    tpAtr: 1.6,
 
     /**
      * SL (Stop Loss) 거리 (ATR 배수)
@@ -229,7 +229,7 @@ export const SCALPING_CONFIG = {
      * - TP:SL = 2:1 비율 (수익 극대화)
      * @range 0.3 - 0.8
      */
-    slAtr: 0.6,
+    slAtr: 1.0,
 
     /**
      * ATR 계산 기간
@@ -245,6 +245,13 @@ export const SCALPING_CONFIG = {
      * @range 0.002 - 0.006
      */
     minTpSlPercent: 0.003,
+    /**
+     * 최소 SL 퍼센트 (SL은 더 넓게)
+     *
+     * - SL이 너무 쉽게 터지는 문제 완화
+     * @range 0.004 - 0.01
+     */
+    minSlPercent: 0.006,
     /**
      * 거래 수수료 추정치 (왕복 기준 = 2배 적용)
      *
@@ -264,7 +271,7 @@ export const SCALPING_CONFIG = {
      * - 변동성 부족 시 스캘핑 기대값 악화
      * @range 0.001 - 0.004
      */
-    minAtrPercent: 0.0015,
+    minAtrPercent: 0.003,
 
     /**
      * 미체결 타임아웃 (초)
@@ -337,7 +344,7 @@ export const SCALPING_CONFIG = {
      * - 리스크 분산 목적
      * @range 3 - 20
      */
-    maxPositions: 20,
+    maxPositions: 6,
 
     /**
      * 동일 방향 최대 포지션 수
@@ -347,7 +354,7 @@ export const SCALPING_CONFIG = {
      * - 방향 편중 방지
      * @range 2 - 10
      */
-    maxSameDirection: 10,
+    maxSameDirection: 3,
 
     /**
      * 거래당 리스크 비율
@@ -383,20 +390,36 @@ export const SCALPING_CONFIG = {
     cooldownMinutes: 30,
 
     /**
-     * 레버리지 (우선순위: 15 → 10 → 5)
+     * 재진입 쿨다운 시간 (분)
+     *
+     * - 같은 심볼이 청산된 후 일정 시간 재진입 금지
+     * @range 5 - 60
+     */
+    reentryCooldownMinutes: 30,
+
+    /**
+     * 동일 심볼 최대 동시 포지션 수
+     *
+     * - 같은 심볼에 과도한 중복 진입 방지
+     * @range 1 - 3
+     */
+    maxSymbolPositions: 1,
+
+    /**
+     * 레버리지 (기본 20x)
      *
      * - 고정 레버리지 목표값
-     * - OKX에서 지원하지 않으면 자동 폴백
-     * @range 5 - 15
+     * - 20x 미지원 시 10x로 폴백
+     * @range 5 - 20
      */
     leverage: 20,
 
     /**
      * 레버리지 폴백 목록
      *
-     * - 첫 번째가 안되면 다음으로 시도
+     * - 20x 미지원 심볼 → 10x
      */
-    leverageFallback: [20],
+    leverageFallback: [10],
 
     /**
      * 거래당 고정 마진 (USDT)

@@ -1,6 +1,6 @@
 import { Injectable, Logger, Inject, forwardRef, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThan } from 'typeorm';
+import { Repository, MoreThan, MoreThanOrEqual } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Position } from '../database/entities/position.entity';
 import { Signal } from '../database/entities/signal.entity';
@@ -22,6 +22,10 @@ export class PositionSyncService {
   private slTpRetryCount: Map<string, number> = new Map();
   private readonly MAX_SLTP_RETRIES = 3;
 
+  // ✅ 방어 로직: 방금 강제 청산된 심볼은 SL/TP 재생성 스킵
+  private recentlyForceClosedSymbols: Map<string, number> = new Map();
+  private readonly FORCE_CLOSE_SKIP_MS = 60 * 1000; // 60초
+
   // ✅ 방어 로직: 비정상 마진(원금) 임계값
   private readonly MAX_MARGIN_PERCENT = 0.10;  // 마진이 총 자본의 10% 초과 시 청산
   private readonly ABSOLUTE_MAX_MARGIN = 35;   // v16: 절대 마진 임계값 $35 이상이면 무조건 청산
@@ -31,6 +35,12 @@ export class PositionSyncService {
 
   // ✅ 방어 로직: 포지션별 SL 부재 시작 시간 추적
   private positionWithoutSlSince: Map<string, number> = new Map();
+
+  // ✅ 스캘핑 포지션 실포지션 누락 감지 유예 시간
+  private scalpingMissingSince: Map<string, number> = new Map();
+  private readonly SCALPING_MISSING_GRACE_MS = 90 * 1000; // 90초
+  private scalpingMissingCount: Map<string, number> = new Map();
+  private readonly SCALPING_MISSING_CONFIRM_COUNT = 3;
 
   // v15: 타임프레임별 최대 보유 시간 (밀리초)
   // 5분봉: 2시간 (24캔들) - 데이터 분석 결과 120분 이후 승률 급락
@@ -53,6 +63,162 @@ export class PositionSyncService {
     @Optional() @Inject(forwardRef(() => ScalpingPositionService))
     private scalpingPositionService: ScalpingPositionService,  // 스캘핑 포지션 서비스
   ) {}
+
+  /**
+   * ✅ 오늘자 체결 내역 기준으로 DB 포지션 동기화
+   */
+  async syncTodayTradesFromBinance(): Promise<{
+    success: boolean;
+    symbols: number;
+    positions: number;
+    closedUpdated: number;
+    pnlUpdated: number;
+    skipped: number;
+  }> {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const todayPositions = await this.positionRepo.find({
+      where: [
+        { openedAt: MoreThanOrEqual(startOfDay) },
+        { closedAt: MoreThanOrEqual(startOfDay) },
+      ],
+      order: { openedAt: 'DESC' },
+    });
+
+    const symbolSet = new Set(todayPositions.map((p) => p.symbol));
+    if (symbolSet.size === 0) {
+      return {
+        success: true,
+        symbols: 0,
+        positions: 0,
+        closedUpdated: 0,
+        pnlUpdated: 0,
+        skipped: 0,
+      };
+    }
+
+    const livePositions = await this.okxService.getOpenPositions();
+    const liveMap = new Map<string, number>();
+    for (const pos of livePositions) {
+      const qty = Math.abs(parseFloat(pos.positionAmt || '0'));
+      if (qty > 0) {
+        liveMap.set(pos.symbol, qty);
+      }
+    }
+
+    const tradesBySymbol = new Map<string, any[]>();
+    for (const symbol of symbolSet) {
+      try {
+        const trades = await this.okxService.getUserTrades({
+          symbol,
+          startTime: startOfDay.getTime(),
+          endTime: Date.now(),
+          limit: 1000,
+        });
+        const sorted = [...trades].sort(
+          (a, b) => (a.time || 0) - (b.time || 0),
+        );
+        tradesBySymbol.set(symbol, sorted);
+      } catch (error: any) {
+        this.logger.warn(
+          `[SYNC] ${symbol}: failed to fetch userTrades - ${error.message}`,
+        );
+        tradesBySymbol.set(symbol, []);
+      }
+    }
+
+    let closedUpdated = 0;
+    let pnlUpdated = 0;
+    let skipped = 0;
+
+    for (const dbPos of todayPositions) {
+      const trades = tradesBySymbol.get(dbPos.symbol) || [];
+      if (trades.length === 0) {
+        skipped++;
+        continue;
+      }
+
+      const openedAtMs = dbPos.openedAt?.getTime?.() || startOfDay.getTime();
+      const relevant = trades.filter(
+        (t) => (t.time || 0) >= openedAtMs - 60_000,
+      );
+      if (relevant.length === 0) {
+        skipped++;
+        continue;
+      }
+
+      const lastTrade = relevant[relevant.length - 1];
+      const realizedPnl = relevant.reduce(
+        (sum, t) => sum + parseFloat(t.realizedPnl || '0'),
+        0,
+      );
+
+      const hasLive = liveMap.has(dbPos.symbol);
+      if (dbPos.status === 'OPEN' && !hasLive) {
+        dbPos.status = 'CLOSED';
+        dbPos.closedAt = new Date(lastTrade.time || Date.now());
+        dbPos.realizedPnl = Number(realizedPnl.toFixed(8));
+        dbPos.metadata = {
+          ...dbPos.metadata,
+          closeReason: 'BINANCE_TRADE_SYNC',
+          closeTime: lastTrade.time || Date.now(),
+          actual: {
+            entry: dbPos.entryPrice,
+            exit: parseFloat(lastTrade.price || '0'),
+            exitTime: lastTrade.time || Date.now(),
+          },
+          tradeSync: {
+            tradeCount: relevant.length,
+            lastTradeId: lastTrade.id || lastTrade.tradeId,
+          },
+        };
+
+        await this.positionRepo.save(dbPos);
+        closedUpdated++;
+
+        if (this.scalpingPositionService) {
+          this.scalpingPositionService.removePosition(dbPos.symbol);
+          this.scalpingPositionService.removePendingOrder(dbPos.symbol);
+          this.scalpingPositionService.setSymbolCooldown(dbPos.symbol, 'MANUAL');
+        }
+        continue;
+      }
+
+      if (
+        dbPos.status === 'CLOSED' &&
+        (dbPos.realizedPnl === null || dbPos.realizedPnl === undefined)
+      ) {
+        dbPos.realizedPnl = Number(realizedPnl.toFixed(8));
+        dbPos.metadata = {
+          ...dbPos.metadata,
+          tradeSync: {
+            tradeCount: relevant.length,
+            lastTradeId: lastTrade.id || lastTrade.tradeId,
+            lastTradeTime: lastTrade.time || Date.now(),
+          },
+        };
+        await this.positionRepo.save(dbPos);
+        pnlUpdated++;
+        continue;
+      }
+
+      skipped++;
+    }
+
+    this.logger.log(
+      `[SYNC] Binance today sync complete: symbols=${symbolSet.size}, positions=${todayPositions.length}, closedUpdated=${closedUpdated}, pnlUpdated=${pnlUpdated}, skipped=${skipped}`,
+    );
+
+    return {
+      success: true,
+      symbols: symbolSet.size,
+      positions: todayPositions.length,
+      closedUpdated,
+      pnlUpdated,
+      skipped,
+    };
+  }
 
   async onModuleInit() {
     // 서버 시작 시 즉시 동기화
@@ -89,14 +255,14 @@ export class PositionSyncService {
       await this.detectAndCloseUnknownPositions(dbPositions, activePositions);
 
       // ✅ [방어 로직 2] 비정상 사이즈 포지션 감지 및 청산
-      await this.detectAndCloseOversizedPositions(activePositions);
+      await this.detectAndCloseOversizedPositions(activePositions, dbPositions);
 
       // [FLOW-7] TP1 체결 감지 및 SL 본전 이동
       await this.checkAndMoveSlToBreakeven(dbPositions, activePositions);
 
       // ✅ SL Watchdog: SL이 없는 오픈 포지션에 자동으로 SL 생성
       // [방어 로직 3] 재시도 횟수 초과 시 강제 청산
-      await this.checkAndPlaceMissingSL(dbPositions);
+      await this.checkAndPlaceMissingSL(dbPositions, activePositions);
 
       // v14: 최대 보유시간 초과 포지션 강제 청산 (30분)
       await this.checkAndForceCloseExpiredPositions(dbPositions, activePositions);
@@ -313,11 +479,90 @@ export class PositionSyncService {
       // 4. DB에는 있지만 바이낸스에 없는 포지션 → 닫힌 것으로 처리
       const binanceSymbols = new Set(activePositions.map(p => p.symbol));
 
+      for (const livePos of activePositions) {
+        this.scalpingMissingSince.delete(livePos.symbol);
+        this.scalpingMissingCount.delete(livePos.symbol);
+      }
+
       for (const dbPos of dbPositions) {
         if (!binanceSymbols.has(dbPos.symbol)) {
           // ✅ 이미 수동으로 종료 처리된 포지션은 스킵 (API에서 처리됨)
           if (dbPos.metadata?.manualClose || dbPos.metadata?.actual?.closeType === 'MANUAL') {
             this.logger.debug(`[SYNC] Skipping ${dbPos.symbol} - already manually closed`);
+            continue;
+          }
+
+          if (dbPos.strategy === 'SCALPING') {
+            const missingSince = this.scalpingMissingSince.get(dbPos.symbol);
+            if (!missingSince) {
+              this.scalpingMissingSince.set(dbPos.symbol, Date.now());
+              this.logger.warn(
+                `[SYNC] ${dbPos.symbol}: scalping missing on exchange - grace period started`,
+              );
+              continue;
+            }
+            if (Date.now() - missingSince < this.SCALPING_MISSING_GRACE_MS) {
+              this.logger.warn(
+                `[SYNC] ${dbPos.symbol}: scalping missing on exchange - waiting (${Math.round((Date.now() - missingSince) / 1000)}s)`,
+              );
+              continue;
+            }
+
+            const missingCount = (this.scalpingMissingCount.get(dbPos.symbol) || 0) + 1;
+            this.scalpingMissingCount.set(dbPos.symbol, missingCount);
+            if (missingCount < this.SCALPING_MISSING_CONFIRM_COUNT) {
+              this.logger.warn(
+                `[SYNC] ${dbPos.symbol}: scalping missing confirm ${missingCount}/${this.SCALPING_MISSING_CONFIRM_COUNT}`,
+              );
+              continue;
+            }
+
+            const pendingOrder = this.scalpingPositionService?.getPendingOrder(dbPos.symbol);
+            if (pendingOrder) {
+              this.logger.warn(
+                `[SYNC] ${dbPos.symbol}: scalping pending order exists - skip close`,
+              );
+              continue;
+            }
+
+            const algoOrders = await this.okxService.getOpenAlgoOrders(dbPos.symbol);
+            if (algoOrders.length > 0) {
+              this.logger.warn(
+                `[SYNC] ${dbPos.symbol}: scalping algo orders exist (${algoOrders.length}) - skip close`,
+              );
+              continue;
+            }
+
+            const entryOrderId = dbPos.metadata?.orderId;
+            if (entryOrderId) {
+              const entryStatus = await this.okxService.queryOrder(dbPos.symbol, Number(entryOrderId));
+              const status = entryStatus?.status || entryStatus?.state;
+              if (status && status !== 'FILLED' && status !== 'filled') {
+                this.logger.warn(
+                  `[SYNC] ${dbPos.symbol}: entry order not filled (${status}) - skip close`,
+                );
+                continue;
+              }
+            }
+
+            // 스캘핑 포지션이 장기간 미확인이고 연관 주문도 없으면 정리
+            this.logger.warn(
+              `[SYNC] ${dbPos.symbol}: scalping missing confirmed - closing stale DB position`,
+            );
+            dbPos.status = 'CLOSED';
+            dbPos.closedAt = new Date();
+            dbPos.metadata = {
+              ...dbPos.metadata,
+              closeReason: 'SCALPING_MISSING_ON_EXCHANGE',
+              closedByUnknown: false,
+              closeTime: Date.now(),
+            };
+            await this.positionRepo.save(dbPos);
+            if (this.scalpingPositionService) {
+              this.scalpingPositionService.removePosition(dbPos.symbol);
+              this.scalpingPositionService.removePendingOrder(dbPos.symbol);
+              this.scalpingPositionService.setSymbolCooldown(dbPos.symbol, 'MANUAL');
+            }
             continue;
           }
 
@@ -329,6 +574,9 @@ export class PositionSyncService {
             `  Quantity:   ${dbPos.quantity}\n` +
             `  → Fetching OKX Position History for accurate PnL...`
           );
+          if (dbPos.strategy !== 'SCALPING' && this.scalpingPositionService) {
+            this.scalpingPositionService.removePosition(dbPos.symbol);
+          }
 
           // ✅ OKX Position History API 사용 - 정확한 PnL 조회
           try {
@@ -398,10 +646,20 @@ export class PositionSyncService {
                 }
               }
 
+              // 손익 방향과 라벨 불일치 보정 (양수인데 SL, 음수인데 TP)
+              if (netPnl > 0 && closeType === 'SL') {
+                closeType = plannedTP2 ? 'TP2' : 'TP1';
+                closeTriggerPrice = plannedTP2 || plannedTP1 || 0;
+              } else if (netPnl < 0 && closeType.startsWith('TP')) {
+                closeType = 'SL';
+                closeTriggerPrice = plannedSL || 0;
+              }
+
               // 보유 시간 계산
-              const holdingTime = dbPos.openedAt
+              const holdingTimeRaw = dbPos.openedAt
                 ? closedPosition.closeTime - new Date(dbPos.openedAt).getTime()
                 : 0;
+              const holdingTime = Math.max(0, holdingTimeRaw);
               const holdingMinutes = Math.round(holdingTime / 60000);
 
               // ═══════════════════════════════════════════════════════════
@@ -441,7 +699,7 @@ export class PositionSyncService {
                   fee: totalFee,                 // 총 수수료
                   fundingFee: fundingFee,        // 펀딩비
                   pnlPercent: entryPrice > 0
-                    ? (netPnl / (entryPrice * closedPosition.quantity / (dbPos.leverage || 10))) * 100
+                    ? (netPnl / (entryPrice * (closedPosition.quantity || dbPos.quantity) / (dbPos.leverage || 10))) * 100
                     : 0,
                   holdingTime: holdingTime,
                 },
@@ -464,10 +722,45 @@ export class PositionSyncService {
                 `    └─────────────────────────────────────────────────────`
               );
             } else {
-              this.logger.warn(`  ⚠️ No OKX position history found - position may still be active`);
+              this.logger.warn(`  ⚠️ No OKX position history found - using fallback close info`);
+              const entryPrice = typeof dbPos.entryPrice === 'string'
+                ? parseFloat(dbPos.entryPrice) : dbPos.entryPrice;
+              const lastPrice = await this.okxService.getSymbolPrice(dbPos.symbol);
+              const closePrice = lastPrice || entryPrice;
+              const pnlPercent = entryPrice > 0
+                ? (dbPos.side === 'LONG'
+                  ? (closePrice - entryPrice) / entryPrice
+                  : (entryPrice - closePrice) / entryPrice)
+                : 0;
+              const realizedPnl = pnlPercent * Number(dbPos.quantity) * entryPrice;
+              const holdingTimeRaw = dbPos.openedAt
+                ? Date.now() - new Date(dbPos.openedAt).getTime()
+                : 0;
+              const holdingTime = Math.max(0, holdingTimeRaw);
+
+              dbPos.realizedPnl = realizedPnl;
               dbPos.metadata = {
                 ...dbPos.metadata,
-                closedByUnknown: true,
+                closedByUnknown: dbPos.strategy === 'SCALPING' ? false : true,
+                closeReason: 'POSITION_NOT_ON_EXCHANGE',
+                actual: {
+                  ...(dbPos.metadata?.actual || {}),
+                  entry: entryPrice,
+                  exit: closePrice,
+                  exitTime: Date.now(),
+                  closeType: 'MANUAL',
+                  closeTriggerPrice: 0,
+                },
+                result: {
+                  win: realizedPnl > 0,
+                  pnl: realizedPnl,
+                  fee: 0,
+                  fundingFee: 0,
+                  pnlPercent: pnlPercent * 100,
+                  holdingTime: holdingTime,
+                },
+                closePrice,
+                closeTime: Date.now(),
               };
             }
           } catch (tradeError: any) {
@@ -488,6 +781,10 @@ export class PositionSyncService {
           dbPos.status = 'CLOSED';
           dbPos.closedAt = new Date();
           await this.positionRepo.save(dbPos);
+          if (dbPos.strategy === 'SCALPING' && this.scalpingPositionService) {
+            this.scalpingPositionService.setSymbolCooldown(dbPos.symbol, 'MANUAL');
+            this.scalpingPositionService.removePosition(dbPos.symbol);
+          }
 
           // v13: 손실 시 블랙리스트 기록 (당일 2회 이상 손실 시 진입 금지)
           if (dbPos.realizedPnl < 0) {
@@ -618,6 +915,9 @@ export class PositionSyncService {
     binancePositions: any[]
   ): Promise<void> {
     for (const dbPos of dbPositions) {
+      if (dbPos.strategy === 'SCALPING') {
+        continue;
+      }
       // 이미 SL 본전 이동 완료된 포지션 스킵
       if (this.tp1TriggeredPositions.has(dbPos.symbol)) {
         continue;
@@ -710,6 +1010,10 @@ export class PositionSyncService {
     const now = Date.now();
 
     for (const dbPos of dbPositions) {
+      if (dbPos.strategy === 'SCALPING') {
+        // 스캘핑은 시스템 강제 청산 금지
+        continue;
+      }
       // 포지션 오픈 시간 확인
       const openedAt = dbPos.openedAt ? new Date(dbPos.openedAt).getTime() :
                        dbPos.createdAt ? new Date(dbPos.createdAt).getTime() : null;
@@ -785,20 +1089,67 @@ export class PositionSyncService {
    * 2. 네트워크 오류로 SL이 생성되지 않음
    * 3. 수동 거래로 생성된 포지션
    */
-  private async checkAndPlaceMissingSL(dbPositions: Position[]): Promise<void> {
+  private async checkAndPlaceMissingSL(
+    dbPositions: Position[],
+    activePositions: any[],
+  ): Promise<void> {
     for (const dbPos of dbPositions) {
       try {
+        const isScalping = dbPos.strategy === 'SCALPING';
+        if (isScalping) {
+          const isTracked =
+            !!this.scalpingPositionService?.getPosition(dbPos.symbol) ||
+            !!this.scalpingPositionService?.getPendingOrder(dbPos.symbol);
+          if (isTracked) {
+            this.logger.debug(
+              `[WATCHDOG] ${dbPos.symbol}: scalping tracked - skip SL/TP watchdog`,
+            );
+            continue;
+          }
+          this.logger.warn(
+            `[WATCHDOG] ${dbPos.symbol}: scalping untracked - skip SL/TP watchdog (prevent duplicate orders)`,
+          );
+          continue;
+        }
+        const forceClosedAt = this.recentlyForceClosedSymbols.get(dbPos.symbol);
+        if (forceClosedAt && Date.now() - forceClosedAt < this.FORCE_CLOSE_SKIP_MS) {
+          this.logger.debug(`[WATCHDOG] ${dbPos.symbol}: skipped (recently force closed)`);
+          continue;
+        }
+        const livePos = activePositions.find((p) => p.symbol === dbPos.symbol);
+        const liveQty = livePos ? Math.abs(parseFloat(livePos.positionAmt)) : 0;
+        if (!livePos || liveQty < 0.000001) {
+          this.logger.warn(
+            `[SL WATCHDOG] Skipping ${dbPos.symbol} - no live position on Binance`,
+          );
+          if (dbPos.strategy === 'SCALPING' && this.scalpingPositionService) {
+            this.scalpingPositionService.removePosition(dbPos.symbol);
+          }
+          dbPos.status = 'CLOSED';
+          dbPos.closedAt = new Date();
+          dbPos.metadata = {
+            ...dbPos.metadata,
+            closedBy: 'SL_WATCHDOG_NO_LIVE_POSITION',
+            closedAt: new Date().toISOString(),
+          };
+          await this.positionRepo.save(dbPos);
+          this.slTpRetryCount.delete(dbPos.symbol);
+          this.positionWithoutSlSince.delete(dbPos.symbol);
+          continue;
+        }
+
         // Algo Order에서 SL/TP 주문 찾기
         const algoOrders = await this.okxService.getOpenAlgoOrders(dbPos.symbol);
+        const orderTypes = algoOrders.map(o => o.type || (o as any).orderType);
 
-        // SL 체크: closePosition=true인 STOP_MARKET
+        // Binance는 closePosition 필드를 항상 주지 않음 → type 기준으로 판단
         const existingSL = algoOrders.find(o =>
-          o.type === 'STOP_MARKET' &&
-          o.closePosition === true
+          ['STOP_MARKET', 'STOP'].includes((o.type || (o as any).orderType) as string)
         );
 
-        // TP 체크: TAKE_PROFIT_MARKET (quantity 또는 closePosition)
-        const existingTP = algoOrders.find(o => o.type === 'TAKE_PROFIT_MARKET');
+        const existingTP = algoOrders.find(o =>
+          ['TAKE_PROFIT_MARKET', 'TAKE_PROFIT'].includes((o.type || (o as any).orderType) as string)
+        );
 
         // 둘 다 있으면 OK - 재시도 카운터 및 SL 부재 추적 초기화
         if (existingSL && existingTP) {
@@ -819,12 +1170,18 @@ export class PositionSyncService {
             // 처음 SL 부재 감지 - 시간 기록
             this.positionWithoutSlSince.set(dbPos.symbol, now);
             this.logger.warn(
-              `[WATCHDOG] ⚠️ ${dbPos.symbol}: SL missing - tracking started`
+              `[WATCHDOG] ⚠️ ${dbPos.symbol}: SL missing - tracking started (open algo: ${orderTypes.join(', ') || 'none'})`
             );
           } else {
             const minutesWithoutSL = (now - firstDetected) / 60000;
 
             if (minutesWithoutSL >= this.MAX_TIME_WITHOUT_SL_MINUTES) {
+              if (isScalping) {
+                this.logger.warn(
+                  `[WATCHDOG] ${dbPos.symbol}: SL missing for ${minutesWithoutSL.toFixed(1)}m (scalping) - skip force close`,
+                );
+                continue;
+              }
               this.logger.error(
                 `\n🚨🚨🚨 [CRITICAL] POSITION WITHOUT SL FOR ${minutesWithoutSL.toFixed(1)} MINUTES! 🚨🚨🚨\n` +
                 `  Symbol: ${dbPos.symbol}\n` +
@@ -878,6 +1235,13 @@ export class PositionSyncService {
         // ═══════════════════════════════════════════════════════════
         const currentRetries = this.slTpRetryCount.get(dbPos.symbol) || 0;
         if (currentRetries >= this.MAX_SLTP_RETRIES) {
+          if (isScalping) {
+            this.logger.warn(
+              `[WATCHDOG] ${dbPos.symbol}: SL/TP create failed ${currentRetries}x (scalping) - skip force close`,
+            );
+            this.slTpRetryCount.delete(dbPos.symbol);
+            continue;
+          }
           this.logger.error(
             `\n🚨🚨🚨 [CRITICAL] SL/TP CREATION FAILED ${this.MAX_SLTP_RETRIES} TIMES! 🚨🚨🚨\n` +
             `  Symbol: ${dbPos.symbol}\n` +
@@ -966,6 +1330,16 @@ export class PositionSyncService {
             }
           }
 
+          // 현재가 기준으로 SL이 즉시 트리거되지 않도록 보정
+          const currentMark = livePos?.markPrice ? parseFloat(livePos.markPrice) : 0;
+          if (currentMark > 0) {
+            if (dbPos.side === 'LONG' && slPrice >= currentMark) {
+              slPrice = currentMark * 0.98;
+            } else if (dbPos.side === 'SHORT' && slPrice <= currentMark) {
+              slPrice = currentMark * 1.02;
+            }
+          }
+
           const formattedSL = parseFloat(this.okxService.formatPrice(dbPos.symbol, slPrice));
 
           try {
@@ -975,7 +1349,8 @@ export class PositionSyncService {
               side: dbPos.side === 'LONG' ? 'SELL' : 'BUY',
               type: 'STOP_MARKET',
               triggerPrice: formattedSL,
-              closePosition: true,
+              quantity: liveQty,
+              quantityInContracts: true,
               isStrategyPosition: false,  // ✅ DB side는 실제 포지션 방향 - 반전 불필요
             });
 
@@ -1082,6 +1457,10 @@ export class PositionSyncService {
 
             // ✅ OKX에서 실제 포지션 수량 확인 (계약 단위)
             const currentQtyForTp = binancePos ? Math.abs(parseFloat(binancePos.positionAmt)) : 0;
+          if (currentQtyForTp <= 0) {
+            this.logger.warn(`[TP WATCHDOG] ${dbPos.symbol}: skipped (no live qty)`);
+            continue;
+          }
 
             this.logger.warn(
               `\n🚨 [TP WATCHDOG] Missing TP detected!\n` +
@@ -1150,10 +1529,27 @@ export class PositionSyncService {
     binancePositions: any[]
   ): Promise<void> {
     const dbSymbols = new Set(dbPositions.map(p => p.symbol));
+    const scalpingSymbols = new Set<string>();
+    if (this.scalpingPositionService) {
+      const scalpingPendingOrders = this.scalpingPositionService.getAllPendingOrders();
+      for (const order of scalpingPendingOrders) {
+        scalpingSymbols.add(order.symbol);
+      }
+      const scalpingPositions = this.scalpingPositionService.getActivePositions();
+      for (const pos of scalpingPositions) {
+        scalpingSymbols.add(pos.symbol);
+      }
+    }
 
     for (const binancePos of binancePositions) {
       const symbol = binancePos.symbol;
       const positionAmt = parseFloat(binancePos.positionAmt);
+
+      // 스캘핑 서비스에서 추적 중이면 스킵 (레이스 컨디션 방지)
+      if (scalpingSymbols.has(symbol)) {
+        this.logger.debug(`[DEFENSE] ${symbol}: Tracked by ScalpingPositionService, skipping`);
+        continue;
+      }
 
       // 이미 DB에 있으면 스킵
       if (dbSymbols.has(symbol)) continue;
@@ -1276,7 +1672,8 @@ export class PositionSyncService {
    * 마진 = 포지션 가치 / 레버리지
    */
   private async detectAndCloseOversizedPositions(
-    binancePositions: any[]
+    binancePositions: any[],
+    dbPositions: Position[],
   ): Promise<void> {
     // ✅ 총 자본 조회 (Available Balance + Unrealized PnL)
     let totalCapital: number;
@@ -1294,8 +1691,43 @@ export class PositionSyncService {
 
     const maxMargin = totalCapital * this.MAX_MARGIN_PERCENT;
 
+    const dbPositionBySymbol = new Map(dbPositions.map((p) => [p.symbol, p]));
+    const scalpingSymbols = new Set<string>();
+    const scalpingPendingSymbols = new Set<string>();
+    if (this.scalpingPositionService) {
+      const scalpingPositions = this.scalpingPositionService.getActivePositions();
+      for (const pos of scalpingPositions) {
+        scalpingSymbols.add(pos.symbol);
+      }
+      const scalpingPendingOrders = this.scalpingPositionService.getAllPendingOrders();
+      for (const order of scalpingPendingOrders) {
+        scalpingPendingSymbols.add(order.symbol);
+      }
+    }
+
+    // 최근 스캘핑 신호(체결/대기) 심볼은 오버사이즈 청산 제외
+    const recentCutoff = new Date(Date.now() - 10 * 60 * 1000);
+    const recentSignals = await this.signalRepo.find({
+      select: ['symbol'],
+      where: [
+        { strategy: 'SCALPING', status: 'PENDING', createdAt: MoreThan(recentCutoff) },
+        { strategy: 'SCALPING', status: 'FILLED', createdAt: MoreThan(recentCutoff) },
+      ],
+    });
+    const recentScalpingSymbols = new Set(recentSignals.map((s) => s.symbol));
+
     for (const binancePos of binancePositions) {
       const symbol = binancePos.symbol;
+      const dbPos = dbPositionBySymbol.get(symbol);
+      if (
+        dbPos?.strategy === 'SCALPING' ||
+        scalpingSymbols.has(symbol) ||
+        scalpingPendingSymbols.has(symbol) ||
+        recentScalpingSymbols.has(symbol)
+      ) {
+        this.logger.debug(`[OVERSIZED] ${symbol}: skipped (scalping position/pending/recent signal)`);
+        continue;
+      }
       const positionAmt = parseFloat(binancePos.positionAmt);
       const markPrice = parseFloat(binancePos.markPrice);
       const leverage = parseInt(binancePos.leverage) || 10;
@@ -1351,6 +1783,7 @@ export class PositionSyncService {
             `  ✅ Oversized margin position CLOSED: ${closeOrder.orderId}\n` +
             `  ════════════════════════════════════════════════════`
           );
+          this.recentlyForceClosedSymbols.set(symbol, Date.now());
 
           // DB에 포지션이 있으면 상태 업데이트
           const dbPos = await this.positionRepo.findOne({

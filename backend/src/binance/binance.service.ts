@@ -277,6 +277,7 @@ export class BinanceService {
         symbol,
         leverage,
       });
+      this.logger.log(`[LEVERAGE] ${symbol} set to ${leverage}x`);
       return result;
     } catch (error) {
       this.logger.error(`Error changing leverage for ${symbol}:`, error);
@@ -447,10 +448,37 @@ export class BinanceService {
           orderParams.reduceOnly = 'true';
         }
 
+        this.logger.log(
+          `[ORDER] Sending ${params.type} ${params.side} ${params.symbol} | ` +
+          `qty=${formattedQuantity || 'N/A'} price=${formattedPrice || 'N/A'} stop=${formattedStopPrice || 'N/A'} ` +
+          `reduceOnly=${params.reduceOnly ? 'true' : 'false'} closePosition=${params.closePosition ? 'true' : 'false'} ` +
+          `clientOrderId=${clientOrderId}`,
+        );
+
         return await this.client.futuresOrder(orderParams);
       }) as any;
 
-      this.logger.debug(`[ORDER] Created with clientOrderId: ${clientOrderId}`);
+      this.logger.log(
+        `[ORDER] ✅ Created: ${params.symbol} ${params.side} ${params.type} | ` +
+        `orderId=${order.orderId || 'N/A'} status=${order.status || 'N/A'} avgPrice=${order.avgPrice || order.price || 'N/A'} ` +
+        `clientOrderId=${clientOrderId}`,
+      );
+      this.logger.log(
+        `[ORDER] ↩ Binance response: ${JSON.stringify({
+          orderId: order.orderId,
+          status: order.status,
+          type: order.type,
+          side: order.side,
+          price: order.price,
+          avgPrice: order.avgPrice,
+          origQty: order.origQty,
+          executedQty: order.executedQty,
+          reduceOnly: order.reduceOnly,
+          closePosition: order.closePosition,
+          clientOrderId: order.clientOrderId,
+          updateTime: order.updateTime,
+        })}`,
+      );
       return order;
     } catch (error: any) {
       // ✅ 중복 주문 에러 처리 (-2015: Invalid API-key, IP, or permissions)
@@ -583,6 +611,59 @@ export class BinanceService {
   }
 
   /**
+   * ✅ 사용자 체결 내역 조회 (기간 지정)
+   */
+  async getUserTrades(params: {
+    symbol: string;
+    startTime?: number;
+    endTime?: number;
+    limit?: number;
+  }): Promise<any[]> {
+    const requestParams: Record<string, string | number> = {
+      symbol: params.symbol,
+      timestamp: Date.now(),
+    };
+
+    if (params.startTime) requestParams.startTime = params.startTime;
+    if (params.endTime) requestParams.endTime = params.endTime;
+    if (params.limit) requestParams.limit = params.limit;
+
+    const queryString = new URLSearchParams(
+      Object.entries(requestParams).map(([key, value]) => [key, String(value)]),
+    ).toString();
+    const signature = this.createSignature(queryString);
+    const url = `${this.baseUrl}/fapi/v1/userTrades?${queryString}&signature=${signature}`;
+
+    try {
+      const trades = await this.queryBreaker.fire(async () => {
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: { 'X-MBX-APIKEY': this.apiKey },
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          const error = new Error(data.msg || `userTrades failed: ${res.status}`);
+          (error as any).code = data.code;
+          throw error;
+        }
+        return data;
+      });
+
+      this.logger.log(
+        `[USER TRADES] ${params.symbol}: ${trades.length} trades (start=${params.startTime || 'N/A'})`,
+      );
+      return Array.isArray(trades) ? trades : [];
+    } catch (error: any) {
+      this.logger.error(
+        `[USER TRADES] Failed to fetch trades for ${params.symbol}:`,
+        error.message,
+      );
+      throw error;
+    }
+  }
+
+  /**
    * ✅ 주문 상태 조회
    */
   async queryOrder(symbol: string, orderId: number): Promise<any> {
@@ -593,7 +674,27 @@ export class BinanceService {
           orderId,
         });
 
-        this.logger.debug(`[QUERY ORDER] ${symbol} #${orderId}: ${order.status}`);
+        this.logger.log(
+          `[QUERY ORDER] ${symbol} #${orderId}: ${order.status} | ` +
+          `type=${order.type} side=${order.side} price=${order.price} avgPrice=${order.avgPrice} ` +
+          `origQty=${order.origQty} executedQty=${order.executedQty}`,
+        );
+        this.logger.log(
+          `[QUERY ORDER] ↩ Binance response: ${JSON.stringify({
+            orderId: order.orderId,
+            status: order.status,
+            type: order.type,
+            side: order.side,
+            price: order.price,
+            avgPrice: order.avgPrice,
+            origQty: order.origQty,
+            executedQty: order.executedQty,
+            reduceOnly: order.reduceOnly,
+            closePosition: order.closePosition,
+            clientOrderId: order.clientOrderId,
+            updateTime: order.updateTime,
+          })}`,
+        );
         return order;
       },
       `queryOrder(${symbol}, ${orderId})`,
@@ -612,6 +713,19 @@ export class BinanceService {
         });
 
         this.logger.log(`[CANCEL ORDER] ${symbol} #${orderId} canceled`);
+        this.logger.log(
+          `[CANCEL ORDER] ↩ Binance response: ${JSON.stringify({
+            orderId: result.orderId,
+            status: result.status,
+            type: result.type,
+            side: result.side,
+            price: result.price,
+            origQty: result.origQty,
+            executedQty: result.executedQty,
+            clientOrderId: result.clientOrderId,
+            updateTime: (result as any).updateTime,
+          })}`,
+        );
         return result;
       },
       `cancelOrder(${symbol}, ${orderId})`,
@@ -848,9 +962,9 @@ export class BinanceService {
     }
 
     // 쿼리 스트링 생성 및 서명
-    const queryString = Object.entries(requestParams)
-      .map(([key, value]) => `${key}=${value}`)
-      .join('&');
+    const queryString = new URLSearchParams(
+      Object.entries(requestParams).map(([key, value]) => [key, String(value)]),
+    ).toString();
     const signature = this.createSignature(queryString);
 
     const url = `${this.baseUrl}/fapi/v1/algoOrder?${queryString}&signature=${signature}`;
@@ -891,6 +1005,22 @@ export class BinanceService {
         `  Client Algo:  ${response.clientAlgoId}\n` +
         `  Status:       ${response.algoStatus}`
       );
+      this.logger.log(
+        `[ALGO ORDER] ↩ Binance response: ${JSON.stringify({
+          algoId: response.algoId,
+          clientAlgoId: response.clientAlgoId,
+          symbol: response.symbol,
+          side: response.side,
+          type: response.orderType || response.type,
+          triggerPrice: response.triggerPrice,
+          quantity: response.quantity,
+          closePosition: response.closePosition,
+          algoStatus: response.algoStatus,
+          workingType: response.workingType,
+          createTime: response.createTime,
+          updateTime: response.updateTime,
+        })}`,
+      );
 
       return response;
     } catch (error: any) {
@@ -914,9 +1044,9 @@ export class BinanceService {
       timestamp: Date.now(),
     };
 
-    const queryString = Object.entries(requestParams)
-      .map(([key, value]) => `${key}=${value}`)
-      .join('&');
+    const queryString = new URLSearchParams(
+      Object.entries(requestParams).map(([key, value]) => [key, String(value)]),
+    ).toString();
     const signature = this.createSignature(queryString);
 
     const url = `${this.baseUrl}/fapi/v1/algoOrder?${queryString}&signature=${signature}`;
@@ -942,6 +1072,13 @@ export class BinanceService {
       });
 
       this.logger.log(`[ALGO ORDER] Canceled algo order ${algoId} for ${symbol}`);
+      this.logger.log(
+        `[ALGO ORDER] ↩ Binance cancel response: ${JSON.stringify({
+          algoId: response.algoId || algoId,
+          symbol: response.symbol || symbol,
+          algoStatus: response.algoStatus,
+        })}`,
+      );
       return response;
     } catch (error: any) {
       this.logger.error(`[ALGO ORDER] Failed to cancel algo order ${algoId}:`, error.message);
@@ -961,9 +1098,9 @@ export class BinanceService {
       requestParams.symbol = symbol;
     }
 
-    const queryString = Object.entries(requestParams)
-      .map(([key, value]) => `${key}=${value}`)
-      .join('&');
+    const queryString = new URLSearchParams(
+      Object.entries(requestParams).map(([key, value]) => [key, String(value)]),
+    ).toString();
     const signature = this.createSignature(queryString);
 
     const url = `${this.baseUrl}/fapi/v1/openAlgoOrders?${queryString}&signature=${signature}`;
@@ -995,6 +1132,21 @@ export class BinanceService {
       }));
 
       this.logger.debug(`[ALGO ORDER] Found ${response.length} open algo orders${symbol ? ` for ${symbol}` : ''}: ${response.map(o => `${o.symbol}:${o.type}`).join(', ')}`);
+      this.logger.log(
+        `[ALGO ORDER] ↩ Binance open algo orders: ${JSON.stringify(
+          response.map(o => ({
+            algoId: o.algoId,
+            symbol: o.symbol,
+            side: o.side,
+            type: o.type || (o as any).orderType,
+            triggerPrice: o.triggerPrice,
+            quantity: o.quantity,
+            closePosition: o.closePosition,
+            algoStatus: o.algoStatus,
+            updateTime: o.updateTime,
+          })),
+        )}`,
+      );
       return response;
     } catch (error: any) {
       this.logger.error(`[ALGO ORDER] Failed to get open algo orders:`, error.message);
@@ -1052,9 +1204,9 @@ export class BinanceService {
         const params: Record<string, string> = {};
         if (symbol) params.symbol = symbol;
 
-        const queryString = Object.entries(params)
-          .map(([key, value]) => `${key}=${value}`)
-          .join('&');
+        const queryString = new URLSearchParams(
+          Object.entries(params).map(([key, value]) => [key, String(value)]),
+        ).toString();
 
         const url = `${this.baseUrl}/fapi/v1/premiumIndex${queryString ? '?' + queryString : ''}`;
 
@@ -1080,10 +1232,11 @@ export class BinanceService {
    * Open Interest 조회
    * GET /fapi/v1/openInterest
    */
-  async getOpenInterest(symbol: string): Promise<any> {
+  async getOpenInterest(symbol: string): Promise<any | null> {
     return this.retryOperation(
       async () => {
-        const url = `${this.baseUrl}/fapi/v1/openInterest?symbol=${symbol}`;
+        const queryString = new URLSearchParams({ symbol }).toString();
+        const url = `${this.baseUrl}/fapi/v1/openInterest?${queryString}`;
 
         const res = await fetch(url, {
           method: 'GET',
@@ -1092,8 +1245,11 @@ export class BinanceService {
 
         const data = await res.json();
 
+        // -1121: Invalid symbol (binance) or other non-OK responses
         if (!res.ok) {
-          throw new Error(data.msg || `getOpenInterest failed: ${res.status}`);
+          const msg = data?.msg || `getOpenInterest failed: ${res.status}`;
+          this.logger.warn(`[OpenInterest] ${symbol} skipped: ${msg}`);
+          return null;
         }
 
         return data;
@@ -1112,9 +1268,9 @@ export class BinanceService {
         const params: Record<string, string> = {};
         if (symbol) params.symbol = symbol;
 
-        const queryString = Object.entries(params)
-          .map(([key, value]) => `${key}=${value}`)
-          .join('&');
+        const queryString = new URLSearchParams(
+          Object.entries(params).map(([key, value]) => [key, String(value)]),
+        ).toString();
 
         const url = `${this.baseUrl}/fapi/v1/ticker/bookTicker${queryString ? '?' + queryString : ''}`;
 

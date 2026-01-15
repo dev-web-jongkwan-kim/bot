@@ -129,10 +129,36 @@ export class ScalpingOrderService {
     );
 
     for (const signal of signals) {
+      // 심볼 재진입 쿨다운
+      if (this.positionService.isSymbolInCooldown(signal.symbol)) {
+        const remainingMs = this.positionService.getSymbolCooldownRemaining(signal.symbol);
+        const remainingMinutes = Math.ceil(remainingMs / 60000);
+        this.logger.debug(
+          `[ScalpingOrder] [${signal.symbol}] Skip - symbol cooldown (${remainingMinutes}m)`,
+        );
+        continue;
+      }
+
       // 이미 해당 종목 포지션/주문 있으면 스킵
       if (this.positionService.hasPositionOrOrder(signal.symbol)) {
         this.logger.debug(
           `[ScalpingOrder] [${signal.symbol}] Skip - already has position/order`,
+        );
+        continue;
+      }
+
+      // 동일 심볼 동시 포지션 제한 (DB 기준)
+      const openSymbolCount = await this.positionRepository.count({
+        where: {
+          symbol: signal.symbol,
+          strategy: 'SCALPING',
+          status: 'OPEN',
+        },
+      });
+      if (openSymbolCount >= SCALPING_CONFIG.risk.maxSymbolPositions) {
+        this.logger.log(
+          `[ScalpingOrder] [${signal.symbol}] ⚠️ Max symbol positions reached: ` +
+            `${openSymbolCount}/${SCALPING_CONFIG.risk.maxSymbolPositions}`,
         );
         continue;
       }
@@ -171,8 +197,17 @@ export class ScalpingOrderService {
         `[ScalpingOrder] [${signal.symbol}] 📝 Placing ${signal.direction} order... (Balance: $${availableBalance.toFixed(2)})`,
       );
 
-      // 포지션 사이즈 계산
-      const quantity = await this.calculatePositionSize(signal);
+      // 마진 타입: 무조건 ISOLATED
+      await this.okxService.changeMarginType(signal.symbol, 'ISOLATED');
+
+      // 레버리지 설정 (20x → 실패 시 10x)
+      const actualLeverage = await this.setLeverageWithFallback(signal.symbol);
+      this.logger.log(
+        `[ScalpingOrder] [${signal.symbol}] Leverage set: ${actualLeverage}x (target ${SCALPING_CONFIG.risk.leverage}x)`,
+      );
+
+      // 포지션 사이즈 계산 (실제 레버리지 기준)
+      const quantity = await this.calculatePositionSize(signal, actualLeverage);
 
       if (quantity <= 0) {
         this.logger.warn(
@@ -199,12 +234,6 @@ export class ScalpingOrderService {
 
       this.logger.log(
         `[ScalpingOrder] [${signal.symbol}] Creating LIMIT ${side} @ ${signal.entryPrice.toFixed(4)}, qty=${quantity}`,
-      );
-
-      // 레버리지 설정 (폴백 지원: 15 → 10 → 5)
-      await this.okxService.changeLeverage(
-        signal.symbol,
-        SCALPING_CONFIG.risk.leverageFallback,
       );
 
       // Limit 주문 (reduceOnly: false → 신규 진입, 하지만 스캘핑은 반전 없음)
@@ -238,7 +267,7 @@ export class ScalpingOrderService {
         entryPrice: signal.entryPrice,
         stopLoss: signal.slPrice,
         takeProfit1: signal.tpPrice,
-        leverage: SCALPING_CONFIG.risk.leverage,
+        leverage: actualLeverage,
         score: signal.strength,
         timestamp: new Date(),
         status: 'PENDING',
@@ -278,6 +307,7 @@ export class ScalpingOrderService {
         tpPrice: signal.tpPrice,
         slPrice: signal.slPrice,
         quantity,
+        leverage: actualLeverage,
         createdAt: Date.now(),
         signal,
       };
@@ -325,11 +355,13 @@ export class ScalpingOrderService {
   /**
    * 포지션 사이즈 계산
    */
-  private async calculatePositionSize(signal: ScalpingSignal): Promise<number> {
+  private async calculatePositionSize(
+    signal: ScalpingSignal,
+    leverage: number,
+  ): Promise<number> {
     try {
       // 고정 마진 사용
       const marginUsdt = SCALPING_CONFIG.risk.fixedMarginUsdt;
-      const leverage = SCALPING_CONFIG.risk.leverage;
 
       // 포지션 가치 = 마진 × 레버리지
       const notionalValue = marginUsdt * leverage;
@@ -349,6 +381,41 @@ export class ScalpingOrderService {
       );
       return 0;
     }
+  }
+
+  /**
+   * 레버리지 설정 (20x 고정, 미지원 시 10x)
+   */
+  private async setLeverageWithFallback(symbol: string): Promise<number> {
+    const preferred = SCALPING_CONFIG.risk.leverage;
+    const fallbacks = SCALPING_CONFIG.risk.leverageFallback?.length
+      ? SCALPING_CONFIG.risk.leverageFallback
+      : [10];
+
+    try {
+      await this.okxService.changeLeverage(symbol, preferred);
+      return preferred;
+    } catch (error: any) {
+      this.logger.warn(
+        `[ScalpingOrder] [${symbol}] ⚠️ Leverage ${preferred}x failed: ${error.message}`,
+      );
+    }
+
+    for (const fallback of fallbacks) {
+      try {
+        await this.okxService.changeLeverage(symbol, fallback);
+        this.logger.warn(
+          `[ScalpingOrder] [${symbol}] ⚠️ Using fallback leverage ${fallback}x`,
+        );
+        return fallback;
+      } catch (error: any) {
+        this.logger.warn(
+          `[ScalpingOrder] [${symbol}] ⚠️ Leverage ${fallback}x failed: ${error.message}`,
+        );
+      }
+    }
+
+    throw new Error(`Failed to set leverage for ${symbol} (preferred ${preferred}x, fallback ${fallbacks.join(', ')})`);
   }
 
   /**
@@ -373,7 +440,7 @@ export class ScalpingOrderService {
         // 주문 상태 확인
         const orderStatus = await this.okxService.queryOrder(
           pending.symbol,
-          pending.orderId,
+          Number(pending.orderId),
         );
 
         if (!orderStatus) {
@@ -407,7 +474,7 @@ export class ScalpingOrderService {
           this.logger.log(
             `[ScalpingOrder] [${pending.symbol}] Order timeout - canceling...`,
           );
-          await this.okxService.cancelOrder(pending.symbol, pending.orderId);
+          await this.okxService.cancelOrder(pending.symbol, Number(pending.orderId));
           this.positionService.removePendingOrder(pending.symbol);
         }
       } catch (error) {
@@ -437,11 +504,53 @@ export class ScalpingOrderService {
     this.logger.log(
       `[ScalpingOrder] [${pending.symbol}] ✅ ORDER FILLED @ ${filledPrice.toFixed(4)}`,
     );
+    this.logger.log(
+      `[ScalpingOrder] [${pending.symbol}] Fill details | orderId=${pending.orderId} ` +
+      `avgPrice=${orderStatus.avgPx || orderStatus.avgPrice || orderStatus.price || 'N/A'} ` +
+      `executedQty=${orderStatus.fillSz || orderStatus.executedQty || pending.quantity}`,
+    );
+
+    let tpOrderId: string | undefined;
+    let slOrderId: string | undefined;
 
     // TP1/SL 주문 설정 (부분 청산: TP1에서 50% 청산)
     const tpSide = pending.direction === 'LONG' ? 'SELL' : 'BUY';
-    const tp1Price = pending.signal.tp1Price || pending.tpPrice;
-    const tp2Price = pending.signal.tp2Price;
+    const spreadPercent = pending.signal?.spreadPercent || 0;
+    const baseMinPercent = Math.max(
+      SCALPING_CONFIG.order.minTpSlPercent,
+      (SCALPING_CONFIG.order.feePercent * 2) +
+        (spreadPercent * 2) +
+        SCALPING_CONFIG.order.slippagePercent,
+    );
+    const minSlPercent = Math.max(
+      SCALPING_CONFIG.order.minSlPercent || baseMinPercent,
+      baseMinPercent,
+    );
+    const atr = pending.signal?.atr || 0;
+    const tp1Distance = Math.max(atr * SCALPING_CONFIG.order.tp1Atr, filledPrice * baseMinPercent);
+    const tp2Distance = Math.max(atr * SCALPING_CONFIG.order.tp2Atr, filledPrice * (baseMinPercent * 1.5));
+    const slDistance = Math.max(atr * SCALPING_CONFIG.order.slAtr, filledPrice * minSlPercent);
+
+    let tp1Price =
+      pending.direction === 'LONG'
+        ? filledPrice + tp1Distance
+        : filledPrice - tp1Distance;
+    let tp2Price =
+      pending.direction === 'LONG'
+        ? filledPrice + tp2Distance
+        : filledPrice - tp2Distance;
+    let slPrice =
+      pending.direction === 'LONG'
+        ? filledPrice - slDistance
+        : filledPrice + slDistance;
+    let finalSlPrice = slPrice;
+
+    const entrySlippage = ((filledPrice - pending.entryPrice) / pending.entryPrice) * 100;
+    this.logger.warn(
+      `[ScalpingOrder] [${pending.symbol}] Recalc TP/SL on fill | ` +
+      `fill=${filledPrice.toFixed(6)} entry=${pending.entryPrice.toFixed(6)} slip=${entrySlippage.toFixed(3)}% ` +
+      `tp1=${tp1Price.toFixed(6)} tp2=${tp2Price.toFixed(6)} sl=${slPrice.toFixed(6)}`,
+    );
 
     try {
       // TP1과 SL 설정 (TP1에서 50% 청산)
@@ -452,34 +561,69 @@ export class ScalpingOrderService {
       const lotSizeInfo = this.okxService.getLotSizeInfo(pending.symbol);
       const lotSz = lotSizeInfo.stepSize;
       const tp1Quantity = Math.floor(tp1QuantityRaw / lotSz) * lotSz;
+      const currentPrice = parseFloat(
+        orderStatus.avgPx || orderStatus.avgPrice || orderStatus.price || filledPrice,
+      );
+
+      // TP 즉시 트리거 방지 (롱: TP > 현재가, 숏: TP < 현재가)
+      if (pending.direction === 'LONG' && tp1Price <= currentPrice) {
+        const adjusted = currentPrice * 1.001;
+        this.logger.warn(
+          `[ScalpingOrder] [${pending.symbol}] TP1 adjusted: ${tp1Price.toFixed(6)} → ${adjusted.toFixed(6)} (LONG)`,
+        );
+        tp1Price = adjusted;
+      } else if (pending.direction === 'SHORT' && tp1Price >= currentPrice) {
+        const adjusted = currentPrice * 0.999;
+        this.logger.warn(
+          `[ScalpingOrder] [${pending.symbol}] TP1 adjusted: ${tp1Price.toFixed(6)} → ${adjusted.toFixed(6)} (SHORT)`,
+        );
+        tp1Price = adjusted;
+      }
+      if (pending.direction === 'LONG' && tp2Price <= tp1Price) {
+        tp2Price = tp1Price * 1.001;
+      } else if (pending.direction === 'SHORT' && tp2Price >= tp1Price) {
+        tp2Price = tp1Price * 0.999;
+      }
       
       // 최소 수량 체크
       if (tp1Quantity < lotSz) {
         this.logger.warn(
           `[ScalpingOrder] [${pending.symbol}] TP1 quantity too small: ${tp1Quantity} < ${lotSz}, using full quantity`,
         );
+        if (pending.direction === 'LONG' && slPrice >= currentPrice) {
+          slPrice = currentPrice * 0.999;
+        } else if (pending.direction === 'SHORT' && slPrice <= currentPrice) {
+          slPrice = currentPrice * 1.001;
+        }
         // 전체 수량 사용
-        await this.okxService.createTpSlOrder({
+        this.logger.log(
+          `[ScalpingOrder] [${pending.symbol}] TP/SL request | side=${tpSide} ` +
+          `tp=${tp1Price?.toFixed(6)} sl=${slPrice?.toFixed(6)} tpQty=${filledQty} slQty=${filledQty}`,
+        );
+        const tpSlOrderIds = await this.okxService.createTpSlOrder({
           symbol: pending.symbol,
           side: tpSide,
-          quantity: filledQty,
+          tpQuantity: filledQty,
+          slQuantity: filledQty,
           tpTriggerPrice: tp1Price,
-          slTriggerPrice: pending.slPrice,
+          slTriggerPrice: slPrice,
           isStrategyPosition: false,
         });
+        finalSlPrice = slPrice;
+        tpOrderId = tpSlOrderIds?.tpAlgoId;
+        slOrderId = tpSlOrderIds?.slAlgoId;
       } else {
         // SL 가격 검증 (롱일 때 SL < 현재가, 숏일 때 SL > 현재가)
         const currentPrice = parseFloat(orderStatus.avgPx || orderStatus.avgPrice || orderStatus.price || filledPrice);
-        const slPrice = pending.slPrice;
         
         let validSlPrice = slPrice;
-        if (pending.direction === 'LONG' && slPrice >= currentPrice) {
+        if (pending.direction === 'LONG' && validSlPrice >= currentPrice) {
           // 롱 포지션: SL은 현재가보다 낮아야 함
           validSlPrice = currentPrice * 0.999; // 현재가의 99.9%로 조정
           this.logger.warn(
             `[ScalpingOrder] [${pending.symbol}] SL price adjusted: ${slPrice.toFixed(4)} → ${validSlPrice.toFixed(4)} (LONG position)`,
           );
-        } else if (pending.direction === 'SHORT' && slPrice <= currentPrice) {
+        } else if (pending.direction === 'SHORT' && validSlPrice <= currentPrice) {
           // 숏 포지션: SL은 현재가보다 높아야 함
           validSlPrice = currentPrice * 1.001; // 현재가의 100.1%로 조정
           this.logger.warn(
@@ -487,18 +631,26 @@ export class ScalpingOrderService {
           );
         }
         
-        await this.okxService.createTpSlOrder({
+        this.logger.log(
+          `[ScalpingOrder] [${pending.symbol}] TP/SL request | side=${tpSide} ` +
+          `tp=${tp1Price?.toFixed(6)} sl=${validSlPrice?.toFixed(6)} tpQty=${tp1Quantity} slQty=${filledQty}`,
+        );
+        const tpSlOrderIds = await this.okxService.createTpSlOrder({
           symbol: pending.symbol,
           side: tpSide,
-          quantity: tp1Quantity,  // TP1: 50% 청산 (lot size 반올림)
+          tpQuantity: tp1Quantity,  // TP1: 50% 청산 (lot size 반올림)
+          slQuantity: filledQty,    // SL은 전체 수량 보호
           tpTriggerPrice: tp1Price,
           slTriggerPrice: validSlPrice,
           isStrategyPosition: false, // 스캘핑은 직접 매매, 반전 없음
         });
+        finalSlPrice = validSlPrice;
+        tpOrderId = tpSlOrderIds?.tpAlgoId;
+        slOrderId = tpSlOrderIds?.slAlgoId;
       }
       
       this.logger.log(
-        `[ScalpingOrder] [${pending.symbol}] ✅ TP1/SL set | TP1: ${tp1Price.toFixed(4)} (50%), SL: ${pending.slPrice.toFixed(4)}, Qty: ${tp1Quantity}`,
+        `[ScalpingOrder] [${pending.symbol}] ✅ TP1/SL set | TP1: ${tp1Price.toFixed(4)} (50%), SL: ${finalSlPrice.toFixed(4)}, Qty: ${tp1Quantity}`,
       );
       
       // TP2가 있으면 별도 주문으로 설정 (나머지 50%)
@@ -518,15 +670,18 @@ export class ScalpingOrderService {
       direction: pending.direction,
       entryPrice: filledPrice,
       quantity: filledQty,
-      tpPrice: pending.tpPrice, // 단일 TP (fallback)
+      leverage: pending.leverage,
+      tpPrice: tp1Price, // 단일 TP (fallback)
       tp1Price: tp1Price, // 부분 청산 TP1
       tp2Price: tp2Price, // 부분 청산 TP2
-      slPrice: pending.slPrice,
-      originalTpPrice: pending.tpPrice,
+      slPrice: finalSlPrice,
+      originalTpPrice: tp1Price,
       tpReduced: false,
       tp1Filled: false, // TP1 청산 완료 여부
       status: 'OPEN',
       mainOrderId: pending.orderId,
+      tpOrderId,
+      slOrderId,
       enteredAt: Date.now(),
       signal: pending.signal,
     };
@@ -541,8 +696,8 @@ export class ScalpingOrderService {
       side: pending.direction,
       entryPrice: filledPrice,
       quantity: filledQty,
-      leverage: SCALPING_CONFIG.risk.leverage,
-      stopLoss: pending.slPrice,
+      leverage: pending.leverage || SCALPING_CONFIG.risk.leverage,
+      stopLoss: finalSlPrice,
       takeProfit1: tp1Price, // TP1 가격
       takeProfit2: tp2Price, // TP2 가격 (있을 경우)
       status: 'OPEN',
@@ -550,6 +705,8 @@ export class ScalpingOrderService {
       metadata: {
         orderId: pending.orderId,
         signal: pending.signal,
+        tpOrderId,
+        slOrderId,
       },
     });
     const savedPosition = await this.positionRepository.save(positionEntity);
@@ -569,7 +726,7 @@ export class ScalpingOrderService {
       side: position.direction,
       entryPrice: position.entryPrice,
       positionAmt: position.quantity,
-      leverage: SCALPING_CONFIG.risk.leverage,
+      leverage: position.leverage || SCALPING_CONFIG.risk.leverage,
       unrealizedPnl: 0,
       marginType: 'isolated',
       tpPrice: position.tpPrice,
@@ -725,7 +882,8 @@ export class ScalpingOrderService {
       await this.okxService.createTpSlOrder({
         symbol: position.symbol,
         side: tpSide,
-        quantity: position.quantity,  // ✅ 수량 추가
+        tpQuantity: position.quantity,
+        slQuantity: position.quantity,
         tpTriggerPrice: newTpPrice,
         slTriggerPrice: position.slPrice,
         isStrategyPosition: false,
@@ -825,13 +983,18 @@ export class ScalpingOrderService {
         const remainingQtyRounded = Math.floor(remainingQuantity / lotSz) * lotSz;
         
         if (remainingQtyRounded >= lotSz) {
-          await this.okxService.createTpSlOrder({
+          const tpSlOrderIds = await this.okxService.createTpSlOrder({
             symbol: position.symbol,
             side: tpSide,
-            quantity: remainingQtyRounded, // 나머지 50% (lot size 반올림)
+            tpQuantity: remainingQtyRounded, // 나머지 50% (lot size 반올림)
+            slQuantity: remainingQtyRounded,
             tpTriggerPrice: position.tp2Price,
             slTriggerPrice: position.slPrice,
             isStrategyPosition: false,
+          });
+          this.positionService.updatePosition(position.symbol, {
+            tpOrderId: tpSlOrderIds?.tpAlgoId,
+            slOrderId: tpSlOrderIds?.slAlgoId,
           });
           this.logger.log(
             `[ScalpingOrder] [${position.symbol}] ✅ TP2/SL set for remaining 50% | TP2: ${position.tp2Price.toFixed(4)}, Qty: ${remainingQtyRounded}`,
@@ -846,12 +1009,18 @@ export class ScalpingOrderService {
       // DB 업데이트 (부분 청산 기록)
       const positionId = this.positionIdMap.get(position.symbol);
       if (positionId) {
+        const updatedPosition = this.positionService.getPosition(position.symbol);
         await this.positionRepository
           .createQueryBuilder()
           .update(Position)
           .set({
             quantity: remainingQuantity,
-            metadata: () => `metadata || '${JSON.stringify({ tp1Filled: true, partialClose: { reason, pnlPercent, quantity: closeQuantity } })}'::jsonb`,
+            metadata: () => `metadata || '${JSON.stringify({
+              tp1Filled: true,
+              partialClose: { reason, pnlPercent, quantity: closeQuantity },
+              tpOrderId: updatedPosition?.tpOrderId,
+              slOrderId: updatedPosition?.slOrderId,
+            })}'::jsonb`,
           })
           .where('id = :id', { id: positionId })
           .execute();
@@ -889,7 +1058,7 @@ export class ScalpingOrderService {
       // 시장가 청산
       const closeSide = position.direction === 'LONG' ? 'SELL' : 'BUY';
 
-      await this.okxService.createOrder({
+      const closeOrder = await this.okxService.createOrder({
         symbol: position.symbol,
         side: closeSide,
         type: 'MARKET',
@@ -899,10 +1068,17 @@ export class ScalpingOrderService {
       });
 
       // 손익 계산
-      const pnlPercent = this.calculatePnlPercent(position, currentPrice);
+      const closePriceRaw =
+        closeOrder?.avgPrice ||
+        closeOrder?.price ||
+        closeOrder?.lastPrice ||
+        currentPrice;
+      const closePrice = parseFloat(closePriceRaw) || currentPrice;
+      const pnlPercent = this.calculatePnlPercent(position, closePrice);
 
       // 손익 기록
       this.positionService.recordPnl(pnlPercent, reason);
+      this.positionService.setSymbolCooldown(position.symbol, reason);
 
       // 포지션 제거
       this.positionService.removePosition(position.symbol);
@@ -911,6 +1087,14 @@ export class ScalpingOrderService {
       const positionId = this.positionIdMap.get(position.symbol);
       if (positionId) {
         const realizedPnl = pnlPercent * position.quantity * position.entryPrice;
+        const closeType =
+          reason === 'TP1_HIT' ? 'TP1' :
+          reason === 'TP2_HIT' ? 'TP2' :
+          reason === 'SL_HIT' ? 'SL' : 'MANUAL';
+        const closeTriggerPrice =
+          reason === 'TP1_HIT' ? position.tp1Price :
+          reason === 'TP2_HIT' ? position.tp2Price :
+          reason === 'SL_HIT' ? position.slPrice : 0;
         await this.positionRepository
           .createQueryBuilder()
           .update(Position)
@@ -918,7 +1102,19 @@ export class ScalpingOrderService {
             status: 'CLOSED',
             closedAt: new Date(),
             realizedPnl,
-            metadata: () => `metadata || '${JSON.stringify({ closeReason: reason, pnlPercent })}'::jsonb`,
+            metadata: () => `metadata || '${JSON.stringify({
+              closeReason: reason,
+              pnlPercent,
+              actual: {
+                entry: position.entryPrice,
+                exit: closePrice,
+                exitTime: Date.now(),
+                closeType,
+                closeTriggerPrice,
+              },
+              closePrice,
+              closeTime: Date.now(),
+            })}'::jsonb`,
           })
           .where('id = :id', { id: positionId })
           .execute();
@@ -932,7 +1128,7 @@ export class ScalpingOrderService {
         side: position.direction,
         entryPrice: position.entryPrice,
         positionAmt: 0,
-        leverage: SCALPING_CONFIG.risk.leverage,
+        leverage: position.leverage || SCALPING_CONFIG.risk.leverage,
         unrealizedPnl: pnlPercent * position.quantity * position.entryPrice,
         marginType: 'isolated',
         tpPrice: position.tpPrice,
@@ -964,21 +1160,37 @@ export class ScalpingOrderService {
         );
         this.positionService.removePosition(position.symbol);
 
-        // DB 상태도 업데이트
+        // DB 상태도 업데이트 (fallback: 현재가 기준)
         const positionId = this.positionIdMap.get(position.symbol);
         if (positionId) {
+          const fallbackPnlPercent = this.calculatePnlPercent(position, currentPrice);
+          const fallbackRealizedPnl = fallbackPnlPercent * position.quantity * position.entryPrice;
           await this.positionRepository
             .createQueryBuilder()
             .update(Position)
             .set({
               status: 'CLOSED',
               closedAt: new Date(),
-              metadata: () => `metadata || '${JSON.stringify({ closeReason: 'EXTERNAL_CLOSE' })}'::jsonb`,
+              realizedPnl: fallbackRealizedPnl,
+              metadata: () => `metadata || '${JSON.stringify({
+                closeReason: 'EXTERNAL_CLOSE',
+                pnlPercent: fallbackPnlPercent,
+                actual: {
+                  entry: position.entryPrice,
+                  exit: currentPrice,
+                  exitTime: Date.now(),
+                  closeType: 'MANUAL',
+                  closeTriggerPrice: 0,
+                },
+                closePrice: currentPrice,
+                closeTime: Date.now(),
+              })}'::jsonb`,
             })
             .where('id = :id', { id: positionId })
             .execute();
           this.positionIdMap.delete(position.symbol);
         }
+        this.positionService.setSymbolCooldown(position.symbol, 'MANUAL');
       }
     }
   }

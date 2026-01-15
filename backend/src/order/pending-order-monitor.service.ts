@@ -162,7 +162,7 @@ export class PendingOrderMonitorService implements OnModuleInit {
     // 1. 주문 상태 확인
     let orderStatus;
     try {
-      orderStatus = await this.okxService.queryOrder(order.symbol, order.orderId);
+      orderStatus = await this.okxService.queryOrder(order.symbol, Number(order.orderId));
     } catch (error) {
       this.logger.warn(`[MONITOR] Failed to query order ${order.symbol}: ${error.message}`);
       return { shouldRemove: false };
@@ -234,11 +234,11 @@ export class PendingOrderMonitorService implements OnModuleInit {
    */
   private async cancelOrder(order: PendingOrder, reason: string): Promise<void> {
     try {
-      await this.okxService.cancelOrder(order.symbol, order.orderId);
+      await this.okxService.cancelOrder(order.symbol, Number(order.orderId));
       this.logger.log(`[MONITOR] ❌ Canceled ${order.symbol} order #${order.orderId} (${reason})`);
     } catch (error) {
       // 이미 체결되었을 수 있음 - 재확인
-      const finalStatus = await this.okxService.queryOrder(order.symbol, order.orderId);
+      const finalStatus = await this.okxService.queryOrder(order.symbol, Number(order.orderId));
       if (finalStatus.status === 'FILLED') {
         const entryPrice = parseFloat(finalStatus.avgPrice || finalStatus.price);
         const executedQty = parseFloat(finalStatus.executedQty);

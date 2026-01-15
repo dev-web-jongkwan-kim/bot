@@ -6,6 +6,7 @@ import { Signal } from '../database/entities/signal.entity';
 import { OrderModule } from '../order/order.module';
 import { OkxModule } from '../okx/okx.module';
 import { SymbolSelectionModule } from '../symbol-selection/symbol-selection.module';
+import { SyncModule } from '../sync/sync.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { SymbolSelectionModule } from '../symbol-selection/symbol-selection.modu
     OrderModule,
     OkxModule,
     SymbolSelectionModule,
+    SyncModule,
   ],
   controllers: [ApiController],
 })
