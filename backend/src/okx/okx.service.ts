@@ -413,7 +413,7 @@ export class OkxService {
       const body = JSON.stringify({
         instId,
         lever: leverage.toString(),
-        mgnMode: 'cross', // cross margin
+        mgnMode: 'isolated', // isolated margin (격리 마진)
       });
       const headers = this.getHeaders('POST', path, body);
 
@@ -508,21 +508,11 @@ export class OkxService {
       const instId = this.toOkxInstId(params.symbol);
       const path = '/api/v5/trade/order';
 
-      // ✅ 전략 방향 반전 로직 (우리 전략 특성)
-      // - LONG 신호 → OKX SELL 주문 (숏 포지션 오픈)
-      // - SHORT 신호 → OKX BUY 주문 (롱 포지션 오픈)
-      // - reduceOnly 주문은 반전하지 않음 (포지션 청산용)
-      let finalSide: 'buy' | 'sell';
-
-      if (params.reduceOnly) {
-        // 포지션 청산: 반전 없음
-        finalSide = params.side === 'BUY' ? 'buy' : 'sell';
-        this.logger.log(`[ORDER] Close: ${params.side} → ${finalSide.toUpperCase()}`);
-      } else {
-        // 신규 진입: 방향 반전 (전략 특성)
-        finalSide = params.side === 'BUY' ? 'sell' : 'buy';
-        this.logger.log(`[ORDER] Entry REVERSED: ${params.side} → ${finalSide.toUpperCase()}`);
-      }
+      // ✅ 전략이 이미 리버스 로직을 처리하므로 signal.side를 그대로 사용
+      // - BUY → buy (롱 포지션 오픈)
+      // - SELL → sell (숏 포지션 오픈)
+      const finalSide: 'buy' | 'sell' = params.side === 'BUY' ? 'buy' : 'sell';
+      this.logger.log(`[ORDER] ${params.reduceOnly ? 'Close' : 'Entry'}: ${params.side} → ${finalSide.toUpperCase()}`)
 
       // OKX order type mapping
       let ordType = 'market';
@@ -530,7 +520,7 @@ export class OkxService {
 
       const orderBody: any = {
         instId,
-        tdMode: 'cross',  // ✅ cross margin (matches leverage setting mgnMode)
+        tdMode: 'isolated',  // ✅ isolated margin (격리 마진)
         side: finalSide,
         posSide: 'net',   // ✅ OKX one-way mode
         ordType,
@@ -597,7 +587,8 @@ export class OkxService {
 
   /**
    * Create Algo Order (SL/TP)
-   * ✅ 방향 반전 로직 포함
+   * ✅ SL/TP 알고 주문 생성 (포지션 청산용)
+   * caller가 지정한 side 그대로 사용 (LONG 청산=SELL, SHORT 청산=BUY)
    */
   async createAlgoOrder(params: {
     symbol: string;
@@ -605,49 +596,39 @@ export class OkxService {
     type: 'STOP_MARKET' | 'TAKE_PROFIT_MARKET';
     triggerPrice: number;
     quantity?: number;
+    quantityInContracts?: number;  // v12.2: 이미 contracts 단위인 수량 (formatQuantity 스킵)
     closePosition?: boolean;
-    isStrategyPosition?: boolean;  // 전략 포지션 여부 (true면 반전 필요)
+    isStrategyPosition?: boolean;  // DEPRECATED: 더 이상 사용하지 않음 (backwards compatibility)
   }): Promise<AlgoOrderResponse> {
     const instId = this.toOkxInstId(params.symbol);
     const path = '/api/v5/trade/order-algo';
 
-    // ✅ 방향 반전 로직 (OKX one-way mode: posSide는 항상 'net')
-    // isStrategyPosition=true: 전략 포지션 (DB side는 신호 방향) → 반전 필요
-    // isStrategyPosition=false: 수동 포지션 (DB side는 실제 방향) → 반전 없음
-    let finalSide: 'buy' | 'sell';
-
-    // 기본값: 전략 포지션으로 가정 (기존 동작 유지)
-    const needReversal = params.isStrategyPosition !== false;
-
-    if (needReversal) {
-      // 전략 포지션: 방향 반전
-      finalSide = params.side === 'BUY' ? 'sell' : 'buy';
-      this.logger.log(
-        `[ALGO ORDER REVERSAL] Strategy position: ${params.side} → ${finalSide.toUpperCase()}`
-      );
-    } else {
-      // 수동 포지션: 반전 없음
-      finalSide = params.side === 'BUY' ? 'buy' : 'sell';
-      this.logger.log(
-        `[ALGO ORDER] Manual position - No reversal: ${params.side} → ${finalSide.toUpperCase()}`
-      );
-    }
+    // ✅ SL/TP는 포지션 청산용이므로 caller가 지정한 방향 그대로 사용
+    // - LONG 포지션 청산: side = 'SELL' → sell
+    // - SHORT 포지션 청산: side = 'BUY' → buy
+    const finalSide: 'buy' | 'sell' = params.side === 'BUY' ? 'buy' : 'sell';
+    this.logger.log(`[ALGO ORDER] ${params.type}: ${params.side} → ${finalSide.toUpperCase()}`)
 
     // OKX algo order type: conditional
     // ✅ OKX one-way mode: posSide는 'net'으로 설정 (또는 생략)
     const orderBody: any = {
       instId,
-      tdMode: 'cross',
+      tdMode: 'isolated',  // ✅ isolated margin (격리 마진)
       side: finalSide,  // ✅ 최종 방향
       posSide: 'net',   // ✅ One-way mode에서는 'net' 사용
       ordType: 'conditional',
     };
 
     if (params.closePosition) {
-      // ✅ closeFraction 사용 시 reduceOnly 필요
+      // ✅ closeFraction 사용 시 reduceOnly 필요 (SL만 지원)
       orderBody.closeFraction = '1';  // Close 100%
       orderBody.reduceOnly = true;
+    } else if (params.quantityInContracts) {
+      // v12.2: 이미 contracts 단위 - formatQuantity 스킵
+      orderBody.sz = String(params.quantityInContracts);
+      this.logger.log(`[ALGO ORDER] Using raw contracts: ${params.quantityInContracts}`);
     } else if (params.quantity) {
+      // 기존 방식: base currency → contracts 변환
       orderBody.sz = this.formatQuantity(params.symbol, params.quantity);
     }
 
@@ -776,6 +757,8 @@ export class OkxService {
             positionAmt: p.pos,
             entryPrice: p.avgPx,
             unrealizedProfit: p.upl,
+            unRealizedProfit: p.upl,  // v16: Binance 호환용 alias
+            markPrice: p.markPx || p.avgPx,  // v16: Mark price 추가
             leverage: p.lever,
             liquidationPrice: p.liqPx,
             positionSide: p.posSide,
@@ -1181,13 +1164,87 @@ export class OkxService {
   }
 
   /**
-   * Change margin type (Binance compatibility - OKX always uses cross by default)
+   * v13: Get closed position history with accurate PnL
+   * OKX API: GET /api/v5/account/positions-history
    */
-  async changeMarginType(symbol: string, marginType: 'ISOLATED' | 'CROSSED'): Promise<any> {
-    // OKX uses position mode setting instead
-    // For simplicity, we'll just log and return success
-    this.logger.log(`[MARGIN TYPE] ${symbol} set to ${marginType} (OKX default: cross)`);
-    return { success: true, alreadySet: true };
+  async getClosedPositionPnl(symbol: string): Promise<{ realizedPnl: number; fee: number; closePrice: number; closeTime: number } | null> {
+    return this.retryOperation(
+      async () => {
+        const instId = this.toOkxInstId(symbol);
+        const path = `/api/v5/account/positions-history?instType=SWAP&instId=${instId}&limit=1`;
+        const headers = this.getHeaders('GET', path);
+
+        const response = await fetch(`${this.baseUrl}${path}`, { headers });
+        const data = await response.json();
+
+        if (data.code !== '0') {
+          throw new Error(`OKX API error: ${data.msg}`);
+        }
+
+        if (!data.data || data.data.length === 0) {
+          return null;
+        }
+
+        const pos = data.data[0];
+        return {
+          realizedPnl: parseFloat(pos.realizedPnl || pos.pnl || '0'),
+          fee: Math.abs(parseFloat(pos.fee || '0')),
+          closePrice: parseFloat(pos.closeAvgPx || '0'),
+          closeTime: parseInt(pos.uTime || '0'),
+        };
+      },
+      `getClosedPositionPnl(${symbol})`,
+    );
+  }
+
+  /**
+   * Change margin type (ISOLATED / CROSSED)
+   * OKX API: POST /api/v5/account/set-leverage
+   */
+  async changeMarginType(symbol: string, marginType: 'ISOLATED' | 'CROSSED', leverage: number = 15): Promise<any> {
+    const instId = this.toOkxInstId(symbol);
+    const path = '/api/v5/account/set-leverage';
+
+    // OKX mgnMode: isolated = 격리, cross = 교차
+    const mgnMode = marginType === 'ISOLATED' ? 'isolated' : 'cross';
+
+    // v14: 레버리지를 파라미터로 받아서 사용 (기본값 15x)
+    const leverageStr = String(leverage);
+
+    const requestBody = {
+      instId: instId,
+      lever: leverageStr,
+      mgnMode: mgnMode,
+    };
+
+    const body = JSON.stringify(requestBody);
+    const headers = this.getHeaders('POST', path, body);
+
+    try {
+      const response = await fetch(`${this.baseUrl}${path}`, {
+        method: 'POST',
+        headers,
+        body,
+      });
+
+      const result = await response.json();
+
+      if (result.code === '0') {
+        this.logger.log(`[MARGIN TYPE] ✓ ${symbol} set to ${marginType} (${mgnMode}) with ${leverageStr}x leverage`);
+        return { success: true, data: result.data };
+      } else if (result.code === '51010') {
+        // 이미 같은 설정인 경우
+        this.logger.log(`[MARGIN TYPE] ${symbol} already set to ${marginType}`);
+        return { success: true, alreadySet: true };
+      } else {
+        this.logger.warn(`[MARGIN TYPE] ${symbol} - OKX response: ${JSON.stringify(result)}`);
+        // 실패해도 진행 (포지션이 이미 있는 경우 등)
+        return { success: false, error: result.msg };
+      }
+    } catch (error: any) {
+      this.logger.error(`[MARGIN TYPE] Error setting ${marginType} for ${symbol}: ${error.message}`);
+      return { success: false, error: error.message };
+    }
   }
 
   /**

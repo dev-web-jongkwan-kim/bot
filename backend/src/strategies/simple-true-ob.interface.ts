@@ -173,6 +173,20 @@ export interface EntrySignal {
       method: string;
     };
     atrPercent?: number;  // v7: ATR% 기반 동적 레버리지용
+    // v11: 시장 레짐 기반 리버스 관련 속성
+    marketRegime?: 'REVERSAL' | 'TREND_FOLLOWING';
+    isReversed?: boolean;
+    originalOBType?: 'LONG' | 'SHORT';
+    tpRatio?: number;
+    // v16: 분할 TP 정보
+    tp1Ratio?: number;
+    tp2Ratio?: number;
+    tp1Percent?: number;
+    tp2Percent?: number;
+    atr7?: number;  // ATR7 값 (SL 계산용)
+    // v12: 필터 점수들
+    liquiditySweepScore?: number;
+    oiDivergenceScore?: number;
   };
 }
 
