@@ -336,27 +336,23 @@ export class OrderService {
         const limitPrice = parseFloat(this.okxService.formatPrice(signal.symbol, obMidpoint));
 
         this.logger.log(
-          `📊 [LIMIT ORDER] Price Analysis:\n` +
+          `📊 [MARKET ORDER] Price Analysis:\n` +
           `  Market Price:    ${currentMarketPrice}\n` +
           `  OB Midpoint:     ${obMidpoint.toFixed(6)}\n` +
           `  Deviation:       ${(deviation * 100).toFixed(3)}%\n` +
-          `  Order Type:      MIDPOINT\n` +
-          `  Limit Price:     ${limitPrice}\n` +
+          `  Order Type:      MARKET (v17)\n` +
           `  Timeframe:       ${timeframe}\n` +
-          `  Validity:        ${maxWaitTime / 1000}s\n` +
           `  Tick Size:       ${tickSize}`
         );
 
-        // 지정가 주문 (MIDPOINT만 사용)
-        this.logger.log(`[LIMIT ORDER] Placing MIDPOINT limit order at ${limitPrice}...`);
+        // v17: 시장가 주문 (체결률 100%)
+        this.logger.log(`[MARKET ORDER] Placing market order...`);
 
         mainOrder = await this.okxService.createOrder({
           symbol: signal.symbol,
           side: signal.side === 'LONG' ? 'BUY' : 'SELL',
-          type: 'LIMIT',
+          type: 'MARKET',
           quantity: positionSize.quantity,
-          price: limitPrice,
-          timeInForce: 'GTC',
         });
 
         this.logger.log(
@@ -661,11 +657,14 @@ export class OrderService {
 
         try {
           // 시장가로 즉시 청산
+          // ⚠️ 진입 직후 SL 실패 상황이므로 signal.side가 실제 포지션 방향과 동일함
+          // LONG 포지션 → SELL로 청산, SHORT 포지션 → BUY로 청산
           const closeOrder = await this.okxService.createOrder({
             symbol: signal.symbol,
             side: signal.side === 'LONG' ? 'SELL' : 'BUY',
             type: 'MARKET',
             quantity: executedQty,
+            reduceOnly: true,  // ✅ 필수: 새 포지션 오픈 방지
           });
 
           this.logger.warn(
@@ -1146,26 +1145,19 @@ export class OrderService {
       // 2. 마진 모드 설정
       await this.okxService.changeMarginType(signal.symbol, 'ISOLATED');
 
-      // 3. LIMIT 주문 생성
-      const obMidpoint = signal.entryPrice;
-      const limitPrice = parseFloat(this.okxService.formatPrice(signal.symbol, obMidpoint));
-
+      // 3. v17: MARKET 주문 생성 (체결률 100%)
       const timeframe = signal.metadata?.timeframe || signal.timeframe || '5m';
-      const maxWaitTime = timeframe === '15m' ? 2700000 : 900000; // 15분봉: 45분, 5분봉: 15분
 
       const mainOrder = await this.okxService.createOrder({
         symbol: signal.symbol,
         side: signal.side === 'LONG' ? 'BUY' : 'SELL',
-        type: 'LIMIT',
+        type: 'MARKET',
         quantity: positionSize.quantity,
-        price: limitPrice,
-        timeInForce: 'GTC',
       });
 
       this.logger.log(
-        `[ASYNC] ✅ LIMIT order placed:\n` +
+        `[ASYNC] ✅ MARKET order placed:\n` +
         `  Order ID: ${mainOrder.orderId}\n` +
-        `  Price:    ${limitPrice}\n` +
         `  Status:   ${mainOrder.status}`
       );
 
@@ -1188,41 +1180,34 @@ export class OrderService {
         };
       }
 
-      // 대기 중인 경우 - OrderMonitorService에 등록
+      // v17: MARKET 주문은 즉시 체결되어야 함 - NEW 상태는 비정상
       if (mainOrder.status === 'NEW') {
-        const pendingOrder: PendingLimitOrder = {
-          symbol: signal.symbol,
-          orderId: mainOrder.orderId,
-          side: signal.side,
-          quantity: positionSize.quantity,
-          price: limitPrice,
-          signal: { ...signal, leverage: actualLeverage },
-          positionSize,
-          createdAt: Date.now(),
-          expireAt: Date.now() + maxWaitTime,
-          obTop: signal.metadata?.obTop,
-          obBottom: signal.metadata?.obBottom,
-          timeframe,
-          retryCount: 0,
-        };
+        this.logger.warn(`[ASYNC] ⚠️ MARKET order not immediately filled - unexpected`);
 
-        this.orderMonitorService.registerPendingOrder(pendingOrder);
+        // 주문 상태 재확인 (1초 대기 후)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const orderStatus = await this.okxService.queryOrder(signal.symbol, mainOrder.orderId);
 
-        this.logger.log(
-          `[ASYNC] 📝 Registered for monitoring:\n` +
-          `  Symbol:  ${signal.symbol}\n` +
-          `  Expire:  ${new Date(pendingOrder.expireAt).toISOString()}`
-        );
+        if (orderStatus.status === 'FILLED') {
+          this.logger.log(`[ASYNC] ✅ Order filled after recheck`);
+          const result = await this.executeOrder(signal, positionSize);
+          this.removePendingSymbol(signal.symbol);
+          return {
+            status: result.status === 'FILLED' ? 'PENDING' : 'FAILED',
+            orderId: mainOrder.orderId,
+            error: result.error,
+          };
+        }
 
-        // pendingSymbol은 유지 (OrderMonitorService가 체결/취소 시 정리)
-        // 하지만 SignalProcessor가 다음 시그널 처리할 수 있도록 여기서 제거
+        // 여전히 미체결이면 취소
+        this.logger.warn(`[ASYNC] Canceling unfilled MARKET order`);
+        await this.okxService.cancelOrder(signal.symbol, mainOrder.orderId);
         this.removePendingSymbol(signal.symbol);
-
-        this.recordOrderResult(signal.symbol, 'PENDING', 'Async monitoring');
+        this.recordOrderResult(signal.symbol, 'CANCELED', 'MARKET order not filled');
 
         return {
-          status: 'PENDING',
-          orderId: mainOrder.orderId,
+          status: 'FAILED',
+          error: 'MARKET order not immediately filled',
         };
       }
 

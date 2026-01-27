@@ -626,10 +626,12 @@ export class OkxService {
     } else if (params.quantityInContracts) {
       // v12.2: 이미 contracts 단위 - formatQuantity 스킵
       orderBody.sz = String(params.quantityInContracts);
+      orderBody.reduceOnly = true;  // ✅ 필수: 새 포지션 오픈 방지
       this.logger.log(`[ALGO ORDER] Using raw contracts: ${params.quantityInContracts}`);
     } else if (params.quantity) {
       // 기존 방식: base currency → contracts 변환
       orderBody.sz = this.formatQuantity(params.symbol, params.quantity);
+      orderBody.reduceOnly = true;  // ✅ 필수: 새 포지션 오픈 방지
     }
 
     // SL uses slTriggerPx, TP uses tpTriggerPx

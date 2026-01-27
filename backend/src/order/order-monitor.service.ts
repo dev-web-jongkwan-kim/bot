@@ -575,6 +575,7 @@ export class OrderMonitorService implements OnModuleInit {
         side: side === 'LONG' ? 'SELL' : 'BUY',
         type: 'MARKET',
         quantity,
+        reduceOnly: true,  // ✅ 필수: 새 포지션 오픈 방지
       });
 
       this.logger.log(`  ✅ Emergency close executed: ${closeOrder.orderId}`);

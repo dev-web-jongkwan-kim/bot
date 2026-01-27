@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
 import { OkxModule } from './okx/okx.module';
@@ -27,24 +27,27 @@ import { Signal } from './database/entities/signal.entity';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432'),
-      username: process.env.DB_USERNAME || 'trader',
-      password: process.env.DB_PASSWORD || 'secure_password',
-      database: process.env.DB_DATABASE || 'trading',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: process.env.NODE_ENV !== 'production',
-      logging: process.env.LOG_SQL === 'true',  // ✅ SQL 로깅은 선택적
-      // ✅ 80심볼 동시 처리를 위한 연결 풀 최적화
-      extra: {
-        max: 20,  // 최대 연결 수 (기본 10 → 20)
-        min: 5,   // 최소 연결 유지
-        idleTimeoutMillis: 30000,  // 유휴 연결 30초 후 해제
-        connectionTimeoutMillis: 5000,  // 연결 타임아웃 5초
-        statement_timeout: 30000,  // 쿼리 타임아웃 30초
-      },
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('DB_HOST', 'localhost'),
+        port: configService.get<number>('DB_PORT', 5432),
+        username: configService.get('DB_USERNAME', 'trader'),
+        password: configService.get('DB_PASSWORD', 'secure_password'),
+        database: configService.get('DB_DATABASE', 'trading'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: false, // 기존 테이블 사용
+        logging: configService.get('LOG_SQL') === 'true',
+        extra: {
+          max: 20,
+          min: 5,
+          idleTimeoutMillis: 30000,
+          connectionTimeoutMillis: 5000,
+          statement_timeout: 30000,
+        },
+      }),
     }),
     DatabaseModule,
     CacheModule,

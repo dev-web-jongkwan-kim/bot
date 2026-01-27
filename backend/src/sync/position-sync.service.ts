@@ -50,6 +50,10 @@ export class PositionSyncService {
   // v16: 시간 기반 청산 시도 추적 (중복 실행 방지)
   private timeBasedExitAttempted: Set<string> = new Set();
 
+  // ✅ [중복 청산 방지] 청산 시도 타임스탬프 추적 (심볼 -> 마지막 청산 시도 시간)
+  private closeAttemptTimestamp: Map<string, number> = new Map();
+  private readonly CLOSE_COOLDOWN_MS = 60 * 1000;  // 60초 쿨다운
+
   constructor(
     @InjectRepository(Position)
     private positionRepo: Repository<Position>,
@@ -63,14 +67,104 @@ export class PositionSyncService {
     private orderMonitorService: OrderMonitorService,  // v12.2: 대기 주문 확인용
   ) {}
 
+  /**
+   * ✅ [중복 청산 방지] 청산 시작 시 호출
+   * - 거래소에서 오픈 주문이 있는지 확인
+   * - 거래소에서 최근 청산 거래가 있는지 확인
+   * - 쿨다운 기간(60초) 내에는 재시도하지 않음
+   * @returns true면 청산 진행, false면 스킵
+   */
+  private async tryStartClosing(symbol: string, closeSide: 'BUY' | 'SELL'): Promise<boolean> {
+    const now = Date.now();
+
+    // 1. 로컬 쿨다운 체크 (빠른 검사)
+    const lastAttempt = this.closeAttemptTimestamp.get(symbol);
+    if (lastAttempt && (now - lastAttempt) < this.CLOSE_COOLDOWN_MS) {
+      const remainingSec = Math.ceil((this.CLOSE_COOLDOWN_MS - (now - lastAttempt)) / 1000);
+      this.logger.debug(`[CLOSE GUARD] ${symbol}: Cooldown active, ${remainingSec}s remaining`);
+      return false;
+    }
+
+    try {
+      // 2. 거래소에서 오픈 주문 확인 (대기 중인 일반 주문)
+      const openOrders = await this.okxService.getOpenOrders(symbol);
+      const pendingCloseOrder = openOrders.find((o: any) => {
+        const orderSide = o.side?.toUpperCase();
+        return orderSide === closeSide;
+      });
+
+      if (pendingCloseOrder) {
+        this.logger.log(
+          `[CLOSE GUARD] ${symbol}: Pending ${closeSide} order exists (${pendingCloseOrder.orderId || pendingCloseOrder.ordId}), skipping`
+        );
+        this.closeAttemptTimestamp.set(symbol, now);
+        return false;
+      }
+
+      // 3. 거래소에서 알고 주문 확인 (SL/TP 주문)
+      const algoOrders = await this.okxService.getOpenAlgoOrders(symbol);
+      const pendingAlgoOrder = algoOrders.find((o: any) => {
+        const orderSide = o.side?.toUpperCase();
+        return orderSide === closeSide;
+      });
+
+      if (pendingAlgoOrder) {
+        this.logger.log(
+          `[CLOSE GUARD] ${symbol}: Pending algo ${closeSide} order exists (${pendingAlgoOrder.algoId}), skipping`
+        );
+        this.closeAttemptTimestamp.set(symbol, now);
+        return false;
+      }
+
+      // 4. 거래소에서 최근 거래 확인 (이미 체결된 청산이 있으면 스킵)
+      const recentTrades = await this.okxService.getRecentTrades(symbol, 10);
+      const sixtySecondsAgo = now - 60000;
+
+      const recentCloseTrade = recentTrades.find((t: any) => {
+        const tradeTime = parseInt(t.time);
+        const tradeSide = t.side?.toUpperCase();
+        return tradeTime > sixtySecondsAgo && tradeSide === closeSide;
+      });
+
+      if (recentCloseTrade) {
+        this.logger.log(
+          `[CLOSE GUARD] ${symbol}: Recent ${closeSide} trade at ${new Date(parseInt(recentCloseTrade.time)).toISOString()}, skipping`
+        );
+        this.closeAttemptTimestamp.set(symbol, parseInt(recentCloseTrade.time));
+        return false;
+      }
+    } catch (error: any) {
+      this.logger.warn(`[CLOSE GUARD] ${symbol}: Failed to check exchange state: ${error.message}`);
+      // API 실패 시 로컬 쿨다운으로 보호
+      if (lastAttempt) {
+        return false;  // 이전 시도가 있었으면 안전하게 스킵
+      }
+    }
+
+    // 청산 시도 시간 기록
+    this.closeAttemptTimestamp.set(symbol, now);
+    return true;
+  }
+
+  /**
+   * ✅ [중복 청산 방지] 청산 주문 후 호출
+   * - 성공/실패 무관하게 쿨다운 유지 (60초)
+   * - 포지션이 실제로 닫혔는지는 다음 sync에서 확인
+   */
+  private onCloseAttempted(symbol: string, success: boolean): void {
+    // 타임스탬프는 tryStartClosing에서 이미 설정됨
+    // 성공해도 60초 쿨다운 유지 - API 지연/처리 시간 대비
+    this.logger.log(`[CLOSE GUARD] ${symbol}: Close ${success ? 'sent' : 'failed'}, cooldown 60s`);
+  }
+
   async onModuleInit() {
     // 서버 시작 시 즉시 동기화
     this.logger.log('Performing initial position sync...');
     await this.syncPositions();
   }
 
-  // ✅ 10초마다 동기화 (TP1 감지 속도 향상: 30초 → 10초)
-  @Cron('*/10 * * * * *')
+  // ✅ 30초마다 동기화 (중복 주문 방지를 위해 10초 → 30초로 변경)
+  @Cron('*/30 * * * * *')
   async scheduledSync() {
     await this.syncPositions();
   }
@@ -89,9 +183,9 @@ export class PositionSyncService {
         p => Math.abs(parseFloat(p.positionAmt)) > 0.000001
       );
 
-      // 2. DB의 오픈 포지션 가져오기 (Paper Trade 제외)
+      // 2. DB의 오픈 포지션 가져오기
       const dbPositions = await this.positionRepo.find({
-        where: { status: 'OPEN', isPaperTrade: false },
+        where: { status: 'OPEN' },
       });
 
       // ✅ [방어 로직 1] 미인식 포지션 감지 및 즉시 청산
@@ -861,6 +955,13 @@ export class PositionSyncService {
 
       // 30분 경과 + 수익 없음 → 청산
       const holdingMinutes = Math.floor(holdingTimeMs / 60000);
+      const positionAmt = parseFloat(binancePos.positionAmt);
+      const closeSide: 'BUY' | 'SELL' = positionAmt > 0 ? 'SELL' : 'BUY';
+
+      // ✅ [중복 청산 방지] 거래소 주문/거래 확인 + 쿨다운 체크
+      if (!await this.tryStartClosing(dbPos.symbol, closeSide)) {
+        continue;
+      }
 
       this.logger.warn(
         `\n⏰ [v16 TIME-BASED EXIT]\n` +
@@ -878,8 +979,6 @@ export class PositionSyncService {
         await this.okxService.cancelAllAlgoOrders(dbPos.symbol);
 
         // 시장가 청산
-        const positionAmt = parseFloat(binancePos.positionAmt);
-        const closeSide = positionAmt > 0 ? 'SELL' : 'BUY';
         await this.okxService.createOrder({
           symbol: dbPos.symbol,
           side: closeSide,
@@ -901,7 +1000,9 @@ export class PositionSyncService {
         };
         await this.positionRepo.save(dbPos);
 
+        this.onCloseAttempted(dbPos.symbol, true);
       } catch (error: any) {
+        this.onCloseAttempted(dbPos.symbol, false);
         this.logger.error(`  ❌ Time-based exit failed: ${error.message}`);
       }
     }
@@ -954,6 +1055,14 @@ export class PositionSyncService {
       const currentQty = Math.abs(parseFloat(binancePos.positionAmt));
       if (currentQty <= 0) continue;
 
+      const positionAmt = parseFloat(binancePos.positionAmt);
+      const closeSide: 'BUY' | 'SELL' = positionAmt > 0 ? 'SELL' : 'BUY';
+
+      // ✅ [중복 청산 방지] 거래소 주문/거래 확인 + 쿨다운 체크
+      if (!await this.tryStartClosing(dbPos.symbol, closeSide)) {
+        continue;
+      }
+
       this.logger.warn(
         `\n⏰ [MAX HOLDING TIME EXCEEDED]\n` +
         `  Symbol: ${dbPos.symbol} ${dbPos.side}\n` +
@@ -968,9 +1077,6 @@ export class PositionSyncService {
         await this.okxService.cancelAllAlgoOrders(dbPos.symbol);
 
         // 2. 시장가로 강제 청산
-        // v14 fix: OKX 실제 포지션 방향 기준으로 닫기
-        const positionAmt = parseFloat(binancePos.positionAmt);
-        const closeSide = positionAmt > 0 ? 'SELL' : 'BUY';
         const closeOrder = await this.okxService.createOrder({
           symbol: dbPos.symbol,
           side: closeSide,
@@ -992,7 +1098,9 @@ export class PositionSyncService {
         };
         await this.positionRepo.save(dbPos);
 
+        this.onCloseAttempted(dbPos.symbol, true);
       } catch (error: any) {
+        this.onCloseAttempted(dbPos.symbol, false);
         this.logger.error(`  ❌ Force close failed: ${error.message}`);
       }
     }
@@ -1047,48 +1155,61 @@ export class PositionSyncService {
             const minutesWithoutSL = (now - firstDetected) / 60000;
 
             if (minutesWithoutSL >= this.MAX_TIME_WITHOUT_SL_MINUTES) {
-              this.logger.error(
-                `\n🚨🚨🚨 [CRITICAL] POSITION WITHOUT SL FOR ${minutesWithoutSL.toFixed(1)} MINUTES! 🚨🚨🚨\n` +
-                `  Symbol: ${dbPos.symbol}\n` +
-                `  → FORCE CLOSING due to prolonged SL absence!`
-              );
-
               try {
+                // 먼저 거래소에서 포지션 확인
                 const binancePositions = await this.okxService.getOpenPositions();
                 const binancePos = binancePositions.find(p => p.symbol === dbPos.symbol);
 
-                if (binancePos) {
-                  const currentQty = Math.abs(parseFloat(binancePos.positionAmt));
-                  if (currentQty > 0) {
-                    await this.okxService.cancelAllAlgoOrders(dbPos.symbol);
-
-                    // v14 fix: OKX 실제 포지션 방향 기준으로 닫기 (DB가 아닌 실제 거래소 상태)
-                    const positionAmt = parseFloat(binancePos.positionAmt);
-                    const closeSide = positionAmt > 0 ? 'SELL' : 'BUY';
-                    await this.okxService.createOrder({
-                      symbol: dbPos.symbol,
-                      side: closeSide,
-                      type: 'MARKET',
-                      quantity: currentQty,
-                      reduceOnly: true,
-                    });
-
-                    this.logger.log(`  ✅ Position force closed due to SL absence`);
-
-                    dbPos.metadata = {
-                      ...dbPos.metadata,
-                      forceClose: true,
-                      forceCloseReason: 'PROLONGED_SL_ABSENCE',
-                      forceCloseTime: new Date().toISOString(),
-                      minutesWithoutSL: minutesWithoutSL,
-                    };
-                    await this.positionRepo.save(dbPos);
-                  }
+                if (!binancePos) {
+                  this.positionWithoutSlSince.delete(dbPos.symbol);
+                  continue;
                 }
 
+                const currentQty = Math.abs(parseFloat(binancePos.positionAmt));
+                if (currentQty <= 0) {
+                  this.positionWithoutSlSince.delete(dbPos.symbol);
+                  continue;
+                }
+
+                const positionAmt = parseFloat(binancePos.positionAmt);
+                const closeSide: 'BUY' | 'SELL' = positionAmt > 0 ? 'SELL' : 'BUY';
+
+                // ✅ [중복 청산 방지] 거래소 주문/거래 확인 + 쿨다운 체크
+                if (!await this.tryStartClosing(dbPos.symbol, closeSide)) {
+                  continue;
+                }
+
+                this.logger.error(
+                  `\n🚨🚨🚨 [CRITICAL] POSITION WITHOUT SL FOR ${minutesWithoutSL.toFixed(1)} MINUTES! 🚨🚨🚨\n` +
+                  `  Symbol: ${dbPos.symbol}\n` +
+                  `  → FORCE CLOSING due to prolonged SL absence!`
+                );
+
+                await this.okxService.cancelAllAlgoOrders(dbPos.symbol);
+                await this.okxService.createOrder({
+                  symbol: dbPos.symbol,
+                  side: closeSide,
+                  type: 'MARKET',
+                  quantity: currentQty,
+                  reduceOnly: true,
+                });
+
+                this.logger.log(`  ✅ Position force closed due to SL absence`);
+
+                dbPos.metadata = {
+                  ...dbPos.metadata,
+                  forceClose: true,
+                  forceCloseReason: 'PROLONGED_SL_ABSENCE',
+                  forceCloseTime: new Date().toISOString(),
+                  minutesWithoutSL: minutesWithoutSL,
+                };
+                await this.positionRepo.save(dbPos);
+
+                this.onCloseAttempted(dbPos.symbol, true);
                 this.positionWithoutSlSince.delete(dbPos.symbol);
                 this.slTpRetryCount.delete(dbPos.symbol);
               } catch (forceCloseError: any) {
+                this.onCloseAttempted(dbPos.symbol, false);
                 this.logger.error(`  ❌ Force close failed: ${forceCloseError.message}`);
               }
               continue;
@@ -1101,50 +1222,62 @@ export class PositionSyncService {
         // ═══════════════════════════════════════════════════════════
         const currentRetries = this.slTpRetryCount.get(dbPos.symbol) || 0;
         if (currentRetries >= this.MAX_SLTP_RETRIES) {
-          this.logger.error(
-            `\n🚨🚨🚨 [CRITICAL] SL/TP CREATION FAILED ${this.MAX_SLTP_RETRIES} TIMES! 🚨🚨🚨\n` +
-            `  Symbol: ${dbPos.symbol}\n` +
-            `  SL exists: ${!!existingSL}\n` +
-            `  TP exists: ${!!existingTP}\n` +
-            `  → FORCE CLOSING POSITION!`
-          );
-
           try {
-            // 시장가로 강제 청산
+            // 먼저 거래소에서 포지션 확인
             const binancePositions = await this.okxService.getOpenPositions();
             const binancePos = binancePositions.find(p => p.symbol === dbPos.symbol);
 
-            if (binancePos) {
-              const currentQty = Math.abs(parseFloat(binancePos.positionAmt));
-              if (currentQty > 0) {
-                await this.okxService.cancelAllAlgoOrders(dbPos.symbol);
-
-                // v14 fix: OKX 실제 포지션 방향 기준으로 닫기
-                const positionAmt = parseFloat(binancePos.positionAmt);
-                const closeSide = positionAmt > 0 ? 'SELL' : 'BUY';
-                await this.okxService.createOrder({
-                  symbol: dbPos.symbol,
-                  side: closeSide,
-                  type: 'MARKET',
-                  quantity: currentQty,
-                  reduceOnly: true,
-                });
-
-                this.logger.log(`  ✅ Position force closed due to SL/TP failure`);
-
-                dbPos.metadata = {
-                  ...dbPos.metadata,
-                  forceClose: true,
-                  forceCloseReason: 'SLTP_CREATION_FAILED',
-                  forceCloseTime: new Date().toISOString(),
-                  slTpRetries: currentRetries,
-                };
-                await this.positionRepo.save(dbPos);
-              }
+            if (!binancePos) {
+              this.slTpRetryCount.delete(dbPos.symbol);
+              continue;
             }
 
+            const currentQty = Math.abs(parseFloat(binancePos.positionAmt));
+            if (currentQty <= 0) {
+              this.slTpRetryCount.delete(dbPos.symbol);
+              continue;
+            }
+
+            const positionAmt = parseFloat(binancePos.positionAmt);
+            const closeSide: 'BUY' | 'SELL' = positionAmt > 0 ? 'SELL' : 'BUY';
+
+            // ✅ [중복 청산 방지] 거래소 주문/거래 확인 + 쿨다운 체크
+            if (!await this.tryStartClosing(dbPos.symbol, closeSide)) {
+              continue;
+            }
+
+            this.logger.error(
+              `\n🚨🚨🚨 [CRITICAL] SL/TP CREATION FAILED ${this.MAX_SLTP_RETRIES} TIMES! 🚨🚨🚨\n` +
+              `  Symbol: ${dbPos.symbol}\n` +
+              `  SL exists: ${!!existingSL}\n` +
+              `  TP exists: ${!!existingTP}\n` +
+              `  → FORCE CLOSING POSITION!`
+            );
+
+            await this.okxService.cancelAllAlgoOrders(dbPos.symbol);
+            await this.okxService.createOrder({
+              symbol: dbPos.symbol,
+              side: closeSide,
+              type: 'MARKET',
+              quantity: currentQty,
+              reduceOnly: true,
+            });
+
+            this.logger.log(`  ✅ Position force closed due to SL/TP failure`);
+
+            dbPos.metadata = {
+              ...dbPos.metadata,
+              forceClose: true,
+              forceCloseReason: 'SLTP_CREATION_FAILED',
+              forceCloseTime: new Date().toISOString(),
+              slTpRetries: currentRetries,
+            };
+            await this.positionRepo.save(dbPos);
+
+            this.onCloseAttempted(dbPos.symbol, true);
             this.slTpRetryCount.delete(dbPos.symbol);
           } catch (forceCloseError: any) {
+            this.onCloseAttempted(dbPos.symbol, false);
             this.logger.error(`  ❌ Force close failed: ${forceCloseError.message}`);
           }
           continue;
@@ -1433,6 +1566,12 @@ export class PositionSyncService {
       const entryPrice = parseFloat(binancePos.entryPrice);
       const currentQty = Math.abs(positionAmt);
       const positionValue = entryPrice * currentQty;
+      const closeSide: 'BUY' | 'SELL' = positionAmt > 0 ? 'SELL' : 'BUY';
+
+      // ✅ [중복 청산 방지] 거래소 주문/거래 확인 + 쿨다운 체크
+      if (!await this.tryStartClosing(symbol, closeSide)) {
+        continue;
+      }
 
       this.logger.error(
         `\n🚨🚨🚨 [CRITICAL] UNKNOWN POSITION DETECTED! 🚨🚨🚨\n` +
@@ -1449,7 +1588,6 @@ export class PositionSyncService {
         await this.okxService.cancelAllAlgoOrders(symbol);
 
         // 2. 시장가로 즉시 청산
-        const closeSide = positionAmt > 0 ? 'SELL' : 'BUY';
         const closeOrder = await this.okxService.createOrder({
           symbol,
           side: closeSide,
@@ -1458,12 +1596,14 @@ export class PositionSyncService {
           reduceOnly: true,
         });
 
+        this.onCloseAttempted(symbol, true);
         this.logger.log(
           `  ✅ Unknown position CLOSED: ${closeOrder.orderId}\n` +
           `  ════════════════════════════════════════════════════`
         );
 
       } catch (error: any) {
+        this.onCloseAttempted(symbol, false);
         this.logger.error(`  ❌ Failed to close unknown position: ${error.message}`);
       }
     }
@@ -1514,6 +1654,13 @@ export class PositionSyncService {
       const exceedsAbsoluteLimit = margin >= this.ABSOLUTE_MAX_MARGIN;
 
       if (exceedsPercentLimit || exceedsAbsoluteLimit) {
+        const closeSide: 'BUY' | 'SELL' = positionAmt > 0 ? 'SELL' : 'BUY';
+
+        // ✅ [중복 청산 방지] 거래소 주문/거래 확인 + 쿨다운 체크
+        if (!await this.tryStartClosing(symbol, closeSide)) {
+          continue;
+        }
+
         const reason = exceedsAbsoluteLimit
           ? `ABSOLUTE LIMIT ($${this.ABSOLUTE_MAX_MARGIN}+)`
           : `PERCENT LIMIT (${(this.MAX_MARGIN_PERCENT * 100).toFixed(0)}% of capital)`;
@@ -1538,7 +1685,6 @@ export class PositionSyncService {
           await this.okxService.cancelAllAlgoOrders(symbol);
 
           // 2. 시장가로 즉시 청산
-          const closeSide = positionAmt > 0 ? 'SELL' : 'BUY';
           const closeOrder = await this.okxService.createOrder({
             symbol,
             side: closeSide,
@@ -1572,7 +1718,9 @@ export class PositionSyncService {
             await this.positionRepo.save(dbPos);
           }
 
+          this.onCloseAttempted(symbol, true);
         } catch (error: any) {
+          this.onCloseAttempted(symbol, false);
           this.logger.error(`  ❌ Failed to close oversized margin position: ${error.message}`);
         }
       }
